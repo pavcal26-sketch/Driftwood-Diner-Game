@@ -1,96 +1,269 @@
 # THE DRIFTWOOD DINER
-## Game Design Document & Implementation Plan
+## Game Design Document v3.0 — Definitive Edition
 **Year 12 Game Development  •  Godot 4  •  Solo Project**
+**Engine:** Godot 4  |  **Perspective:** 2D side-view (Terraria-style cross-section)  |  **Genre:** Cosy mystery / cooking  |  **Playtime:** 30–60 min
 
 ---
 
 # Part A — Game Design Document
 
 ## 1. Game Summary
-The Driftwood Diner is a **2D side-view** cosy mystery game set on a fog-covered island under military occupation. The player washes ashore with no memory and takes shelter in an abandoned restaurant. The port is controlled by soldiers — passage off the island costs money. By cooking meals and serving island residents, the player earns income and trust, uncovers the island's history through NPC stories and corkboard items, and must ultimately decide: save enough to pay for passage and leave, or choose to stay.
 
-**Engine:** Godot 4  |  **Perspective:** 2D side-view (Terraria-style cross-section)  |  **Genre:** Cosy mystery / cooking  |  **Playtime:** 30–60 min
+The Driftwood Diner is a **2D side-view** cosy mystery cooking game set on a fog-covered island. The player washes ashore with no memory of how they got there and no way to leave. They take shelter in an abandoned restaurant, get the lights on, and start cooking. Drawn by the smell of food and the glow of light, islanders begin to arrive. Through repeated visits and shared meals, the player earns the trust of the island's residents, uncovers the history of the restaurant, and must ultimately decide: save enough to pay for passage and leave, or choose to stay.
+
+The port is controlled by soldiers — passage off the island costs money ($10,000). By cooking meals and serving island residents, the player earns income and trust, uncovers the island's history through NPC stories and corkboard items, and faces their choice. If the player earns $12,000 without choosing to leave, the game ends with them building a life on the island.
 
 ## 2. Setting
-A small fog-covered island. The diner is the only playable space, rendered as a **2D side-view cross-section** — the player sees the interior as if looking through a cutaway wall, like a dollhouse. The wider world is implied — glimpsed through large restaurant windows (parallax background layers showing the harbour, fog, distant buildings) or described in NPC dialogue, photographs, and corkboard notes. The military presence at the port is a known, visible fact of island life; NPCs reference it openly. It is not a twist — it is the reason leaving costs anything at all.
 
-## 3. Player Controls
-- **A/D** — walk left/right within the diner
-- **W/S** — climb ladders or stairs (if the diner has a loft/second level)
-- **E** — interact with nearby objects (pick up items from counter, examine corkboard)
-- **C** — open the cooking UI overlay
-- **Tab** — open the recipe log
-- **R** — examine a corkboard item up close (zoomed UI view)
-- **Esc** — close any open UI
-- **Mouse** — point-and-click for interacting with UI elements and nearby world objects
+A small unnamed fog-covered island. The diner is the only playable space, rendered as a **2D side-view cross-section** — the player sees the interior as if looking through a cutaway wall, like a dollhouse. The wider world is implied — glimpsed through large restaurant windows (parallax background layers showing the harbour, fog, distant coastline, lighthouse) or described in NPC dialogue, photographs, and corkboard notes. The military presence at the port is a known, visible fact of island life; NPCs reference it openly. It is not a twist — it is the reason leaving costs anything at all.
 
-## 4. Core Mechanic — Discovery Cooking (2D UI Overlay)
-When the player opens the cooking UI, a 2D overlay appears on screen showing a virtual counter surface. The player drags ingredient icons onto the counter and combines two items to attempt a recipe. Successful combinations produce a dish or a new ingredient. Failed combinations produce nothing. There is no recipe book — discovery is the reward.
+The diner begins overgrown and abandoned. Over time it becomes warmer and more lived-in, reflecting the player's progress. This environmental progression happens automatically at story milestones.
+
+**Implied locations (seen through windows or described in dialogue):**
+- Rocky coastline and fog-covered beach
+- Distant lighthouse
+- Dense treeline inland
+- Disused harbour and dock (where the military checkpoint sits)
+- Remains of a small village
+
+## 3. Core Loop
+
+### Day Phase
+The diner is closed. Quiet and unhurried. No time pressure. The player can move around the space, cook, examine the corkboard, review discovered recipes, check savings, and prepare for the evening. Warm daylight streams through the windows (parallax background shifts to daytime).
+
+### Night Phase
+The diner opens. NPCs arrive on their own schedule. The player cooks using the combination system and serves dishes. Serving the right dish deepens relationships, earns payment, and advances story arcs. The counter persists between nights — items left out remain until used or they go stale. The night phase ends when the last NPC leaves. Window parallax shifts to night; interior lighting becomes warm and cosy.
+
+### Weather
+Fog and rain change daily (simple random roll). Weather affects which NPCs appear. Rain is visible through windows and as particles; fog reduces parallax background visibility. Advancing the day triggers overnight recipe completions and stale item checks.
+
+## 4. Mechanics
+
+### 4.1 Discovery Cooking (Combination System)
+
+The core mechanic. When the player opens the cooking UI (C key), a **2D overlay** appears showing a virtual counter surface. The player drags ingredient icons from a pantry panel onto the counter and combines two items to attempt a recipe. Successful combinations produce a dish or a new ingredient. Failed combinations produce nothing. There is no recipe book shown in-world — **discovery is the reward**.
 
 - ~30 base ingredients available as icons in a pantry panel within the UI
-- 120+ combinations including chained recipes (A+B=C, then C+D=E)
-- Some recipes require leaving items on the counter overnight before completing
-- Items left out for 4+ nights go stale
-- A recipe log panel tracks all discoveries; undiscovered recipes show as ???
+- **120+ combinations** including chained recipes (A+B=C, then C+D=E)
+- Some recipes require leaving items on the counter **overnight** before completing
+- Items left out for **4+ nights** go stale
+- A **recipe log** panel tracks all discoveries; undiscovered recipes show as ???
+- Three log views: **Discovered** (found so far), **All** (full list with ??? for unknowns), **Overnight** (recipes requiring resting)
+- Badges indicate chained recipes and overnight transforms
 
-## 5. Object Interaction
-The player interacts with objects through **proximity and the E key**. When the player sprite is near an interactable object (highlighted with a subtle outline or icon prompt), pressing E triggers the interaction. NPCs leave items on the physical counter during their visits — these are the primary interactable world objects. Examples include ingredients they bring from home, corkboard items (photographs, notes, clippings), and occasional story objects.
+### 4.2 NPC Visits
 
-- Picked-up ingredients are added to the cooking UI ingredient pool
-- Picked-up corkboard items can be pinned to the corkboard
-- Interaction range is a small Area2D around the player sprite
+NPCs arrive at the diner during the night phase on their own schedule. The player does not control who arrives or when. NPCs walk in from the entrance (side-scrolling entry), navigate to a seat using simple 2D pathfinding, sit down, and wait. The player cooks dishes in the UI and serves them.
 
-## 6. NPC System
-During the night phase, NPCs walk into the diner from the entrance (side-scrolling entry). They navigate to a seat using simple 2D pathfinding, sit down, and wait. The player cooks dishes in the UI and serves them. Serving a positive dish increases a relationship meter, earns payment, and triggers new dialogue (displayed in a dialogue box UI). Ignoring NPCs causes the meter to degrade — if it hits zero they stop visiting. Some NPCs pay more generously than others; some reward the player with rare ingredients instead of money.
-
-- ~17–20 NPCs total: 2–3 deep arc, 8–10 medium arc, 6–8 light arc
-- No dialogue choices — the player listens as NPCs reveal story over repeated visits
-- Each NPC has dish affinities — certain meals earn stronger reactions and better payment
-- Some NPCs only appear under specific conditions (fog, rain, story milestones)
+- Serving a **positive dish** (matches affinity) increases relationship meter, earns payment, triggers new dialogue
+- Serving a **neutral dish** yields smaller payment, no relationship change
+- **Ignoring** an NPC across multiple nights causes their relationship meter to **degrade** — if it hits zero they stop visiting (soft fail)
+- Some NPCs pay more generously than others; some reward with **rare ingredients** instead of money
+- Some NPCs have **conditional triggers** (fog, rain, story milestones)
 - NPCs occasionally leave items on the counter when they arrive or depart
-- Each NPC has a unique sprite with idle, walk, sit, eat, react, and leave animations
+- Leaving specific items on the counter **triggers NPC comments** on arrival — a small detail that makes the world feel alive
 
-## 7. Economy — Paying for Passage
-Leaving the island costs a fixed sum of money, controlled by the military at the port. The player earns money by serving meals to NPCs — better dishes and warmer relationships earn more. Certain late-game NPC arcs also grant lump-sum rewards or reduce the passage cost through story events. The player can check their current savings and the passage cost at any time via a UI panel.
+### 4.3 Dialogue System
 
-- **Ending A (Leave):** reach the passage cost threshold and choose to pay
-- **Ending B (Stay):** when the threshold is reached, choose not to pay — or never pursue it
-- Neither ending is framed as correct
+**No dialogue choices.** The player listens. NPCs have tiered dialogue states that unlock as relationship meters fill through cooking and repeated visits. Early dialogue is guarded and brief. Later dialogue is personal, warm, and story-revealing. Dialogue is displayed in a dialogue box UI.
+
+### 4.4 Corkboard
+
+A physical corkboard mounted on the diner wall. The game's **primary lore and world-building system**. NPCs occasionally leave behind 2D illustrated items on the counter — photographs, hand-drawn maps, torn notes, newspaper clippings, receipts. The player picks these up (E key) and pins them to the corkboard.
+
+The corkboard is a dedicated interactable zone — when the player stands near it and presses R, the camera zooms into a **full-screen corkboard UI** where items can be examined up close. The corkboard fills gradually over the course of the game, telling the island's story without cutscenes. Some corkboard items unlock late-game NPC dialogue or affect ending conditions.
+
+### 4.5 Environmental Progression
+
+The diner visually improves at story milestones **automatically**. No player action required — these changes happen as a reward for relationship progress.
+- **Early game:** dark, dusty, overgrown. Minimal furniture, dim lighting.
+- **Mid game:** warmer lighting, cleaner surfaces, small details appear (a plant, a photo on the wall).
+- **Late game:** genuinely warm and inhabited. The diner feels like home.
+
+Implementation: 3 visual tile/decoration layer swaps at story milestones via `diner_progression.gd`.
+
+### 4.6 Recipe Log (UI)
+
+An in-game UI panel tracking all combinations the player has discovered. Visible on demand (Tab key).
+- **Discovered** — what you've found so far
+- **All** — full list with undiscovered shown as ???
+- **Overnight** — recipes requiring overnight resting
+- Badges indicate chained recipes and overnight transforms
+
+## 5. Player Controls
+
+| Key | Action |
+|-----|--------|
+| **A/D** | Walk left/right within the diner |
+| **W/S** | Climb ladders or stairs (if diner has loft/second level) |
+| **E** | Interact with nearby objects (pick up items, examine objects) |
+| **C** | Open/close the cooking UI overlay |
+| **Tab** | Open/close the recipe log |
+| **R** | Examine corkboard item up close (zoomed UI view, requires proximity) |
+| **Esc** | Close any open UI |
+| **Mouse** | Point-and-click for UI elements and nearby world objects |
+
+Interaction is proximity-based via an **Area2D** around the player sprite. Interactable objects show a subtle outline or icon prompt when in range.
+
+## 6. NPC Roster (~17–20 Total)
+
+### Deep Arc NPCs (2–3) — Full multi-stage story. Tied to the restaurant's history. Requires specific dishes and many visits to fully unlock.
+
+#### The Washed-Up Traveller
+Arrived on the island years ago, just like the player. Knows every corner of the island but deflects questions about why they never left. Becomes the player's confidant over many visits. Their arc reveals the truth about what keeps people on the island and recontextualises both endings. **The player's clearest mirror.**
+
+- **Affinity:** comfort food, simple hearty dishes
+- **Schedule:** appears most nights, one of the first regular visitors
+- **Leaves:** corkboard items about the island's geography, old maps
+- **Arc depth:** 8–10 tiers of dialogue, unlocked across many nights
+- **Story role:** final arc reveals why the island holds people; reframes the leaving/staying choice
+
+#### The Elderly Baker
+Her bakery closed years ago. She knew the restaurant's original owner personally. Guarded and nostalgic at first. Only specific **baked dishes** earn her trust. Unlocking her full arc reveals the most about the restaurant's past — who ran it before the player, why it closed, and what happened.
+
+- **Affinity:** baked goods exclusively (bread, pastries, cakes)
+- **Schedule:** every 2–3 nights, regular
+- **Leaves:** old photographs, a pressed flower (key story item), recipes from the original menu
+- **Arc depth:** 6–8 tiers, requires specific baked dishes at key moments
+- **Story role:** Pressed Flower chain → Memory Cake → full ending dialogue unlock
+
+#### Third Deep NPC
+*To be designed mid-development.* Possible directions: the lighthouse keeper who sees things in the fog, or the harbourmaster who enforces the military's port rules but has doubts.
+
+---
+
+### Medium Arc NPCs (8–10) — 3–5 visit arc. Personal story, emotionally resonant.
+
+#### The Failing Fisherman
+Goes out every morning, returns empty-handed. Gruff and dismissive at first. Over time reveals he is **not really fishing for fish** — he's looking for something he lost at sea.
+
+- **Affinity:** seafood dishes (ironic — he can't catch any himself)
+- **Schedule:** most nights, arrives early and leaves early
+- **Leaves:** a hand-drawn map of the coastline, fishing lure (ingredient)
+
+#### The Newcomer
+Recently arrived on the island, also confused. Bonds with the player over being outsiders. Friendly and open from the start. Their reason for being on the island turns out to be **more deliberate than it first appears**.
+
+- **Affinity:** anything — not picky, grateful for any food
+- **Schedule:** every night for the first week, then intermittent
+- **Leaves:** a torn letter (corkboard item), unfamiliar spices (ingredient)
+
+#### The Musician
+Missing their instrument. Hums while eating. Quiet and melancholy. Their arc concludes with them **playing music again** — the diner gains **ambient music as a permanent reward** (replaces the night ambient track).
+
+- **Affinity:** sweet dishes, desserts
+- **Schedule:** every 2–3 nights
+- **Leaves:** sheet music (corkboard item)
+- **Reward:** unlocks the musician track (permanent night ambient upgrade)
+
+#### The Storm Visitor
+**Only appears during fog or rain.** Says very little. Leaves a corkboard item each visit without explanation. Other NPCs **do not seem to know who they are**. The most mysterious NPC — their identity is never fully resolved.
+
+- **Affinity:** warm drinks, soups
+- **Schedule:** fog/rain nights only
+- **Leaves:** one corkboard item per visit (cryptic notes, old photographs from before the island changed)
+
+#### Additional Medium NPCs (4–6, designed during development)
+Candidates:
+- **The Lighthouse Keeper** — maintains the light, sees ships that never dock
+- **The Local Historian** — knows the island's official history, but not the unofficial one
+- **The Drifting Merchant** — trades rare ingredients, always has a story from elsewhere
+- **The Retired Sailor** — stopped going to sea but won't say why
+- **The Doctor** — tends to the island's small population, worried about someone specific
+- **The Teacher** — runs the island's tiny school, curious about the player's past
+
+---
+
+### Light Arc NPCs (6–8) — Recurring background characters. Dialogue warms over time but no full arc. Makes the diner feel inhabited.
+
+- **The Quiet Farmer** — few words, big appetite, tips well
+- **The Chatty Harbour Worker** — gossips about port activity, mentions military movements
+- **The Strange Child** — asks oddly specific questions about the restaurant's history
+- **The Elderly Couple** — sit in the corner, say very little, share a single dish
+- **The Soup Regular** — young person who only ever orders soup, seems to be avoiding something
+- **The Night Shift Guard** — military, off-duty, surprisingly kind, conflicted about the port fees
+
+## 7. Story Structure
+
+### Act 1 — Arrival
+The player washes ashore. They find the diner, get the lights on, and cook their first meal. The first NPC arrives (the Newcomer or the Traveller). The island feels vast, quiet, and strange. The military presence at the port is established early.
+
+### Act 2 — Belonging
+The diner fills with regulars. Fragments of the island's history emerge through NPC stories and corkboard items. The Washed-Up Traveller becomes a confidant. The Baker begins to open up. The restaurant slowly comes back to life — environmental progression kicks in. Something significant happened here, and the island does not easily let people go.
+
+### Act 3 — Truth
+The full history of the restaurant is revealed through the Baker's final arc and the last corkboard items. The player learns who ran it before them, why it closed, and what happened to the island. The Traveller's reason for staying becomes clear. The player faces a choice.
+
+### Ending A — Leave
+The player accumulates $10,000 and chooses to pay the port fee. The diner is left behind. Warm but bittersweet. A departure sequence plays — the player walks to the harbour, boards a boat, looks back at the diner's light one last time.
+
+### Ending B — Stay
+The player reaches $10,000 and declines to leave — or earns $12,000 without ever choosing to go. The final scene mirrors the opening of the Washed-Up Traveller's arc: one day, another stranger will wash ashore and find the lights already on.
+
+**Neither ending is framed as correct.**
 
 ## 8. Win and Lose Conditions
 
 | Condition | Type | How to reach it |
 |-----------|------|-----------------|
-| Ending A — Leave | Win | Accumulate enough money to pay the port fee and choose to pay it |
-| Ending B — Stay | Win | Reach the money threshold and decline to leave, or build deep enough NPC relationships and choose to remain |
-| NPC departure (soft fail) | Soft fail | Ignore an NPC across multiple nights until their relationship meter hits zero |
-| Soft fail recovery | Recovery | Leave a specific dish on the counter overnight as an offering to re-engage a departed NPC |
+| Ending A — Leave | Win | Accumulate $10,000 and choose to pay the port fee |
+| Ending B — Stay | Win | Reach $10,000 and decline, or reach $12,000 (auto-trigger) |
+| NPC departure | Soft fail | Ignore an NPC across multiple nights until relationship meter hits zero |
+| Soft fail recovery | Recovery | Leave a specific dish on the counter overnight as an offering — takes several days, not guaranteed |
 
-## 9. Day / Night Cycle
-- **Day phase:** diner is closed. Player can cook, examine the corkboard, review savings. No time pressure. Warm daylight through the windows (parallax background shifts to daytime).
-- **Night phase:** diner opens. NPCs arrive on their own schedule. Ends when the last NPC leaves. Window parallax shifts to night, interior lighting becomes warm and cosy.
-- **Weather** (fog, rain) changes daily and affects which NPCs appear. Rain is visible through windows and as particles; fog reduces parallax background visibility.
-- Advancing the day triggers overnight recipe completions and stale item checks.
+If a **deep arc NPC** departs permanently, certain story content becomes inaccessible for that playthrough. Both endings remain reachable but one may be harder.
 
-## 10. Corkboard System
-NPCs occasionally leave 2D illustrated items on the counter — photographs, hand-drawn maps, torn notes, newspaper clippings. The player picks these up and pins them to a physical corkboard mounted on the diner wall. The corkboard is a dedicated interactable zone — when the player stands near it and presses R, the camera zooms into a **full-screen corkboard UI** where items can be examined up close. The corkboard fills gradually, telling the island's story without cutscenes. Some items unlock late-game NPC dialogue or affect ending conditions.
+## 9. Art Direction
 
-## 11. Assets Required
+**Style:** 2D pixel art, side-view cross-section. Warm, detailed, atmospheric. Inspired by the cosy melancholy of Dredge and the cross-section aesthetic of Terraria.
+
+**Interior:** warm amber candlelight, hanging Edison bulbs, ivy creeping along dark wooden walls. Heavy vignette darkening screen corners. The diner is the warm heart of the game.
+
+**Exterior (through windows only):** cold slate and teal, thick coastal fog, faint lighthouse glow. Rocky coastline. Never fully explored — always just out of reach.
+
+**The contrast between warm interior and cold foggy exterior carries most of the atmosphere.**
+
+**NPCs:** unique pixel art sprites per character. Readable silhouettes, expressive animations. Each NPC should be immediately identifiable by shape and colour palette alone.
+
+**2D flat assets (corkboard items):** illustrated or hand-drawn style. Photographs, notes, maps, clippings, receipts. These are the game's primary storytelling medium alongside dialogue.
+
+## 10. Assets Required
 
 | Asset Type | Count | Notes |
 |------------|-------|-------|
-| **2D environment tileset** | 1 set (~50–80 tiles) | Diner walls, floors, ceiling, windows, furniture, kitchen equipment, lighting fixtures, decorations — all as pixel art tiles/sprites |
-| **2D parallax background layers** | 4–5 layers | Harbour, distant buildings, sky, fog overlay, weather effects — scrolling behind the diner cross-section |
+| **2D environment tileset** | 1 set (~50–80 tiles) | Diner walls, floors, ceiling, windows, furniture, kitchen equipment, lighting fixtures, decorations — pixel art tiles/sprites |
+| **2D parallax background layers** | 4–5 layers | Harbour, coastline, sky, fog overlay, weather effects — scrolling behind the diner cross-section |
 | **Player sprite sheet** | 1 | Idle, walk, interact, carry animations (side-view) |
-| **NPC sprite sheets** | ~18 | Unique sprite per NPC with idle, walk, sit, eat, react, leave animations |
-| **2D counter item sprites** | ~15 | Items NPCs place on the counter — the primary interactable world objects |
-| **2D ingredient icons (UI)** | ~30 | Flat illustrated icons used inside the cooking UI overlay |
-| **2D dish result icons (UI)** | ~30 | Flat illustrated icons shown in the cooking UI when a dish is produced |
-| **2D corkboard items** | ~25 | Photographs, maps, notes, clippings — illustrated style |
-| **UI elements** | ~20 | Buttons, panels, meters, dialogue box, recipe log frames |
-| **Music tracks** | 6 | Day ambient, night ambient, storm, musician-unlocked, Ending A, Ending B |
-| **Ambient loops** | 4 | Interior, rain, wind, distant waves |
-| **Sound effects** | ~25 | Combine success/fail, NPC footsteps, door, corkboard pin, UI sounds |
+| **NPC sprite sheets** | ~18 | Unique sprite per NPC: idle, walk, sit, eat, react positive, react negative, leave |
+| **2D counter item sprites** | ~15 | Items NPCs place on the counter |
+| **2D ingredient icons (UI)** | ~30 | Flat illustrated icons for cooking UI pantry |
+| **2D dish result icons (UI)** | ~30 | Flat illustrated icons for cooking UI results |
+| **2D corkboard items** | ~20 | Photographs, maps, notes, clippings — illustrated style |
+| **UI elements** | ~20 | Buttons, panels, meters, dialogue box, recipe log frames, menus |
+| **Music tracks** | 6 | Day ambient, night ambient, storm variant, musician-unlocked, Ending A, Ending B |
+| **Ambient loops** | 4 | Calm interior, rain, wind, distant waves |
+| **Sound effects** | ~25 | Combine success/fail, NPC footsteps, door, corkboard pin, UI clicks, sizzle, chop, weather transition |
+| **Written content** | ~500 lines | NPC dialogue across all arcs, corkboard item text (~20 items), environmental flavour text |
+
+## 11. Asset Pipeline
+
+- **Environment art:** AI-generated base images → pixel art conversion via custom `pixel_art_gui.py` tool (6px blocks, 24 colours, Endesga-32 palette). The pipeline is built and tested.
+- **NPC sprites:** AI-generated character concepts → pixel art conversion → sprite sheet assembly
+- **Ingredient/dish icons:** AI-generated or hand-drawn → pixel art conversion
+- **2D flat assets (corkboard):** illustrated by hand or AI-generated. Applied as sprites in-engine.
+- **UI:** built directly in Godot's Control node system with custom theme
+
+## 12. Technical Notes
+
+- **Engine:** Godot 4. 2D side-view via CharacterBody2D + Camera2D.
+- **Target platform:** PC (Windows). Distribution via itch.io.
+- **Save system:** persistent save file tracking: NPC relationship states, corkboard items collected, recipes discovered, day count, weather state, player savings.
+- **Weather system:** simple daily random roll affecting fog/rain state and NPC conditional spawn triggers.
+- **Rendering:** CanvasModulate for day/night tint. PointLight2D for interior warm lighting. ParallaxBackground for exterior layers.
+
+## 13. Out of Scope
+
+Explorable exterior island environment, player character customisation, stamina or hunger management, crop growing or foraging mechanics, voice acting, controller support (stretch goal only), multiplayer, procedural generation.
 
 ---
 
@@ -105,7 +278,7 @@ NPCs occasionally leave 2D illustrated items on the counter — photographs, han
 | Player.tscn | CharacterBody2D | AnimatedSprite2D, CollisionShape2D, InteractionArea (Area2D) | Side-view player controller; Area2D detects nearby interactables |
 | NPC.tscn | CharacterBody2D | AnimatedSprite2D, NavigationAgent2D, DialogueTrigger | Shared base scene for all NPCs |
 | CounterZone.tscn | Node2D | Area2D, ItemSpawnPositions | Area where NPCs leave items for pickup |
-| CookingUI.tscn | CanvasLayer | PantryPanel, VirtualCounter (2D), CombineButton, ResultSlot | 2D overlay; all cooking happens here |
+| CookingUI.tscn | CanvasLayer | PantryPanel, VirtualCounter, CombineButton, ResultSlot | 2D overlay; all cooking happens here |
 | CorkboardUI.tscn | CanvasLayer | ItemSlots, CloseUpView | Full-screen corkboard examination view |
 | UI.tscn | CanvasLayer | RecipeLog, DialogueBox, RelationshipMeter, SavingsDisplay, DayTransition | All HUD and UI panels |
 
@@ -113,17 +286,17 @@ NPCs occasionally leave 2D illustrated items on the counter — photographs, han
 
 | Script | Attached To | Responsibility |
 |--------|-------------|---------------|
-| game_manager.gd | Autoload | Global state: day count, weather, NPC roster, player savings, save/load |
+| game_manager.gd | Autoload | Global state: day count, weather, NPC roster, player savings ($), save/load |
 | day_night_cycle.gd | DayNightCycle | Phase switching, time advance, overnight recipe trigger, stale item check |
 | weather_system.gd | WeatherSystem | Daily fog/rain roll; updates ParallaxBackground tint and NPC spawn conditions |
 | player.gd | Player.tscn root | A/D movement, AnimatedSprite2D state machine, Area2D interaction detection (E key) |
 | cooking_ui.gd | CookingUI.tscn root | Manages 2D overlay: pantry icons, drag-and-drop to virtual counter, combination lookup, result display |
-| combination_db.gd | Autoload | Single Dictionary of all recipes: {sorted_pair} -> result. One source of truth. |
+| combination_db.gd | Autoload | Single Dictionary of all recipes: {sorted_pair} → result. One source of truth. |
 | npc_base.gd | NPC.tscn root | Spawn at entrance, NavigationAgent2D pathfinding to seat, animation state machine, relationship meter, payment on serve |
 | npc_data.gd | Autoload | All NPC definitions: affinities, dialogue tiers, schedule conditions, payment amounts, items they leave |
 | dialogue_manager.gd | Autoload | Serve correct dialogue tier based on current relationship meter value |
 | corkboard_ui.gd | CorkboardUI.tscn root | Track pinned items, display full-screen examination view, trigger NPC dialogue unlocks |
-| economy.gd | Autoload | Track player savings, passage cost, payment from NPC serves, ending threshold check |
+| economy.gd | Autoload | Track player savings, passage cost ($10,000), cap ($12,000), payment from NPC serves, ending threshold check |
 | recipe_log.gd | UI RecipeLog panel | Display discovered/undiscovered combos; filter views (all, overnight, mystery) |
 | diner_progression.gd | Diner.tscn root | Swap diner tile/decoration layers (early/mid/late game) at story milestones |
 
@@ -133,7 +306,7 @@ NPCs occasionally leave 2D illustrated items on the counter — photographs, han
 - Create Godot project, set up folder structure, initialise Git
 - Build Player.tscn: CharacterBody2D + AnimatedSprite2D, A/D movement, W/S for ladders
 - Block out Diner.tscn with placeholder tiles — walls, floor, counter, windows, door
-- Set up ParallaxBackground with placeholder gradient layers
+- Set up ParallaxBackground with the pixel art diner background
 - Set up Camera2D following the player (clamped to diner bounds)
 - Confirm player can walk around the diner and see the parallax background through windows
 
@@ -147,21 +320,21 @@ NPCs occasionally leave 2D illustrated items on the counter — photographs, han
 
 > ⚠ **Tricky:** drag-and-drop in Godot's Control nodes uses `_get_drag_data` and `_drop_data`. Set this up with a simple test icon before building the full pantry.
 
-### Stage 3 — Day / Night Cycle & Overnight Recipes (Week 3)
+### Stage 3 — Day/Night Cycle & Overnight Recipes (Week 3)
 - DayNightCycle script: day/night state machine, advance day on player action
 - On day advance: fire a `day_advanced` signal that all systems subscribe to
 - Swap ParallaxBackground tint and diner lighting (CanvasModulate or PointLight2D) between phases
-- Overnight recipe check: if an ingredient flagged 'overnight' has been in the UI counter 1+ nights, transform it to the result
-- Stale check: increment counter per item each day; at threshold replace with stale version
+- Overnight recipe check: if an ingredient flagged 'overnight' has been on the counter 1+ nights, transform it
+- Stale check: increment counter per item each day; at 4 nights replace with stale version
 
 ### Stage 4 — NPC Pipeline & Economy (Weeks 4–5)
 - Build NPC.tscn: CharacterBody2D with AnimatedSprite2D, NavigationAgent2D pathfinding to a seat
-- Animations: idle, walk, sit, eat, react, leave (sprite sheet frames)
+- Animations: idle, walk, sit, eat, react positive, react negative, leave (sprite sheet frames)
 - One NPC spawns at night at the diner door, walks to seat, waits, reacts to served dish, pays player, leaves
-- Relationship meter increases/decreases based on dish served
+- Relationship meter increases/decreases based on dish served vs affinity
 - Dialogue triggers at tier thresholds (3 tiers minimum for test NPC)
-- economy.gd tracks savings; SavingsDisplay UI shows current total and passage cost
-- NPC leaves a sprite item at the CounterZone on arrival or departure; player picks it up with E (Area2D overlap)
+- economy.gd tracks savings; SavingsDisplay UI shows current total and passage cost ($10,000)
+- NPC leaves a sprite item at the CounterZone on arrival or departure; player picks it up with E
 
 > ⚠ **Tricky:** NavigationRegion2D baking. Bake as soon as diner tilemap is blocked out. Re-bake whenever tile layout changes.
 
@@ -173,7 +346,7 @@ NPCs occasionally leave 2D illustrated items on the counter — photographs, han
 
 ### Stage 6 — Content Build (Weeks 6–11)
 - All NPC arcs scripted (deep arcs first, then medium, then light)
-- 120+ combinations loaded into combination_db.gd from the design spreadsheet
+- 120+ combinations loaded into combination_db.gd from design spreadsheet
 - All 2D environment tiles and sprite assets created as pixel art
 - All NPC sprites with full animation sets
 - All 2D ingredient and dish icons created and integrated into CookingUI
@@ -182,9 +355,9 @@ NPCs occasionally leave 2D illustrated items on the counter — photographs, han
 - Full audio pass: ambient tracks, SFX, weather transitions
 
 ### Stage 7 — Both Endings (Weeks 11–12)
-- economy.gd ending threshold check: when savings >= passage cost, offer the choice
+- economy.gd ending threshold check: when savings >= $10,000, offer the choice
 - Ending A (Leave): player confirms payment, departure sequence and ending screen
-- Ending B (Stay): player declines, final scene mirrors Traveller arc opening
+- Ending B (Stay): player declines, or savings hit $12,000 → final scene mirrors Traveller arc opening
 - Baker arc finale: Pressed Flower chain completes, Memory Cake unlocks full ending dialogue
 - Soft fail recovery: overnight offering mechanic for departed NPCs
 
@@ -192,16 +365,89 @@ NPCs occasionally leave 2D illustrated items on the counter — photographs, han
 - Full playthrough of both endings; fix any blocking bugs
 - Balance pass: payment amounts, passage cost, relationship meter decay rates
 - Main menu, settings screen, save/load (day count, savings, relationships, recipes, corkboard)
+- Export for itch.io distribution
 
 ## Potential Problems & How to Avoid Them
 
 | Problem | When | How to avoid it |
 |---------|------|-----------------|
-| Drag-and-drop in Control nodes | Stage 2 | Test with a single draggable icon before building the full pantry. Use `_get_drag_data` / `_drop_data`, not mouse events. |
-| NavigationRegion2D baking | Stage 4 | Bake nav region as soon as diner tilemap exists. Re-bake on any tile layout change. Don't leave it until Stage 6. |
+| Drag-and-drop in Control nodes | Stage 2 | Test with a single draggable icon before building full pantry. Use `_get_drag_data` / `_drop_data`, not mouse events. |
+| NavigationRegion2D baking | Stage 4 | Bake nav region as soon as diner tilemap exists. Re-bake on any tile layout change. |
 | Combination dict growing large | Stage 6 | Keep combination_db.gd as a single Autoload. All 120+ recipes in one Dictionary. Never split across files. |
-| Overnight timing bugs | Stage 3 | Use one `day_advanced` signal. All overnight/stale checks subscribe to it. No duplicate timers anywhere. |
-| Economy balance | Stage 7 | Design passage cost and NPC payment amounts in a spreadsheet first. Tune values in one place (game_manager or economy.gd constants). |
-| Sprite animation management | Stage 4–6 | Use a consistent sprite sheet format (e.g. 64×64 per frame, 8 frames per row). Standardise frame counts early. |
-| TileMap complexity | Stage 1 | Start with a single TileMapLayer for collision geometry, add decoration layers later. Don't try to tile everything at once. |
+| Overnight timing bugs | Stage 3 | Use one `day_advanced` signal. All overnight/stale checks subscribe to it. No duplicate timers. |
+| Economy balance | Stage 7 | Design passage cost and NPC payment amounts in spreadsheet first. Tune in one place (economy.gd constants). |
+| Sprite animation management | Stage 4–6 | Use consistent sprite sheet format (e.g. 64×64 per frame, 8 frames per row). Standardise frame counts early. |
+| TileMap complexity | Stage 1 | Start with a single TileMapLayer for collision geometry, add decoration layers later. |
 | Scope overrun | Ongoing | Protect both endings above all else. If behind: cut light-arc NPCs to 4, reduce combos to 90, defer audio polish. |
+
+---
+
+# Part C — Research & Analysis
+
+## Investigating How Games Influence Their Players' Emotions
+
+### Discussion
+I've played many games in the past, but I've always enjoyed those with a story that is both intricate and captivating, which gets me invested in the game itself. Some games that I especially enjoyed in the past, which all share this trait, include Hollow Knight, Hollow Knight: Silksong, DREDGE, and Rain World. Having played these games, I wanted to know how they communicate their stories to the player without the game seeming boring. Eventually, I decided on the idea of making a cooking-style 2D game that focuses on the storytelling aspect in the gameplay.
+
+### Analysis
+Before I try to make a game, I need to understand the fundamentals of what I am trying to learn: what makes a game fun and engaging, and specifically how this is achieved through narratives and storytelling. This will help me as I design my game around this. As well as this, I will need to make other core decisions, such as what game engine I will use, where I will release the game, and other such design considerations. I also need to be careful not to make my idea overly ambitious or infeasible, or spend too much time planning.
+
+### Research — Game Design Fundamentals (MDA Framework)
+The first research I did was into what generally makes games fun. According to the MDA framework paper, the fun of a game is heavily influenced by how the game is designed, which the paper splits into three major parts:
+
+- **Mechanics** — the core functions of how the game runs and works
+- **Dynamics** — created through interaction with the player, affected by or using certain mechanics
+- **Aesthetics** — the player's emotional responses to the game
+
+The paper identifies eight aesthetic factors that determine player engagement:
+
+| Factor | Description | Driftwood Diner Application |
+|--------|-------------|---------------------------|
+| Sensation | Game as sensory pleasure | Warm pixel art, ambient audio, cosy atmosphere |
+| Fantasy | Game as make-believe | Mysterious fog-covered island, abandoned diner |
+| Narrative | Game as drama/storytelling | NPC arcs, corkboard lore, island mystery — **primary focus** |
+| Challenge | Game as obstacle course | Discovery cooking system, recipe combinations |
+| Fellowship | Game as social framework | NPC relationships, building trust through food |
+| Discovery | Game as exploration | No recipe book — finding combinations IS the reward |
+| Expression | Game as self-expression | Choosing what to cook, which NPCs to prioritise |
+| Submission | Game as pastime | Cosy loop, no fail state, relaxing day phase |
+
+I decided to apply the iterative MDA framework (tweaking mechanics → dynamics → aesthetics) to maintain structured development, and to position the game to fulfill as many of these eight factors as feasible.
+
+### Research — Flow State
+Video games are most enjoyable when the player is in a **state of flow** — a state of complete focus and absorption. Flow is achieved through a combination of seven effects:
+
+1. A challenge matched to the player's skills
+2. Merging of action and awareness
+3. Clear goals and direct feedback
+4. Concentration on the task at hand
+5. A sense of control
+6. Loss of self-consciousness
+7. Transformation of time
+
+The research also noted that preferred challenge levels vary between players. Implementing ways around this (such as adjustable difficulty) allows flow for a broader audience. In The Driftwood Diner, the soft fail/recovery system and the lack of hard game-overs serve this purpose — the game adapts to the player's engagement level rather than punishing failure.
+
+### Game Engine Selection
+
+| Engine | Pros | Cons | Decision |
+|--------|------|------|----------|
+| **Unity** | Massive community, many tutorials, flexible, behind notable games (Hollow Knight, Cult of the Lamb) | No prior experience, learning curve | ❌ |
+| **Godot** | Beginner-friendly, versatile, 2D and 3D support, prior experience, growing community | Fewer tutorials than Unity | ✅ Selected |
+| **Unreal Engine** | Professional-grade, powerful | Less popular for indie/2D, no prior experience | ❌ |
+
+**Decision:** Godot 4, based on prior experience, beginner-friendliness, and strong 2D support.
+
+### Platform Selection
+
+| Platform | Pros | Cons | Decision |
+|----------|------|------|----------|
+| **Steam** | Massive audience, discoverability | $100 per-game publishing fee | ❌ |
+| **itch.io** | Free to publish, indie-friendly, easy to use | Smaller audience | ✅ Selected |
+
+**Decision:** itch.io, due to zero publishing cost.
+
+### Game Design Summary
+
+A 2D cafe/cooking game developed in Godot, distributed on itch.io. The game focuses heavily on **storytelling and NPC interaction** as its primary engagement mechanism. This focus on narrative intricacy makes the game's world feel larger and more in-depth than it really is, increasing immersion within a limited development scope.
+
+**Core progression:** The player earns money by cooking for NPCs. At $10,000, they can choose to leave the island. At $12,000, the game ends with the player building a life on the island. Higher NPC relationships increase visit frequency and payment amounts, creating a positive feedback loop between storytelling engagement and mechanical progression.
