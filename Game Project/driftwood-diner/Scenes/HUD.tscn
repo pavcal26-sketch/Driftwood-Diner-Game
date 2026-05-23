@@ -1,0 +1,93 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://Scripts/HUD.gd" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+layer = 5
+script = ExtResource("1_hud")
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="DayCounter" type="Label" parent="Control"]
+layout_mode = 1
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 200.0
+offset_bottom = 52.0
+text = "Day 1"
+theme_override_font_sizes/font_size = 22
+
+[node name="PhaseDisplay" type="Label" parent="Control"]
+layout_mode = 1
+offset_left = 24.0
+offset_top = 54.0
+offset_right = 200.0
+offset_bottom = 88.0
+text = "Time: Day"
+theme_override_colors/font_color = Color(0.8, 0.85, 1, 1)
+theme_override_font_sizes/font_size = 18
+
+[node name="SavingsDisplay" type="HBoxContainer" parent="Control"]
+layout_mode = 1
+anchor_left = 1.0
+anchor_right = 1.0
+grow_horizontal = 0
+offset_left = -310.0
+offset_top = 18.0
+offset_right = -24.0
+offset_bottom = 52.0
+
+[node name="SavingsAmount" type="Label" parent="Control/SavingsDisplay"]
+text = "$0"
+theme_override_font_sizes/font_size = 22
+
+[node name="Slash" type="Label" parent="Control/SavingsDisplay"]
+text = " / "
+theme_override_font_sizes/font_size = 22
+
+[node name="PassageCost" type="Label" parent="Control/SavingsDisplay"]
+text = "$10,000"
+theme_override_font_sizes/font_size = 22
+
+[node name="ActionButtons" type="HBoxContainer" parent="Control"]
+layout_mode = 1
+anchor_left = 0.5
+anchor_right = 0.5
+anchor_top = 0.0
+anchor_bottom = 0.0
+grow_horizontal = 2
+offset_left = -340.0
+offset_top = 12.0
+offset_right = 340.0
+offset_bottom = 56.0
+theme_override_constants/separation = 12
+
+[node name="OpenCooking" type="Button" parent="Control/ActionButtons"]
+custom_minimum_size = Vector2(130, 44)
+size_flags_horizontal = 3
+text = "Cook  [C]"
+theme_override_font_sizes/font_size = 18
+
+[node name="OpenRecipes" type="Button" parent="Control/ActionButtons"]
+custom_minimum_size = Vector2(130, 44)
+size_flags_horizontal = 3
+text = "Recipes  [R]"
+theme_override_font_sizes/font_size = 18
+
+[node name="OpenCorkboard" type="Button" parent="Control/ActionButtons"]
+custom_minimum_size = Vector2(135, 44)
+size_flags_horizontal = 3
+text = "Corkboard  [K]"
+theme_override_font_sizes/font_size = 18
+
+[node name="AdvanceDay" type="Button" parent="Control/ActionButtons"]
+custom_minimum_size = Vector2(150, 44)
+size_flags_horizontal = 3
+text = "Close Diner  [N]"
+theme_override_font_sizes/font_size = 18

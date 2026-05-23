@@ -1,0 +1,2221 @@
+{
+  "_meta": {
+	"version": "1.2",
+	"game": "The Driftwood Diner",
+	"schema": "tier unlock_condition types: null | {type:'visits',count} | {type:'dish_served',dish,cumulative} | {type:'savings_reached',amount} | {type:'corkboard_items_pinned',count} | {type:'npc_tier_reached',npc,tier} | {type:'storm_visits',count} | {type:'storm_visitor_visits',count} | {type:'ending_chosen',ending} | {type:'any_ending_reached'}. weather_required: null | 'fog' | 'rain' | 'any_storm'. gives_item: null | {type:'corkboard'|'ingredient'|'counter', id:string}. triggers: game signal strings emitted after dialogue plays. variants: array of 3 arrays of 3 strings — one array is picked at random each visit; the 3 strings within are displayed sequentially as the dialogue exchange."
+  },
+  "npcs": {
+	"washed_up_traveller": {
+	  "_meta": {
+		"arc_type": "deep",
+		"affinity": [
+		  "comfort_food",
+		  "hearty",
+          "simple"
+		],
+		"schedule": "most_nights",
+		"payment_base": 12,
+		"payment_per_tier": 2,
+		"rare_ingredient_threshold": 7,
+		"degradation_nights": 4,
+		"recovery_dish": "hot_broth",
+		"arc_summary": "The player's mirror. Arrived like them, never left. Their arc reveals why the island holds people and reframes both endings."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Stranger",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Hm. Didn't know this place was open again.",
+			  "I'll have whatever's going. Don't mind me.",
+              "You cook. I'll eat. That's enough for now."
+			],
+			[
+			  "Lights are on. Didn't expect that.",
+			  "Sit anywhere, yeah? I'll sit here. Away from the window.",
+              "Something hot. Whatever's easiest."
+			],
+			[
+			  "Someone opened the old place up.",
+			  "I won't be any trouble. Just need somewhere to sit.",
+              "... thank you. For being open."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Familiar Face",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 2
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Back again. The lights help, I think. Hard to explain.",
+			  "I used to eat cold tins by the shore. A warm room is already an improvement.",
+              "You're still here. Me too. I suppose that's something."
+			],
+			[
+			  "I keep ending up back here. Not complaining.",
+			  "The fog was bad tonight. This is better. Most things are better than fog.",
+              "You didn't ask where I've been. I appreciate that."
+			],
+			[
+			  "Habit, I think. Coming here. Worse habits to have.",
+			  "I found a dry spot to sleep last week. Small victories.",
+              "Same as before, if that's alright. Whatever that was."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Cautious Warmth",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 4
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I arrived the same way you did. Storm, fog, beach. Classic.",
+			  "The island has a way of keeping people. I used to think it was the fog.",
+              "You're still planning to leave, I assume. Most people are, at first."
+			],
+			[
+			  "You washed up too, didn't you. I can tell. Something about the way you look at the door.",
+			  "It's not the fog that keeps people. The fog is just the symptom.",
+              "I had a plan once. Detailed. Sensible. The island didn't read it."
+			],
+			[
+			  "The beach on the east side — that's where most of us land. Funny how that works.",
+			  "People say 'I'll leave when the weather clears.' The weather always clears eventually. They don't always leave.",
+              "I drew a map once. Of everywhere I meant to go. This island wasn't on it."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_hand_drawn_coast_map"
+		  },
+		  "triggers": [
+            "unlock_corkboard_coast_map"
+		  ]
+		},
+		{
+		  "tier": 3,
+		  "label": "Opening Up",
+		  "unlock_condition": {
+			"type": "dish_served",
+			"dish": "any_affinity_match",
+			"cumulative": 3
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I had a plan. Everyone who lands here has a plan. Mine involved a boat, a mainland job, and someone waiting for me. Two out of three isn't bad. The someone stopped waiting. The mainland stopped mattering. The boat never came. I'm telling you this because you look like someone who still has a plan.",
+			  "You remind me of myself. That's not a compliment, necessarily. I was very certain about things when I arrived. The island has a way of wearing that down.",
+              "I keep meaning to write to someone. Every day I think: today I'll write. Then the fog comes in and the evening passes and I don't. I don't know what I'd say anymore anyway."
+			],
+			[
+			  "I had a return ticket. Bought before I even left. The date on it came and went while I was still trying to find the dock. After a while I stopped checking what date it was.",
+			  "Certainty is comfortable. I miss it sometimes. Not the thing I was certain about — just the feeling. The island takes certainty and replaces it with weather.",
+              "There's a photograph I carry. I've looked at it less and less. Not because it hurts less. I'm not sure why."
+			],
+			[
+			  "I used to have a list. Things to do before I turned a certain age. I can't remember most of it now. I remember it felt urgent. That part's gone too.",
+			  "The strange thing isn't that I stayed. The strange thing is I can't pinpoint the moment I stopped trying to leave. It happened slowly, then all at once.",
+              "I know what I'd say if I wrote. That's not the problem. The problem is I don't know how to explain what I've become. How do you explain this island to someone who's never seen the fog?"
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_worn_travel_document"
+		  },
+		  "triggers": []
+		},
+		{
+		  "tier": 4,
+		  "label": "Trust Building",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 8
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "There's a moment. You'll know it when it comes. The island stops feeling like a trap. I'm not saying it's good. I'm saying it changes.",
+			  "The diner was dark for three years before you arrived. I walked past it every night. Never went in. Too much history in a dark room.",
+              "I counted nights for a while. Then I counted weeks. Then I stopped counting. It's not despair, exactly. More like — accepting the weather."
+			],
+			[
+			  "The island shifts on you. Slowly. You wake up one morning and the fog looks familiar instead of threatening. That's the moment. Watch for it.",
+			  "I used to stand outside here and look at the dark windows. Felt like looking at something ended. I don't think it was ended. I think it was waiting.",
+              "Keeping track of time is a way of insisting on leaving. I kept track for a long time. Then I didn't. I don't know if that's good or bad."
+			],
+			[
+			  "You'll have a bad week at some point. The fog comes in, the money's slow, nothing feels worth it. Stay through it. It passes. That's the only real advice I have.",
+			  "There was a woman who ran this place before you. She left in a way no one fully understands. But she kept it going for a long time first. I think about that.",
+              "I don't know what I'm doing here anymore. I mean that in the peaceful sense, not the despairing one. There's a difference. It took me a while to find it."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": [
+            "hint_diner_history"
+		  ]
+		},
+		{
+		  "tier": 5,
+		  "label": "Confidant",
+		  "unlock_condition": {
+			"type": "savings_reached",
+			"amount": 2000
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "You're saving up. I can see it in how you cook. More efficient. More deliberate. I saved up too. Got to eight thousand once. Then I spent it. Not on the port fee. On seeds. For a garden. I genuinely cannot explain that decision.",
+			  "Eight thousand. I had it in a tin under the floorboard. I took it out and looked at it and thought: this could be a ticket. And then I thought: to what, exactly? Couldn't answer that. Put it back.",
+              "People talk about the port fee like it's the obstacle. It isn't. The obstacle is knowing what you're going back to."
+			],
+			[
+			  "You're being careful with money. Good. I wasn't. I kept finding reasons to spend it on things that weren't a ticket out. Eventually I stopped pretending the ticket was the point.",
+			  "The port fee is achievable. That's the cruel part. You'll get there and then you'll stand at the counter and find out the real cost has nothing to do with money.",
+              "I had eight thousand in coin in a tin. I counted it every week for three months. Then one morning I counted it and felt nothing. That's when I knew."
+			],
+			[
+			  "The number you're chasing feels like the answer. It's not. It's just the next question. What comes after it is the real work. I didn't do that work. Maybe you will.",
+			  "I bought seeds once with the money I'd saved for passage. Planted a whole garden behind the bluff. I ate from it for two years. Never left. Still not sure if that was failure or something else.",
+              "Saving feels like direction. It helps. But at some point you'll have enough and the direction has to come from somewhere else. Be ready for that."
+			]
+		  ],
+		  "gives_item": {
+			"type": "ingredient",
+			"id": "seeds_packet"
+		  },
+		  "triggers": [
+            "unlock_gardening_hint"
+		  ]
+		},
+		{
+		  "tier": 6,
+		  "label": "Real Honesty",
+		  "unlock_condition": {
+			"type": "corkboard_items_pinned",
+			"count": 8
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "The corkboard. You've been reading it. The woman who ran this place — the Baker knew her. Really knew her. I knew her too. Not as well. She used to leave the lights on late. I think she left them on for me, sometimes. She never said. I never asked.",
+			  "There are things on that board I haven't looked at in years. Some of them I put there. Some of them were already there when I arrived. I've never figured out which is which.",
+              "You're getting close to something. I can tell. The corkboard has a way of pulling things together. She knew that. She built it that way."
+			],
+			[
+			  "She built that board piece by piece over years. Adding things. Taking some down. It's not decoration — it's a record. Of everyone who passed through and left something behind. Including me.",
+			  "I pinned that coastal map up there. Years ago. Didn't know you'd be the one reading it. Things have a way of reaching who they need to.",
+              "There's a photograph I've avoided looking at on that board. I put it there myself. Couldn't tell you why. Couldn't tell you why I haven't taken it down either."
+			],
+			[
+			  "The original owner put the first things on that board. Then she was gone, and people kept adding to it. Like tending something that outlasted its maker. I find that either beautiful or sad depending on the day.",
+			  "You're reading it differently than most people do. Most people scan it. You're actually reading it. She'd have liked you.",
+              "I added something to that board the first week I was here. Low down, in the corner. Small. I sometimes check if it's still there. It always is."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_photo_diner_original_owner"
+		  },
+		  "triggers": [
+			"unlock_baker_tier_4",
+            "deepen_diner_history"
+		  ]
+		},
+		{
+		  "tier": 7,
+		  "label": "The Island's Weight",
+		  "unlock_condition": {
+			"type": "npc_tier_reached",
+			"npc": "elderly_baker",
+			"tier": 4
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "You spoke to the Baker. I can tell. She doesn't talk about the owner to just anyone. What keeps me here isn't the port fee — I want you to understand that. I could have paid it twice over by now. What keeps me here is the same thing that kept her here. I'm still figuring out what that is.",
+			  "She told you about that night, didn't she. The meal left on the counter. I've thought about that for years. What it means. Whether it's an ending or a beginning.",
+              "I'm not going to tell you what to do. I'm past the age of telling people what to do. But whatever the Baker told you — sit with it. It's earned."
+			],
+			[
+			  "She sent you to me, or you went yourself after talking to her. Either way — you should know that we've spoken about you. Not intrusively. Just: the new cook is different. She agreed.",
+			  "The Baker carries things she doesn't say out loud. You'd know that now. What she did tell you was what she thought you needed. She's careful about that.",
+              "Whatever she told you about why this place matters — it's true. I've seen this island from the outside and from the inside. The Baker sees it clearly. Trust that."
+			],
+			[
+			  "I heard you and the Baker had a real conversation. Good. She needs people to talk to. She's been carrying twelve years of quiet. That's a lot of weight for one person.",
+			  "The meal on the counter — you know about that now. I was there the next morning. I saw it. I didn't touch it. I didn't know what it meant then. I think I know now.",
+              "The Baker gives very little but when she gives something it means something real. Whatever she told you, hold it carefully."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": [
+            "signal_act2_climax"
+		  ]
+		},
+		{
+		  "tier": 8,
+		  "label": "The Mirror Cracks",
+		  "unlock_condition": {
+			"type": "savings_reached",
+			"amount": 5300
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "You're close. I can tell. I won't tell you to stay — that's not my place. But I'll tell you this: the reason I stayed wasn't weakness. It wasn't giving up. It was the first morning I woke up and the fog looked like home. You'll either understand that or you won't.",
+			  "Almost there. The number's almost there. I remember when mine was. I sat with it for three days before I made a decision. Don't rush it.",
+              "Whatever you choose — you should know it's a real choice. Both of them are. That's rarer than it sounds."
+			],
+			[
+			  "You've nearly got it. All of it. The question isn't whether you can go — you clearly can. The question is whether the going is towards something or just away from here. That distinction matters more than you think.",
+			  "I watched my number climb and felt surer with every coin. And then it was there and the sureness drained out in a day. Took a week to understand that was useful information, not failure.",
+              "Both roads from here are real. I know that might sound like nothing. But most people only ever get one real choice in their life. You're getting two."
+			],
+			[
+			  "I'm not going to dress it up. This is the moment. You have the money. The choice is real now. Everything before this was just approach. Sit with it overnight before you decide anything.",
+			  "When I had eight thousand in my hand I spent twenty minutes completely calm. And then something cracked open and I understood what I actually wanted. It took twenty minutes. Give yourself those twenty minutes.",
+              "Leaving is brave. Staying is brave. Anyone who says different has never actually chosen either."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_traveller_journal_page"
+		  },
+		  "triggers": [
+            "signal_ending_approaching"
+		  ]
+		},
+		{
+		  "tier": 9,
+		  "label": "Ending A",
+		  "unlock_condition": {
+			"type": "ending_chosen",
+			"ending": "A"
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "So. You're going. Good. I mean that. Tell them out there — tell them the fog's not as thick as they think. Come back if you want. The lights will probably still be on. They usually are.",
+			  "Safe travels. I don't say that lightly. The crossing can be rough. But you know that. You got here somehow.",
+              "I'll keep the corner table warm. In case. No — that's sentimental. Forget I said that. Go on."
+			],
+			[
+			  "You're really going. Alright. Alright. The world out there is messier than this island and that's saying something. But you'll do fine. You've done fine here.",
+			  "Take a good meal before you go. Don't argue. You know you cook better than you think you do. Bring that with you.",
+              "I'll say something embarrassing now and regret it so: I'm proud of you. For choosing. Whatever it means. I'll deny saying it if asked."
+			],
+			[
+			  "When you get to the mainland — don't explain the island. They won't understand and the trying will cost you something you can't afford to lose.",
+			  "The crossing is rough in the mornings. Go at noon. I'm serious. Practical farewell. You're welcome.",
+              "Don't look back at the lights when you leave. It'll make it harder. Just go. You've earned the going."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": [
+            "play_ending_a_sequence"
+		  ]
+		},
+		{
+		  "tier": 10,
+		  "label": "Ending B",
+		  "unlock_condition": {
+			"type": "ending_chosen",
+			"ending": "B"
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "You stayed. I'm not going to say I told you so. ... I told you so. Welcome to the island. Properly, this time. Someone will wash ashore eventually. They always do. Leave the lights on.",
+			  "There it is. I wondered which way you'd go. Most people surprise me. You didn't. That's a compliment.",
+              "Well. Now you're one of us. For better or worse. Mostly better, I think. Put the kettle on — we should talk about the garden."
+			],
+			[
+			  "You stayed. I knew you would. I didn't say so because I didn't want to pressure you. But I knew. The way you polished the counter last week. Nobody polishes things they're planning to leave.",
+			  "There's something I want to show you. When you have time. Part of the island most people don't find. Now that you're staying, you should know it.",
+              "Welcome home. Properly. That's not a small thing. On this island, that's not a small thing at all."
+			],
+			[
+			  "So this is home, then. Good. It suits you better than you know. The island needed someone like you in that kitchen. Now it has you.",
+			  "When the next person washes up on the east beach — and they will — they'll be glad the lights are on. Because of you. That's worth staying for.",
+              "I lied earlier. About not saying I told you so. I'm absolutely saying it. You'll hear it every time you see me. Might as well get used to it."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": [
+            "play_ending_b_sequence"
+		  ]
+		}
+	  ]
+	},
+	"elderly_baker": {
+	  "_meta": {
+		"arc_type": "deep",
+		"affinity": [
+		  "bread",
+		  "pastries",
+		  "cakes",
+          "baked_goods"
+		],
+		"schedule": "every_2_to_3_nights",
+		"payment_base": 8,
+		"payment_per_tier": 3,
+		"rare_ingredient_threshold": 5,
+		"degradation_nights": 6,
+		"recovery_dish": "plain_bread",
+		"arc_summary": "Knew the original owner personally. Her arc reveals the full history of the diner. The Pressed Flower chain is her key story item."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Guarded",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Hmph. You've opened the old place up. I'll try your bread. Don't expect compliments.",
+			  "My bakery was on the north end of the village. Before. I don't bake much anymore.",
+              "You're younger than I expected. The last one wasn't young. Sit down — no, I'll sit. You cook."
+			],
+			[
+			  "I walked past this place for three years without going in. I don't know why I came in today. Give me the bread.",
+			  "The sign's the same. She had good taste in signs. Let's see if you have good taste in flour.",
+              "I'll have the bread. Just the bread. Don't make conversation — I'll make it when I'm ready."
+			],
+			[
+			  "Sit anywhere, you said. I'll sit here. This was her table. That's all I'll say about that.",
+			  "I know what this place was. You probably don't. Cook something and we'll see.",
+              "I've eaten alone for three years. Company's an acquired taste. Don't push it."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Cautious Assessment",
+		  "unlock_condition": {
+			"type": "dish_served",
+			"dish": "baked_affinity_match",
+			"cumulative": 1
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Your crust is acceptable. A little underdone. The original owner used a stone base. Different heat distribution entirely. I'm not criticising. I'm observing.",
+			  "The texture is serviceable. Could use more time at lower heat. You'll get there.",
+              "Not bad for an improvised setup. The oven in here was always temperamental. She used to curse at it. It seemed to help."
+			],
+			[
+			  "The crust is close. The timing is slightly off — you're pulling it too early. She always said the smell tells you before the clock does.",
+			  "Texture needs work. The crumb is dense where it should be open. Keep at it. I'll tell you when it's right.",
+              "That oven runs hot on the left side. She used to compensate by rotating. I see you haven't discovered that yet."
+			],
+			[
+			  "Passable. More than passable in places. The middle was well-judged. The ends overcooked. She had the same problem at the start.",
+			  "You're not hopeless with bread. I want that noted. I don't say that to most people.",
+              "Acceptable effort. The oven here is difficult. Don't take my criticism as dismissal. I came back, didn't I."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Reluctant Respect",
+		  "unlock_condition": {
+			"type": "dish_served",
+			"dish": "baked_affinity_match",
+			"cumulative": 3
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "That's better. The layering is better. She taught me that. The owner. We traded techniques for years. I don't talk about her often. It doesn't help.",
+			  "You've been practicing. I can tell. There's a consistency now that wasn't there before. She valued consistency above everything.",
+              "The crumb structure is right. Finally. I was beginning to think I'd have to demonstrate. I still might. Don't get comfortable."
+			],
+			[
+			  "Consistent now. That's the hardest thing to get right and you have it. She said consistency was more important than brilliance. I used to disagree. I don't anymore.",
+			  "The layering on today's is well done. She showed me that technique. I showed her a few things too. We were good for each other, in the kitchen.",
+              "You're getting there. Properly getting there. She'd recognise this bread. That's high praise from me, in case it wasn't clear."
+			],
+			[
+			  "That. Right there. That's what she meant by getting the heat to do the work for you. You've figured it out without being told. She'd have found that irritating in the best way.",
+			  "Improved. Genuinely. I'll admit I wasn't sure you had it in you. I'm glad to be wrong about that.",
+              "The crust is correct now. Properly correct. There's something almost like her technique in it. I don't know if that's coincidence or instinct. Either way."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_old_photograph_diner_exterior"
+		  },
+		  "triggers": []
+		},
+		{
+		  "tier": 3,
+		  "label": "Memory Surfaces",
+		  "unlock_condition": {
+			"type": "dish_served",
+			"dish": "baked_affinity_match",
+			"cumulative": 5
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "She kept a pressed flower above the counter. From the first day she opened. I gave it to her — from my garden, years ago. I don't know what happened to it when she left. I'd rather not think about it.",
+			  "We used to argue about proofing times. She said longer was always better. I said it depended on the flour. We were both right, which annoyed both of us.",
+              "She had a recipe she never wrote down. Said it was in her hands, not her head. I watched her make it a hundred times and I still couldn't replicate it. I've been trying for three years."
+			],
+			[
+			  "I gave her a flower from my garden the week she opened. She pressed it and hung it above the counter the same day. I walked in and saw it up there and didn't know what to say. I still don't.",
+			  "She would argue about everything in a kitchen. Temperatures, timing, ratios. She was always right about two thirds of it and wrong about the rest. She never admitted either.",
+              "There was a cake she used to make for difficult evenings. Something about the smell of it settled people down. I never got the recipe out of her. She'd make it and shrug when I asked."
+			],
+			[
+			  "I still have the garden. I don't pick from it much anymore. But the flowers are there. Same kind I gave her. Every spring I think: I should bring one. Every spring I don't.",
+			  "She used to say the bread would tell you if you listened. I thought that was nonsense for years. Then one morning the bread told me something and I've been listening to it ever since.",
+              "There were techniques she had that I still haven't worked out. Things she did with her hands that I can describe but not reproduce. Some knowledge doesn't transfer. It just… leaves."
+			]
+		  ],
+		  "gives_item": {
+			"type": "counter",
+			"id": "pressed_flower"
+		  },
+		  "triggers": [
+            "unlock_pressed_flower_chain"
+		  ]
+		},
+		{
+		  "tier": 4,
+		  "label": "The History Breaks Open",
+		  "unlock_condition": {
+			"type": "npc_tier_reached",
+			"npc": "washed_up_traveller",
+			"tier": 6
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "The Traveller sent you to me. Don't deny it. Fine. You want to know what happened here. She ran this place for twelve years. Alone, mostly. After her family left. One night she cooked a meal she'd never cooked before. Left it on the counter overnight. In the morning she was gone. The meal was still there. We don't talk about what that means.",
+			  "You've been reading the corkboard. You know enough now to ask the right questions. So ask them.",
+              "Twelve years she kept this place open. Some nights she had one customer. Some nights none. She kept the lights on anyway. I asked her why once. She said: someone might need them."
+			],
+			[
+			  "You want the history. Fine. Twelve years, mostly alone, mostly without enough customers, always with the lights on. The last night she was here she cooked something extraordinary. Left it for whoever came next. I found it in the morning. Cold. Still perfect. She was gone.",
+			  "I've thought about that last meal for years. Was it a goodbye? An invitation? She would never have said. She communicated through food, not words. Whatever she was saying, she meant it.",
+              "The Traveller knew her better than most. I knew her differently. We've compared notes over the years. Some things we agree on. Some things we don't. The meal on the counter — we've never agreed on what it meant."
+			],
+			[
+			  "Twelve years. Single-handed. The island has a way of stranding people but she wasn't stranded — she chose every day to stay. There's a difference. She knew it and made sure I knew it too.",
+			  "She left a full meal on the counter the night she went. Everything perfectly prepared. I've made versions of it since, trying to reverse-engineer what she was saying. I haven't gotten there yet.",
+              "There's a newspaper clipping about her disappearance. I have a copy. The official version is incomplete, as official versions always are. Take it. You should see what they thought happened."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_newspaper_clipping_disappearance"
+		  },
+		  "triggers": [
+			"signal_diner_mystery_revealed",
+            "unlock_memory_cake_recipe"
+		  ]
+		},
+		{
+		  "tier": 5,
+		  "label": "The Flower Returns",
+		  "unlock_condition": {
+			"type": "dish_served",
+			"dish": "memory_cake"
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "You made it. The Memory Cake. I haven't tasted that since — how did you know the recipe? She wrote it down once, on the back of a receipt. I thought it was lost. ... Thank you. I mean that sincerely. Keep the flower. She'd want someone to have it.",
+			  "... Where did you find that? That's her recipe. That's exactly her recipe. I've been trying to remember it for three years and you just — ... Keep the flower. Please.",
+              "I wasn't expecting that. I need a moment. ... The taste is exactly right. Exactly. I don't know whether to be happy or heartbroken. I suppose it's both."
+			],
+			[
+			  "That smell. Before you even put it in front of me. That smell is hers. Exactly hers. How — never mind. I don't need to know. It's here now. Thank you. I wasn't ready but I'm glad.",
+			  "She would have laughed. That you figured it out. She always thought her recipes were more obvious than she let on. She liked being mysterious about them. This is her vindication.",
+              "... I need to sit with this for a minute. The flower. The cake. Both at once is — it's a lot. That's all I'll say. It's a lot. Thank you."
+			],
+			[
+			  "This is the one. This is the cake she made when things were hard. I used to come in and it would already be on the counter, like she knew. The smell alone was enough, sometimes. Still is.",
+			  "I'm not going to cry at a diner counter. That's my final decision on the matter. ... Keep the flower. It should be here. Where it belongs.",
+              "I don't know if the dead can be pleased about things. But if they can, she is. I'm certain of it. Take the flower. Keep it where people can see it."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_pressed_flower_framed"
+		  },
+		  "triggers": [
+			"unlock_both_endings",
+            "signal_act3_complete"
+		  ]
+		},
+		{
+		  "tier": 6,
+		  "label": "Epilogue",
+		  "unlock_condition": {
+			"type": "any_ending_reached"
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "She always said the diner would find the right person eventually. I thought she was being sentimental. I owe her an apology. She's owed a lot of things.",
+			  "I've been sleeping better since you made that cake. I didn't expect that. Grief is strange. So is whatever the opposite of grief is.",
+              "Thank you. For opening the place. For keeping the lights on. She would have liked you."
+			],
+			[
+			  "I came back today because I wanted to. Not out of habit. Not to check on the bread. Because I wanted to be somewhere that feels like she isn't entirely gone. This is that place now.",
+			  "You've done something I couldn't do. You made it feel continuous. Like the gap in between wasn't the end. I'm grateful. I don't say that often.",
+              "The lights are still on. Every night. I walk past and I see them and it's fine. That's new. That's you."
+			],
+			[
+			  "She was right about you. Not you specifically — she didn't know you. She was right about the kind of person the island would send. She had faith in that. She wasn't wrong.",
+			  "I'm going to start baking again. Properly. I think it's time. If you want, I'll bring some in. You can tell me if I'm still any good.",
+              "Whatever happens next — here, for you — I hope it's good. You've earned good things. This island doesn't say that to everyone."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		}
+	  ]
+	},
+	"failing_fisherman": {
+	  "_meta": {
+		"arc_type": "medium",
+		"affinity": [
+		  "seafood",
+		  "fish_dishes",
+          "chowder"
+		],
+		"schedule": "most_nights_early",
+		"payment_base": 10,
+		"payment_per_tier": 1,
+		"rare_ingredient_threshold": 3,
+		"degradation_nights": 3,
+		"recovery_dish": "fish_chowder",
+		"arc_summary": "Goes out every morning, returns empty-handed. Not fishing for fish. His arc reveals what he lost at sea."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Gruff",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Fish. Whatever you've got.",
+			  "Don't look at me like that.",
+              "I'm fine."
+			],
+			[
+			  "Something hot.",
+			  "Don't need to know the name of it.",
+              "*sits. says nothing more.*"
+			],
+			[
+			  "Whatever's ready. Quick.",
+			  "Long day.",
+              "Just the food."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Dismissive",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 2
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Nothing again today. Sea was wrong. There's always a reason. Something warm. That's all I need.",
+			  "Out for six hours. Fog the whole time. You can't fish fog.",
+              "The eastern current's been off all week. Or I'm off. One or the other."
+			],
+			[
+			  "Bad morning. Didn't catch anything. Wind was against me the whole way out.",
+			  "The water was clear today. No fish. Clear water, no fish. Doesn't make sense.",
+              "Going out again tomorrow. There's no point not going out."
+			],
+			[
+			  "Six hours and nothing to show for it. The sea doesn't owe me anything. I know that.",
+			  "I had something on the line for a moment. Gone. Happens.",
+              "Don't ask how it went. You can see how it went."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Cracking",
+		  "unlock_condition": {
+			"type": "dish_served",
+			"dish": "seafood_affinity_match",
+			"cumulative": 3
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "You know what the worst part is? I used to be good at this. I caught enough for the whole village, once. That was before. I don't go out at the same spots anymore. The spots where I actually find things — I can't go back to those.",
+			  "I know every current around this island. Every rock. Every depth. I could fish blind. I have been, in a way.",
+              "People think I go out because I'm stubborn. Maybe. But I know these waters. Whatever's out there — I'll find it."
+			],
+			[
+			  "I used to be the best fisherman on this island. You ask anyone who was here ten years ago. That's not pride. That's just true. Something changed. I changed. The waters didn't.",
+			  "There are parts of the coast I don't fish anymore. The good parts. Shallow water, clear, teeming. I avoid them. I can't explain why in a way that makes sense.",
+              "I'm out every day regardless. Good weather, bad weather, fog. If I stop going out, something gets final. I can't let it get final."
+			],
+			[
+			  "The sea and I have an understanding. We've had one for thirty years. Lately I think I've been breaking my end of it. Going out but not really being there.",
+			  "My hands still know what to do. Cast, wait, read the water. The knowledge is all still there. The wanting to use it is what's gone.",
+              "People say I should stop. Give it up. Nobody who knows the sea says that. The sea doesn't let you just stop. It pulls you back."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_coastline_map_marked"
+		  },
+		  "triggers": []
+		},
+		{
+		  "tier": 3,
+		  "label": "The Truth",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 6
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I lost my son out there. Three years ago. He went with me — he always went with me. We were in the fog and I — I don't know what happened. The boat came back. He didn't. I go out every day because stopping would mean it's over. It's not over.",
+			  "He was twelve. Knew more about tides than most adults on this island. I taught him everything. He was better than me already. I keep thinking — I keep thinking I'll hear him call out from the water.",
+              "I'm not looking for fish. I think you worked that out. I'm looking for — I don't know what I'm looking for. Something. Anything. Just not nothing."
+			],
+			[
+			  "My son. He was out with me. Fog came in fast — faster than I've ever seen it. When it cleared, I was alone in the boat. I've been alone in the boat every day since. Going back out is the only thing that makes sense. Not going back would be giving up.",
+			  "He was twelve years old. He knew these waters as well as I do. That's what I can't make peace with. He knew them. He should have been fine. He should have been fine.",
+              "I don't know what I'm doing out there anymore. Not really fishing. Not really searching. Just — being where he was. Sitting in the same water. I don't know what else to do."
+			],
+			[
+			  "I'll tell you the truth. The reason I never catch anything isn't the currents or the fog. It's because I only go to the places where he isn't. His spots. I can't fish his spots.",
+			  "Three years. I've had three years to get used to it and I haven't. I've gotten better at hiding it. That's a different thing.",
+              "You didn't flinch when I came in looking the way I look. That mattered. I don't say that to people. But it mattered."
+			]
+		  ],
+		  "gives_item": {
+			"type": "ingredient",
+			"id": "fishing_lure_hand_carved"
+		  },
+		  "triggers": [
+            "signal_fisherman_arc_complete"
+		  ]
+		},
+		{
+		  "tier": 4,
+		  "label": "Epilogue",
+		  "unlock_condition": {
+			"type": "dish_served",
+			"dish": "seafood_affinity_match",
+			"cumulative": 6
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I found something yesterday. In the water. His lure. The one I made him when he was eight. ... I don't know what to do with that. I came here because I didn't know where else to go.",
+			  "I've been sitting with it. The lure. It's in my coat pocket. I keep taking it out and putting it back. I don't know what it means. I don't know if it means anything.",
+              "I'm going to keep going out. But maybe I'll try different waters. Maybe that's what he'd want. I don't know. I'm going to eat something and then I'll think about it."
+			],
+			[
+			  "Found his lure tangled in my net. I made that lure. Carved it for him when he was small. I sat in the boat for an hour before I came back. Then I came here. I didn't know where else to sit with it.",
+			  "I don't know if the sea gives things back or if they just surface. Either way, it's there. Small thing. Means everything.",
+              "I think I might fish the east side tomorrow. Where he liked to go. I've been avoiding it for three years. Maybe it's time."
+			],
+			[
+			  "The lure. I found it. Floating near the shallows. He always lost lures in the shallows. I told him to watch the rocks. He never did. *quiet for a long moment* — Thank you. For the food. For not asking.",
+			  "I'm not sure this changes anything. But it's something. Something came back. That's enough for today.",
+              "I'm going to take the boat out at dawn tomorrow. Not looking for anything. Just going. That's new."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		}
+	  ]
+	},
+	"newcomer": {
+	  "_meta": {
+		"arc_type": "medium",
+		"affinity": [
+          "any"
+		],
+		"schedule": "every_night_first_week_then_intermittent",
+		"payment_base": 7,
+		"payment_per_tier": 1,
+		"degradation_nights": 5,
+		"recovery_dish": null,
+		"arc_summary": "Friendly outsider. Their arrival seems accidental — it isn't."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Relieved Stranger",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Oh thank goodness, lights. And food? You're incredible. I washed up this morning. The fog is insane. How big is this island? Do you know when the next boat comes? Actually, don't answer that. Let me eat first.",
+			  "I've been walking for three hours. You are an actual miracle. Is this a restaurant? It's a restaurant. I could cry.",
+              "Warm food. Warm room. I'm going to sit here until I feel like a person again. Is that okay? That's okay, right?"
+			],
+			[
+			  "Is this place open? It's open. Thank the — yes. Yes, I'll have anything. Everything. Starting with the warmest thing. Oh thank you. Thank you.",
+			  "I thought the island was uninhabited. The fog completely — and then lights. Real lights. And you. And food. I'm having a very confusing morning.",
+              "Can I just — sit here? For a while? I promise I'll pay. I just need a minute where nothing is fog or rocks or cold."
+			],
+			[
+			  "Oh, oh good. *sits down immediately* I genuinely thought I was going to have to sleep on the beach again. This is so much better than the beach.",
+			  "Whatever's hot. I'll tell you what happened after I've eaten. I can't do it before. I'm not at full capacity. The capacity is very low right now.",
+              "This is a restaurant. On an island in the fog. I'm not dreaming this. This is real. Okay. Hi. I'll have the soup."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Getting Comfortable",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 2
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I went to the port today. The soldiers said the next passage is... undefined. What does undefined mean for a boat schedule? Apparently everything here runs on 'eventually.' I'm trying to adapt.",
+			  "The island is smaller than I thought and also somehow larger. I got turned around twice in the fog and ended up back at the beach. The beach where I started. Same beach.",
+              "I found the village. Or what's left of it. People are friendly but — nobody seems surprised that I'm here. Is that normal? Is that a thing that happens?"
+			],
+			[
+			  "I've been exploring. This island is — strange. In a good way, mostly. The paths seem to shift depending on the fog. Or I shift. Hard to tell.",
+			  "The port commander said 'there may be a vessel.' Three days ago. Still no vessel. I'm learning what 'may be' means here.",
+              "People keep saying 'you'll get used to it' about things I haven't asked about yet. That's either reassuring or slightly ominous."
+			],
+			[
+			  "I found the market square. Two stalls, one of which only opens 'when there's something to sell.' That's a philosophy. I respect it.",
+			  "I tried to count the buildings in the village and I got a different number every time. Probably me. Probably.",
+              "Everyone here seems to have arrived by accident and stayed on purpose. That's interesting. That's a pattern worth noticing."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Oddly Settled",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 4
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I found a place to stay. The old schoolhouse has a spare room. The Teacher said I could help out. Temporarily. I keep saying temporarily. The Teacher stopped asking.",
+			  "I've started learning the fog patterns. When it's thin, when it's thick. The locals can read it like weather. I'm getting there.",
+              "I made a friend. The Harbour Worker. He talks constantly but he also knows everything about this island. Useful combination."
+			],
+			[
+			  "Moved out of the port shelter into the schoolhouse room. It's better. Quieter. The Teacher is — interesting. Knows things about this island that aren't in any record I've found.",
+			  "The fog doesn't bother me anymore. I think that's significant. Two weeks ago it terrified me. Now it's just — the fog. Part of it.",
+              "I've started helping with the younger students in the mornings. Temporarily. *pause* I've said that word a lot. I should probably examine that."
+			],
+			[
+			  "I know three people by name now. Four if you count the goat at the north farm, which I do. Progress.",
+			  "The Harbour Worker showed me the tidal pools yesterday. I wasn't looking for anything. I just found things. That felt like the island's version of a welcome.",
+              "I've stopped calculating how many days I've been here. That's either a bad sign or a very good one."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_torn_letter_mainland"
+		  },
+		  "triggers": []
+		},
+		{
+		  "tier": 3,
+		  "label": "The Reveal",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 7
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Can I be honest with you? I wasn't on a ship that sank. I didn't get lost. I came here deliberately. I read about this island in a record that shouldn't exist. I was looking for something. I can't tell you what yet. I'm not sure I found it. I'm not sure I didn't.",
+			  "I've been carrying a letter for eighteen months. Someone gave it to me and said: find the island that isn't on any map, find the diner. Leave this there. I found the island. I found the diner. I'm not sure what to do with the letter.",
+              "You've been kind to me without asking what I'm doing here. I want you to know I noticed that. And I want you to know — I'm not here to cause trouble. Whatever I was looking for, I think it's already here."
+			],
+			[
+			  "Alright. True story: I wasn't an accident. I planned this. Someone sent me a document — handwritten, very old — describing an island that doesn't appear on charts. A diner with lights on. A corkboard. All of it. I thought it was a hoax until I found myself here.",
+			  "I have the letter. In my bag. Someone trusted me to bring it here, to this specific place. I don't know who they are. I don't know what it says. I was told: leave it somewhere safe. Here seemed right.",
+              "I wasn't going to tell you any of this. But you've been — steady. That's the word. Steady. Like you already knew everything and just decided to feed people anyway. That deserved honesty."
+			],
+			[
+			  "I've been rehearsing this. The honest version. Here it is: I came here on purpose, with a purpose, and I still don't fully understand either of those things. The island knows more about why I'm here than I do, I think.",
+			  "The letter has been in my pocket for eighteen months. It's worn through at the folds. I've thought about opening it every day. But it's not mine to open. The instruction was clear: find the diner, leave it there.",
+              "I don't know if I found what I was looking for. I know I found something. I know this place is part of it. That'll have to be enough for now."
+			]
+		  ],
+		  "gives_item": {
+			"type": "ingredient",
+			"id": "unfamiliar_spices"
+		  },
+		  "triggers": [
+            "signal_newcomer_mystery"
+		  ]
+		},
+		{
+		  "tier": 4,
+		  "label": "Epilogue",
+		  "unlock_condition": {
+			"type": "any_ending_reached"
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I think I understand now why people stay. The thing I was looking for — I don't think it's a place. I think it's a feeling. Anyway. I'm going to help the Teacher set up for term. See you tonight?",
+			  "I wrote to someone on the mainland. Told them I found it. They wrote back: found what? I didn't know how to explain. That seemed like the right answer, somehow.",
+              "The Teacher asked if I wanted to stay on properly. I said I'd think about it. I've stopped thinking about it. Does that count as a decision?"
+			],
+			[
+			  "I delivered the letter. Put it on the corkboard. Don't ask me what it says — I never opened it. But it's there now. Where it was supposed to be. I feel — lighter.",
+			  "I think whatever I came here to do is done. Which means I can stay for different reasons now. The Teacher has opinions about that.",
+              "The island grows on you. That's the thing nobody told me. I thought I was visiting. The island had different plans."
+			],
+			[
+			  "Staying. That's the decision. I made it this morning and immediately felt calm, which is how I know it's right. The Teacher practically had the paperwork ready.",
+			  "I wrote to the person who sent me the letter. Told them I'd arrived, I'd delivered it, I was staying. They wrote back one word: good. I've been thinking about that word for three days.",
+              "The fog doesn't disorient me anymore. I can read it now. When I realised that I also realised I wasn't leaving. These things are connected somehow."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		}
+	  ]
+	},
+	"musician": {
+	  "_meta": {
+		"arc_type": "medium",
+		"affinity": [
+		  "sweets",
+		  "desserts",
+          "pastries"
+		],
+		"schedule": "every_2_to_3_nights",
+		"payment_base": 9,
+		"payment_per_tier": 2,
+		"degradation_nights": 4,
+		"recovery_dish": "honey_cake",
+		"arc_summary": "Missing their instrument. Arc concludes with them playing again — the diner gains ambient music permanently."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Quiet",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "... Thank you.",
+			  "I used to hum when I ate. I forgot.",
+              "Somewhere warm. That's all I wanted. This is enough."
+			],
+			[
+			  "*sits. looks at the table.*",
+			  "Something sweet if you have it. Sweet things are easier right now.",
+              "..."
+			],
+			[
+			  "I won't take up much space. I just needed somewhere inside.",
+			  "*wraps hands around the cup.*",
+              "This is good. Thank you."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Slightly Warmer",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 2
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Do you do anything sweet? Sweet things help, when nothing else does. I haven't played in months. My hands feel wrong.",
+			  "I keep coming back. I'm not sure why. The quiet here is different. It has — texture.",
+              "I don't know if that goes away. The feeling that something's missing. Maybe you just get used to the shape of it."
+			],
+			[
+			  "What's the sweetest thing you make? Don't laugh. Sugar does something for me when nothing else works.",
+			  "This place is quiet in a way that isn't empty. I've been trying to figure out why. I think it's you. You're not performing anything.",
+              "I had a bad month. I'm not going to tell you about it. But I appreciate that you don't ask."
+			],
+			[
+			  "My hands have been doing this thing. Tapping. Like they're looking for strings that aren't there. It's annoying. Sorry.",
+			  "I keep meaning to go further along the coast. Try somewhere new. I keep ending up back here. Interesting pattern.",
+              "Something sweet today. Whatever's lightest. I'm not up for heavy things."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "The Instrument",
+		  "unlock_condition": {
+			"type": "dish_served",
+			"dish": "sweet_affinity_match",
+			"cumulative": 3
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I had a guitar. Had. It went into the water with my pack when the boat went over. I know it's just an object. I know that. But it was the only thing I owned that I made something beautiful with.",
+			  "Music is the one thing I'm any good at. Was. I don't know what tense to use anymore. My hands remember the shapes but they feel like they're remembering someone else's hands.",
+              "I find myself humming sometimes. Half a bar. Then I remember and I stop. I don't want to hum half-things. I want to play whole ones."
+			],
+			[
+			  "The guitar went into the sea. The night I arrived. All my things went in but the guitar was — it's the one I keep coming back to. Everything else was just a thing. That was the thing.",
+			  "I know objectively that objects aren't people. I know that. I also know that for ten years the guitar was the first thing I reached for when something was wrong. Now there's nothing to reach for.",
+              "I woke up the other night and reached for it in the dark. Reflex. Then I remembered. That's the part I can't explain to anyone who hasn't had something like it."
+			],
+			[
+			  "You play? No — I'm not asking you to. I'm just — thinking about it. About playing. About what it felt like to pick it up without thinking. I can't imagine doing that now.",
+			  "The music isn't gone. That's what I keep reminding myself. The music is still there. The way to get it out is what's missing. That's the difference between lost and gone.",
+              "I have the sheet music. Kept it dry somehow. All my old pieces. They're readable. I just — don't have anything to play them on."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_sheet_music_fragment"
+		  },
+		  "triggers": []
+		},
+		{
+		  "tier": 3,
+		  "label": "Something Found",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 6
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "The Merchant had one. In a case, dusty. They didn't even know what it was. I traded three nights of help unloading for it. I played this morning. Just scales. Nothing real. But the sound came back. I thought it wouldn't.",
+			  "It needs restringing. The action's wrong. I've been adjusting it by feel. It doesn't matter — it's something to hold.",
+              "I played for the first time this morning. My hands shook. Not from nerves. From the relief of it, I think."
+			],
+			[
+			  "I found a guitar. The Merchant had it in a bag at the bottom of a crate, wrapped in oil cloth. When I saw it I had to sit down. We worked out a trade. I'd have given them anything.",
+			  "The strings are wrong gauge and two of them are slightly warped. I don't care. It plays. I played for two hours last night. My fingertips hurt. I don't care about that either.",
+              "I've been carrying the sheet music everywhere for weeks. Finally have something to play it on. The first chord I played — I just sat there for a while. Couldn't do the second one for a minute."
+			],
+			[
+			  "The Merchant. They had a guitar in among all their strange things. Old, needs work. Mine was better. I'd have traded everything I own for it and I basically did.",
+			  "I played on the bluff this morning. Facing the sea. Just me and the wind and this battered borrowed-feeling guitar. It was the best morning I've had in a long time.",
+              "The sound it makes is different from what I'm used to. Rougher. More honest, maybe. I might keep it even when I find something better. If I find something better."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 4,
+		  "label": "The Performance",
+		  "unlock_condition": {
+			"type": "dish_served",
+			"dish": "sweet_affinity_match",
+			"cumulative": 6
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I'd like to play here. If that's alright. Nothing formal. Just while people eat. Music and food are the same thing, I think. Both say: you are welcome here. I think this place needs that.",
+			  "Would you mind if I played some evenings? I'll stay out of the way. I just think — this room has good acoustics. And good acoustics deserve something in them.",
+              "I wrote something. Last night. It's short, and it's not finished, and I'm not sure it's any good. But if you'd let me play it — I think I'd like to play it here first."
+			],
+			[
+			  "Can I play here? Evenings, when things are quiet. I won't disturb anyone. Or if I do, tell me and I'll stop. I think this place and music are supposed to go together. I have no evidence. Just a feeling.",
+			  "I played something for the first time last night that wasn't scales. A real piece. Something I wrote a year ago and couldn't finish. I finished it. I'd like to play it somewhere it matters. Could I play it here?",
+              "I've been thinking about what this room sounds like full of music. Good acoustics. High ceiling. The kind of space a note can breathe in. I think it'd be something. Would you let me try?"
+			],
+			[
+			  "I want to play here while people eat. Is that something you'd allow? I think… I think this is the kind of place music was made for. Not as entertainment. As company.",
+			  "I wrote something new last night. Just for this place. Short. Nothing ambitious. But it's yours, if you'll have it. I'd like to play it here.",
+              "You've fed me properly for weeks. Let me give something back. I play. You could use something in the background on quiet nights. We'd be even."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": [
+			"unlock_musician_ambient_track",
+            "signal_musician_arc_complete"
+		  ]
+		}
+	  ]
+	},
+	"storm_visitor": {
+	  "_meta": {
+		"arc_type": "medium",
+		"affinity": [
+		  "warm_drinks",
+		  "soups",
+          "broths"
+		],
+		"schedule": "fog_or_rain_only",
+		"payment_base": 0,
+		"payment_per_tier": 0,
+		"degradation_nights": null,
+		"recovery_dish": null,
+		"arc_summary": "Unknown identity. Appears only in bad weather. Leaves corkboard items each visit. Other NPCs don't recognise them. Never fully resolved."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Presence",
+		  "unlock_condition": null,
+		  "weather_required": "any_storm",
+		  "variants": [
+			[
+			  "... It's warm in here. That helps.",
+			  "...",
+              "The soup. Please. Whatever kind."
+			],
+			[
+			  "*sits without looking up.*",
+			  "Something warm.",
+              "..."
+			],
+			[
+			  "The light is still on. Good.",
+			  "Soup. Please.",
+              "..."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_cryptic_note_01"
+		  },
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Fragment",
+		  "unlock_condition": {
+			"type": "storm_visits",
+			"count": 2
+		  },
+		  "weather_required": "any_storm",
+		  "variants": [
+			[
+			  "I don't come when it's clear. The light is too sharp. I can't think in it. You don't ask who I am. I appreciate that.",
+			  "The fog is better. Things are softer in the fog. Less decided.",
+              "I've been coming to this building for a long time. You're the first person to leave the light on in years."
+			],
+			[
+			  "Clear nights are difficult. Too much definition. Everything has edges. In the fog things blur the right way.",
+			  "I came here before there was a diner. Before there was a name for what it was. It was just the building with the warm light.",
+              "You haven't asked. Most people ask. The ones who don't ask last longer here. I think that's meaningful."
+			],
+			[
+			  "The storms don't bother me. I think you've noticed. Other people shelter. I arrive. There's a reason for that. I'm not ready to say it yet.",
+			  "The light in the window. You keep it on later than most. I wanted you to know that I notice. That it matters.",
+              "Same soup as last time. Please. Some things should stay the same."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_old_photo_before_island"
+		  },
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Near-Answer",
+		  "unlock_condition": {
+			"type": "storm_visits",
+			"count": 4
+		  },
+		  "weather_required": "any_storm",
+		  "variants": [
+			[
+			  "I was here before all of them. Before the port fees. Before the soldiers. Before the diner was a diner. I don't think I'll be here much longer. I just wanted the soup to taste like it used to.",
+			  "Everything else changes. The faces. The rules. The fees. Some things stay the same. The fog. The soup, if it's made right. The light in this window.",
+              "I'm not what you think I am. I'm not sure what I am. The island knows, I think. It usually does."
+			],
+			[
+			  "I watched this building before it was a diner. Before the woman who made it one. Before whatever happened to her. I was watching then too.",
+			  "People come and go here. I stay. Not by choice — or maybe by a choice so old I can't remember making it. The soup stays the same. That part I'm grateful for.",
+              "You're reading the board. You're asking the right questions. I don't have answers. The island does. You're getting closer to them."
+			],
+			[
+			  "Before the military. Before the fees. Before most of what this island calls its history. I was here for all of it. Some of it I prefer not to think about.",
+			  "Things are coming to something. I can feel it. This place and its lights and you in it. Something's resolving. I've been waiting a long time for something to resolve.",
+              "I'm not a danger to you. I want to say that clearly. I know I seem — strange. I am strange. But I'm not a danger."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_island_charter_fragment"
+		  },
+		  "triggers": [
+            "signal_storm_visitor_mystery_deepened"
+		  ]
+		},
+		{
+		  "tier": 3,
+		  "label": "Last Visit",
+		  "unlock_condition": {
+			"type": "corkboard_items_pinned",
+			"count": 15
+		  },
+		  "weather_required": "fog",
+		  "variants": [
+			[
+			  "You've been reading. Good. Then you know more than most people ever did. Keep the lights on. ...",
+			  "I don't think I'll come back after tonight. Not because of anything you've done — the opposite, in fact. I think I've been waiting for someone to read those things. You did. That's enough.",
+              "... Thank you. For the soup. For not asking. For the light."
+			],
+			[
+			  "I think this is the last time. I've felt that before and been wrong — but this time something's different. Quieter. Settled. I think it's you. Something in you has closed a loop I've been holding open.",
+			  "Everything on the board — I put some of it there. The rest was already there or was brought by others. You read all of it. That's rarer than you know.",
+              "Goodbye. I don't say that often. I don't usually get to."
+			],
+			[
+			  "The fog is right tonight. The kind I always liked. If I were to choose a last night here, I'd choose one like this. So. Here we are.",
+			  "You kept the light on. Every night. I know because I watched. That's not nothing. That's — everything, actually.",
+              "The soup is right. Thank you. *a long silence* Thank you for all of it."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_final_storm_note"
+		  },
+		  "triggers": [
+			"signal_storm_visitor_final",
+            "signal_act3_hint"
+		  ]
+		}
+	  ]
+	},
+	"lighthouse_keeper": {
+	  "_meta": {
+		"arc_type": "medium",
+		"affinity": [
+		  "seafood",
+		  "smoked_fish",
+          "any_grilled"
+		],
+		"schedule": "weekly_late",
+		"payment_base": 12,
+		"payment_per_tier": 2,
+		"rare_ingredient_threshold": 3,
+		"degradation_nights": 12,
+		"recovery_dish": "smoked_fish",
+		"arc_summary": "Maintains the lighthouse. Sees ships that never dock. Their final reveal connects to the Storm Visitor's mystery."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Methodical",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I can only come on Wednesdays. The light needs tending every other night. Grilled fish, if you have it. Something that keeps when it's cold. The fog's been thicker this week — I've had to run the horn more.",
+			  "The crossing from the lighthouse takes forty minutes on a good night. Tonight was not a good night. Whatever's hot and ready.",
+              "I keep odd hours. You're the first place on this island open late enough to be useful to me."
+			],
+			[
+			  "Wednesday. As always. The fog horn's been running since morning — my ears are still adjusting. Something grilled if you have it. Simple.",
+			  "Nineteen years I've been making this crossing. Never found somewhere to eat on the other side. Until now.",
+              "I appreciate late hours. Most people close before I can get here. You don't. That's worth more than you might think."
+			],
+			[
+			  "The fog's particularly dense tonight. I ran the horn for three hours straight. If something's grilled and hot and ready I'd like it.",
+			  "I have a system: Wednesdays, here. Every other night, the light. The system works.",
+              "Late hours and fish. I appreciate both. Thank you for being open."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Observational",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 2
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I see things from up there that don't make sense when I describe them. Ships on the horizon that aren't in the registry. Lights in the fog that aren't mine. I write them all down. The log is very long. No one reads the log.",
+			  "Nineteen years at the light. You start to know what belongs and what doesn't. The fog has its own residents. Most of them I've catalogued.",
+              "The view from up there — on a clear night you can see the mainland. Or something that looks like it. I've stopped trying to tell the difference."
+			],
+			[
+			  "There are things that cross the water at night that don't appear in daylight. I don't say that to unsettle you. I say it because it's in the log and the log should be accurate.",
+			  "The light helps people find their way. It also helps me catalogue what's out there. Nineteen years of data. More than any official record acknowledges.",
+              "Clear nights are the most interesting. No fog to hide things. Everything visible. You'd be surprised what's visible when the fog lifts."
+			],
+			[
+			  "You can see the whole eastern shoreline from the lamp room. I know every rock, every current. I also know the things that move along the shore that don't behave like the rocks or the currents.",
+			  "The log runs to twelve volumes. I started volume thirteen last month. The harbour master asked me once what I write in them. I said: everything. He didn't ask again.",
+              "The fog is thicker this week. Higher visibility of unusual events, paradoxically. Things move in thick fog that wouldn't in thin."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Something Specific",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 4
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "There's a person who comes and goes during storm weather. You've seen them. I see them from the lighthouse too — they walk along the eastern shore. They were here before the military, before the port fees, before most of what passes for history on this island. I don't know what they are. I know they're not a threat. The light doesn't bother them. That tells you something.",
+			  "The figure at the eastern shore. Forty-three sightings in my log. The previous keeper had eleven more. Fifty-four total. Whatever they are, they've been here longer than the records.",
+              "I tried to approach them once. Seven years ago. They didn't move away. They just — weren't there when I arrived. The log entry just says: 'Patient.'"
+			],
+			[
+			  "There's a recurring figure in my log. Eastern shore, storm weather, never in daylight, never in the same exact spot twice. Forty-three entries across my tenure alone. The previous keeper had observations too. The record is continuous.",
+			  "I've triangulated their path from the lighthouse. They always move toward the diner. I didn't make that connection until recently.",
+              "The light doesn't seem to affect them. Most people and animals respond to a lighthouse beam. This figure doesn't. That goes in the log. No explanation. Just the observation."
+			],
+			[
+			  "I want to show you something in the log. Entry forty-one, three years ago: 'Figure seen approaching the diner building from the east shore during storm. Light in the window. Figure stops. Remains for two hours. Departs at dawn.' You were there that night, I think.",
+			  "Seven years ago I tried to reach them across the shore. They were there. I walked. When I arrived they weren't. No footprints going away. The log entry is very brief. Sometimes the log doesn't have words for things.",
+              "Whatever they are, they've been here longer than the lighthouse, longer than this diner, longer than any of us. The records suggest that. My nineteen years suggest that."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_lighthouse_log_page"
+		  },
+		  "triggers": [
+            "signal_storm_visitor_connection_deepened"
+		  ]
+		},
+		{
+		  "tier": 3,
+		  "label": "The Record",
+		  "unlock_condition": {
+			"type": "npc_tier_reached",
+			"npc": "storm_visitor",
+			"tier": 2
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I've been keeping the log for nineteen years. The storm visitor appears forty-three times. Always during bad weather. Always alone. The first entry predates my appointment by eleven years — the previous keeper wrote about them too. His journal says: 'I think they're waiting for something. I think the island is too.' *looks at you for a long moment* Maybe you.",
+			  "The previous keeper's last entry is about the figure. He wrote it the night before he retired. Just: 'Still here. Still waiting. I hope they find what they need.' He never told me what he meant. I think I'm beginning to understand.",
+              "Fifty-four sightings across two keepers. Whatever they're waiting for — it's been worth waiting for, to them. That kind of patience deserves an answer."
+			],
+			[
+			  "I brought the journal tonight. The previous keeper's. His last entry — the very last one — is about the figure at the shore. He writes: 'I think it's waiting. I think we should let it.' I've thought about that sentence for nineteen years.",
+			  "Fifty-four combined sightings. Two keepers, different decades, different backgrounds. Same observation, same conclusion: whatever it is, it means no harm. It's patient. It's been here longer than any of us.",
+              "I think the figure comes to the diner. I think it comes to you, specifically. Not to me. Not to anyone before you. I don't know what that means. I wanted you to know I've seen it."
+			],
+			[
+			  "My predecessor's final log entry is dated eleven years before I arrived. The day he left. He wrote about the figure, and then he wrote one more thing: 'The diner will matter again when the right person arrives. The shore-walker will know when that is.' *long pause* You're here. It's visiting. I think that's not a coincidence.",
+			  "Forty-three is a lot of sightings. My predecessor had eleven more before me. Fifty-four over thirty years. That's almost two a year. Consistent. Patient. Purposeful.",
+              "Whatever happens with the thing on the shore — I think it's coming to a conclusion. Things have that feeling when they're ready to end. The log will have a final entry about this. I feel it."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_lighthouse_keeper_journal"
+		  },
+		  "triggers": [
+            "signal_storm_visitor_mystery_deepened"
+		  ]
+		}
+	  ]
+	},
+	"drifting_merchant": {
+	  "_meta": {
+		"arc_type": "medium",
+		"affinity": [
+		  "exotic",
+		  "spiced_dishes",
+          "any_unusual"
+		],
+		"schedule": "intermittent_irregular",
+		"payment_base": 0,
+		"payment_per_tier": 0,
+		"degradation_nights": null,
+		"recovery_dish": null,
+		"arc_summary": "Pays in ingredients rather than money. Always has something strange. Their arc is about what they're carrying that they can't sell."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Breezy Arrival",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "You're open! Wonderful. I've been eating ship rations for six days. I'll pay in kind — I have things that are harder to find than money. What's cooking? Something smells like it's actually been seasoned.",
+			  "A diner! On this island! I've come here three times and it was always dark. Whatever you're making — yes. Immediately.",
+              "I trade in interesting things. Food is an interesting thing. Let's do business."
+			],
+			[
+			  "Lights on! Finally. I've tried this island twice before and always found it dark. Whatever you have — I'll have it. And I'll leave you something useful in return. That's how I work.",
+			  "I've been on the water for nine days. Nine days of preserved fish. I would trade a great deal for something cooked by a person. Let's discuss what 'a great deal' means.",
+              "You're the new one. The harbour boy told me. What are you cooking? Whatever it is, I'll eat it and pay you in something more interesting than coin."
+			],
+			[
+			  "Oh, this is good. Real food. Real kitchen smell. I've been anticipating this for three days. What have you got? I'll have whatever it is twice.",
+			  "The diner's open. I may never leave. *sits down without being invited* What is that smell? Seasonings. Actual seasonings. You've done something right.",
+              "Trade proposal: I give you rare ingredients from places you've never heard of, you give me that. *gestures at the kitchen* Done? Done."
+			]
+		  ],
+		  "gives_item": {
+			"type": "ingredient",
+			"id": "exotic_spice_blend"
+		  },
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Trading Stories",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 2
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I've been to fourteen islands in the last year. This is the only one with a decent diner. Here — dried seaweed from the northern archipelago. Expensive on the mainland. Free to me. Free to you. In exchange for that dish. Fair?",
+			  "You want to know the secret of trading? Carry things other people forgot to want. By the time they remember, you're the only one who has it.",
+              "The mainland has four spice markets and none of them smell right anymore. Too clean. You want good spice, you need to go sideways. Here — take these. Consider it professional courtesy."
+			],
+			[
+			  "I've been everywhere this season. This island has the worst port authority and the best food. Strange combination. Here — these are from the eastern trade routes. Don't ask which ones.",
+			  "Trading isn't about what things cost. It's about what things mean. This seaweed means: I was there and you weren't. That's worth something.",
+              "Fourteen islands. One decent meal. I'll be back. I wanted you to know that. I don't always go back places."
+			],
+			[
+			  "People ask what the strangest thing I've ever traded is. I won't tell them. I'll tell you, because you feed me. *leans in* A map of a place that doesn't exist anymore. Anyway. These herbs are from an island two days north. Enjoy.",
+			  "The northern archipelago doesn't get many traders anymore. Too foggy, too political. I still go. The seaweed alone is worth the trouble.",
+              "Good traders come back. Great ones know which places to come back to. This is one of those places. Here — take these."
+			]
+		  ],
+		  "gives_item": {
+			"type": "ingredient",
+			"id": "northern_seaweed"
+		  },
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Something Heavy",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 4
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I carry things for people sometimes. Messages. Objects. Things that can't go through official channels. Most of it is mundane. But I have something I've been carrying for three years and I don't know who it's meant for. Someone on this island is supposed to have it. Maybe you'll know when you see it.",
+			  "Three years is too long to carry a letter. I know that. But I promised I'd get it here and — it's the principle of the thing. A merchant who doesn't deliver isn't a merchant.",
+              "The person who gave it to me said: you'll know the right moment. I've been waiting for the right moment for three years. This might be it."
+			],
+			[
+			  "I've been carrying an envelope for three years. It has no name on it — just a description. 'To whoever reopens the diner.' You've reopened the diner. I think the envelope is for you.",
+			  "People give me things and trust me to get them where they need to go. I've never broken that trust. But three years is a long time to carry something without knowing if you'll find the right person.",
+              "Whatever's in it isn't my business. My business was the delivery. But I've been holding it a long time. I'll sleep better when it's off my hands."
+			],
+			[
+			  "A sealed envelope. Three years in my cargo. The seal's still good — the wax I use holds even through salt air and rough water. Whoever sealed it trusted me, and I trust you. The rest is up to you.",
+			  "I don't ask what I carry. I deliver it. That's the agreement. But I'll say this — the person who gave it to me knew this island. Knew the diner. Knew it would open again. That's interesting, isn't it.",
+              "I've been watching for someone who seemed like they were supposed to have it. You seem like that. Here. Three years late and exactly on time."
+			]
+		  ],
+		  "gives_item": {
+			"type": "corkboard",
+			"id": "cb_sealed_envelope_unknown_addressee"
+		  },
+		  "triggers": [
+            "signal_merchant_mystery"
+		  ]
+		},
+		{
+		  "tier": 3,
+		  "label": "The Handoff",
+		  "unlock_condition": {
+			"type": "corkboard_items_pinned",
+			"count": 12
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "You've been reading the corkboard. The letter — you know who it's for. I don't need the details. My business is getting things where they need to go. It took three years but I got there. *raises a cup* To eventual arrivals.",
+			  "I've been carrying things for people my whole life. Mostly I never know what happens after. This time I'd like to know. If you find out — leave word at the harbour. I'll be back in a month or so.",
+              "A good delivery is a thing of beauty. Three years, two oceans, one fog-covered island. Worth it. *raises a cup* To the journey."
+			],
+			[
+			  "You've read enough to know where the envelope fits. Good. I don't need to understand everything — I just needed to get it here. Job done. *takes a long satisfied drink* I've been waiting three years for that feeling.",
+			  "I'll be back in this direction in six weeks or so. If you want to pass any word along — notes, packages, anything that needs to move without official channels — you know how to find the harbour.",
+              "Three years is the longest I've held anything. The herbs are a thank you. Real ones, not the trade. For letting me finish the job."
+			],
+			[
+			  "The board tells a story. I can see that from here. I've been a small part of it for three years without knowing it. That's strange to think about. Good strange. *raises a cup* To strange things that work out.",
+			  "What's in the envelope isn't my business. But I hope it's what it needed to be. For everyone involved. That's all I ever hope about deliveries.",
+              "I move things. Things that can't move themselves, or can't move through the proper routes. This island has a lot of both. I'll be back. There's always more to carry here."
+			]
+		  ],
+		  "gives_item": {
+			"type": "ingredient",
+			"id": "rare_island_herb"
+		  },
+		  "triggers": [
+            "signal_merchant_arc_complete"
+		  ]
+		}
+	  ]
+	},
+	"night_shift_guard": {
+	  "_meta": {
+		"arc_type": "light",
+		"affinity": [
+		  "hearty",
+		  "filling",
+          "hot_food"
+		],
+		"schedule": "late_nights_intermittent",
+		"payment_base": 15,
+		"payment_per_tier": 0,
+		"degradation_nights": 7,
+		"recovery_dish": null,
+		"arc_summary": "Military, off-duty. Conflicted about the port fees. Humanises the soldiers."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Professional Distance",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Don't read into this. I just needed somewhere warm. Off the clock. Before you ask. Whatever's hot.",
+			  "I'm not here officially. I'm just — here. Is that a problem?",
+              "The barracks has food but it's — it's the same thing every night. I just wanted something different."
+			],
+			[
+			  "If anyone asks, I'm not here. But I am here. So. Whatever you've got that's hot.",
+			  "Off duty. First time this week. Food that isn't barracks food. That's all this is.",
+              "Not on the clock. Not official. Just hungry. In that order."
+			],
+			[
+			  "There's no regulation against coming in here. I checked. So here I am. Hot food, please.",
+			  "I heard about this place from the harbour boy. Lights on late. Good food. Figured I'd see.",
+              "*sits with his back to the wall* Old habit. Whatever you're making."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Off-Duty Honesty",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 3
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "The port fees aren't my idea. I want to be clear about that. I'm stationed here. I didn't choose the policy. I keep coming back anyway.",
+			  "I enforce things I don't agree with. That's the job. Most jobs have some of that. I just — some nights it's worse than others.",
+              "I've been here eight months. I've watched people count out savings and hand them over with — I don't know. I don't know what they're feeling. I know what I'm feeling. I don't say it."
+			],
+			[
+			  "The fees came from above. Well above. I don't have the rank to question them, technically. I have the sense to question them, but sense and rank aren't always compatible.",
+			  "The fisherman. The one who goes out every day. He came to the port once to check on rates. The look on his face when I told him — I think about that.",
+              "Eight months and I can count on one hand the number of people who've managed to leave. The fees are very effective. That's a very neutral way to say something I'm not neutral about."
+			],
+			[
+			  "I had a conversation with the port commander last week about the fee structure. A very polite conversation where I said nothing and he said a lot. Standard.",
+			  "You don't choose everything about a posting. You don't always like what you enforce. You do it or you don't do it. That's been the question I keep sitting with.",
+              "The couple at the corner table. They've thought about leaving. I can tell from how they talk to each other at the port. I pretend I can't tell. That's the job."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Conflicted",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 6
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "There were six of us when we arrived. Now there are three. The others transferred out. I keep not transferring out. I tell myself it's the posting. Good pay, quiet island. That's not really why.",
+			  "I've been here long enough to know everyone's name. The fisherman. The baker. The couple in the corner. You're not supposed to know their names. Makes the job harder.",
+              "Some nights I think about just — not going back. Filing the paperwork differently. I don't. But I think about it."
+			],
+			[
+			  "I've put in for transfer twice. Both times I've withdrawn the request before it processed. I'm not sure what that says about me. Maybe nothing. Maybe quite a lot.",
+			  "I know the farmer's schedule. The baker's schedule. The old couple's schedule. I know who pays and who can't pay and what their faces look like when they hand it over. That's not the job I was described.",
+              "I've started writing things down. Not official reports. The other kind. I don't know what for. I just — it seemed like things should be written down."
+			],
+			[
+			  "Six months ago I would have said I was just doing a posting. Now I know the name of the cat that lives behind the port building and I've started thinking about what the fees actually do to people. Different situation.",
+			  "The fisherman came to the port again today. Just to look at the board. Not to pay. He looked at it for a long time. I pretended to be busy. It seemed like the decent thing.",
+              "I'm not going to do anything dramatic. I just — wanted someone to know I see it. All of it. What this island is. What it could be. What it's not allowed to be right now."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		}
+	  ]
+	},
+	"strange_child": {
+	  "_meta": {
+		"arc_type": "light",
+		"affinity": [
+		  "sweets",
+          "anything_sweet"
+		],
+		"schedule": "intermittent_day_phase_only",
+		"payment_base": 0,
+		"payment_per_tier": 0,
+		"degradation_nights": null,
+		"recovery_dish": null,
+		"arc_summary": "Asks oddly specific questions about the restaurant's history. Connection to the Storm Visitor implied, never stated."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Curious",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Did you find the room under the floorboards? The old lady who lived here kept things in there. I'm not supposed to be in here. But I've always been in here.",
+			  "You're the new cook. The last one left without saying goodbye. That was rude.",
+              "The floorboard near the counter — the second one — it's loose. In case you were wondering."
+			],
+			[
+			  "The old lady used to let me sit here when the fog was bad. She said the diner was the safest place on the island. She was usually right about things.",
+			  "Are you going to stay? The last person to cook here left very suddenly. Nobody saw it coming. Well. I saw it coming. I didn't tell anyone.",
+              "There's something behind the loose board near the counter. Second one from the left. I haven't told anyone else about it. You seem okay."
+			],
+			[
+			  "The corkboard used to have different things on it. She took some of them when she left. Or they went when she went. I'm not sure which.",
+			  "I come here during the day when it's quiet. You don't mind, do you? She never minded.",
+              "The floor in the corner makes a sound when you stand on it. Not the creaky kind. A different kind. I've been trying to figure out what it is for years."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": [
+            "hint_hidden_area"
+		  ]
+		},
+		{
+		  "tier": 1,
+		  "label": "Oddly Knowing",
+		  "unlock_condition": {
+			"type": "corkboard_items_pinned",
+			"count": 5
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "You pinned the map up. She'd like that. She used to say the island has a memory. I think the diner is the memory.",
+			  "Do you have anything sweet? I haven't eaten since the fog lifted.",
+              "You're being careful with the corkboard. Good. Some of those things are important. More important than they look."
+			],
+			[
+			  "The things on the board — some of them were there before. She didn't put them all there. Some of them just… appeared. I used to try to track when. I stopped because the answer was unsettling.",
+			  "Something sweet? Please. And don't ask what I know. I'll tell you when it's useful.",
+              "The board remembers things. People don't notice because they're not looking. You're looking. That's different."
+			],
+			[
+			  "More things on the board now than before. That's good. The more things on it, the more… stable everything feels. She used to say that. I didn't understand it then.",
+			  "I know more about this island than I should for someone my age. I'm not going to explain why. Cookie?",
+              "Be careful with the note in the corner. The one near the window. It's older than the others. Don't take it down."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "The Question",
+		  "unlock_condition": {
+			"type": "storm_visitor_visits",
+			"count": 2
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Has someone else been coming here? Late. When it storms. I asked the Traveller but he said no one unusual. He's a bad liar. Anyway. The cookie was good. Thank you.",
+			  "I saw the light on last night. Storm night. I didn't come in because — I didn't want to interrupt. Who was here?",
+              "The fog person. I've seen them before. Outside. They don't come in the day. Did they come here? Did they sit where I'm sitting?"
+			],
+			[
+			  "There's someone who comes in the storms. I've seen them through the window. They sit very still. They don't look like they're cold, even though they should be. Do you know who they are?",
+			  "I wanted to come in last time but the light was different. Like it was for them, not for general people. I didn't want to interrupt that.",
+              "The fog person has been coming here for a long time. Longer than me. I asked once, a few years ago, before you. They didn't answer. They just looked at the closed door for a while. Then left."
+			],
+			[
+			  "Do you leave a light on for them specifically? The storm nights. Because it seems like you do. And they come. I think that's… I think that's the right thing. I just wanted to say that.",
+			  "She used to leave a light on too. Even when the diner was closed. Even at the end. I wondered why. I think I understand now.",
+              "The fog person is important. I don't know how to explain it better than that. They're important and they've been waiting a long time. Please keep letting them in."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": [
+            "signal_storm_visitor_connection_hinted"
+		  ]
+		}
+	  ]
+	},
+	"quiet_farmer": {
+	  "_meta": {
+		"arc_type": "light",
+		"affinity": [
+		  "hearty",
+		  "vegetable_dishes",
+		  "stew",
+          "bread"
+		],
+		"schedule": "every_2_to_3_nights",
+		"payment_base": 18,
+		"payment_per_tier": 2,
+		"degradation_nights": 8,
+		"recovery_dish": "vegetable_stew",
+		"arc_summary": "Few words. Big appetite. Tips well. By tier 2 you realise he's been paying attention to everything."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Silent Regular",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Whatever's hot. *nods at the counter* Keep the change.",
+			  "*sits. waits.*",
+              "Stew, if you've got it."
+			],
+			[
+			  "*comes in without a word. sits. waits.*",
+			  "Bread and soup.",
+              "Whatever you've got. *sets payment down precisely*"
+			],
+			[
+			  "*nods.*",
+			  "The usual. *pause* Whatever the usual is tonight.",
+              "Good evening. *sits.*"
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "A Few Words",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 3
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Ground's hard this time of year. Doesn't matter what you plant. Good stew. Real vegetables. People forget what real vegetables taste like. You're doing alright, you know. With the place.",
+			  "Soil's been strange lately. Too dry where it should be wet. Too wet where it should be dry. The island does that sometimes.",
+              "My father farmed here. His father before that. The island takes some getting used to but it gives back, if you're patient."
+			],
+			[
+			  "Late frost this week. Lost some of the early seedlings. Happens. *takes a bite* Good. Better than last week. You're adjusting to the oven.",
+			  "The island has a rhythm. Took me twenty years to really hear it. The planting times, the fog patterns, the way the sea smells before a storm. You'll get there.",
+              "Four generations of us on this land. The island knows our family. I think it's getting to know you too."
+			],
+			[
+			  "Good soil on the north side. Can't farm it, too rocky. But the herbs that grow wild up there are something. I'll bring you some. *goes back to eating*",
+			  "Strange year. Good strange, mostly. New things growing where they haven't before. The island does that sometimes, when something changes.",
+              "You keep the lights on late. I see them from the north field. It's good. The dark is fine when you're used to it, but lights at night mean something."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Seen Everything",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 7
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I've watched three people try to leave this island in the last ten years. Two paid the fee and went. One came back. None of them were wrong. *pushes payment across the table without looking up* The bread's better than it was. You've been practicing.",
+			  "You'll figure it out. The decision, I mean. Most people do, eventually. The ones that don't — they were going to be fine either way. *keeps eating*",
+              "I've been on this island my whole life. Thought about leaving once. Got as far as the port. Turned around. Haven't thought about it since. The stew's good."
+			],
+			[
+			  "The island keeps some people and lets others go. I don't know how it decides. I've been kept. I'm not complaining. *slight nod at the bowl* The turnip's right tonight.",
+			  "There are people who've left and wrote back saying they were glad. And people who've left and you never hear from them again. And people who've come back. All of those are valid.",
+              "Four generations of my family have been on this land. I'll be here when you make your choice, either way. *eats* Good bread."
+			],
+			[
+			  "The diner being open again — people feel it. I feel it, and I don't feel most things. Something settled back into place. *pushes extra payment across without comment* Keep the lights on.",
+			  "I don't say a lot. You know that by now. But I notice everything. I've noticed you. You're doing right by this place.",
+              "When the time comes to decide, you'll know. Not before. The island makes sure of that. *finishes eating* Same tomorrow."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		}
+	  ]
+	},
+	"harbour_worker": {
+	  "_meta": {
+		"arc_type": "light",
+		"affinity": [
+		  "any_filling",
+		  "fish_dishes",
+          "hot_drinks"
+		],
+		"schedule": "most_nights",
+		"payment_base": 9,
+		"payment_per_tier": 1,
+		"degradation_nights": 4,
+		"recovery_dish": "fish_stew",
+		"arc_summary": "Chatty. Gossips about port activity and military movements. Genuinely likes the diner — it's his social life."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Chatty From Day One",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "New cook! Finally. The place was dark for ages, I thought it was haunted. I'm at the harbour most days — you hear things. Big supply ship came in last week, soldiers unloaded crates, nobody asked what was in them. What's on tonight? Doesn't matter. I'll eat it.",
+			  "I've been waiting for this place to open back up for two years. Two years! I've had to eat at home. Do you know what that's like? I don't cook. I really don't cook.",
+              "You've done something with the lights — they're warmer than before. Or maybe that's just relief. What've you got on?"
+			],
+			[
+			  "You know how long I've been eating cold food at the dock waiting for this place to open? Months. Actual months. What's cooking? I'll have all of it.",
+			  "The harbour's buzzing since you opened. People have somewhere to go after shift. Morale's up. I'm not exaggerating. Well, I'm exaggerating slightly. The morale was always fine. But it's better.",
+              "I heard about you from the Newcomer. Said there was a cook. A real cook. With real food. I told everyone at the dock. Half of them are too shy to come in. They'll get there."
+			],
+			[
+			  "The diner's open! I actually cheered at the harbour this morning when I saw the lights. Nobody clapped but I think they wanted to. What is that smell? Oh that's a good smell.",
+			  "I've been the social hub of this island for two years because there was nowhere else to go. Now you've opened and I can retire. Finally. What've you got?",
+              "At the harbour we have a theory that the diner being open changes the whole feel of the island. I've been testing this theory for three weeks. Results: conclusive."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Regular Gossip",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 3
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "The Fisherman was out past the eastern rocks again. That's a bad spot. Everyone knows that's a bad spot. Port Commander got a message this morning, official-looking, he didn't look happy. The guard who comes in late? I've seen him at the dock on off-nights, just standing there.",
+			  "Supply ship's running late. Third time this month. The soldiers are saying weather but I don't think it's weather. Something's happening on the mainland. You hear things at the harbour.",
+              "The Merchant was in today. Always got something unusual on the boat. Didn't tell me what this time. Usually tells me. Something's different."
+			],
+			[
+			  "Interesting morning. The Commander came down to the dock personally — first time in weeks. Stood there for twenty minutes looking at the water. Nobody asked why. Nobody does.",
+			  "The Fisherman leaves at dawn every day and comes back with nothing. I've stopped saying anything because what would I say? The sea's not his problem, I think.",
+              "The guard — the one who comes in late — I've seen him take the long route back. Past the diner. He slows down. You might be helping him more than you know."
+			],
+			[
+			  "Three supply ships this month and none of them declared properly. I notice. My job is to notice. I write it down in a little book. Mostly nobody reads the little book.",
+			  "The Newcomer's been asking questions at the harbour. Very polite questions. The kind that seem casual but aren't. I like them. Sharp people are interesting.",
+              "You've become part of the gossip now, you know. 'The diner's open.' 'The cook's good.' 'Went last night.' You're the news. It's a compliment."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Something Real",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 8
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I talk a lot. People think I don't notice things because I talk so much. I notice everything. I noticed when the lights came on here. I noticed when the Traveller started coming back. I notice you're still here. I don't know if that's good or not. But I'm glad the diner's open. I mean that.",
+			  "You want to know the thing about this island? It keeps the people it needs. I used to think that was just something people said. I don't think that anymore.",
+              "I've told you a lot of things other people haven't. Gossip, sure, but — the real stuff too. I don't know why. I think it's the food. Good food makes people honest."
+			],
+			[
+			  "I know things. I always know things. The harbour is the best place to know things from. But I want you to know that I've kept some of them. The things about you. The things I've noticed. I don't share everything.",
+			  "You've made this island better. I know that sounds like too much. It's not. The diner being open is — it's structural. Like a wall going back up. Things hold better now.",
+              "I'll stop by every night as long as you're open. That's not a threat. It's a promise. Some people need feeding. I need talking. You provide both."
+			],
+			[
+			  "Here's the real gossip: people are happier. Not in a big way. In the small ways that add up. The farmer tips better. The couple in the corner are holding hands again. The guard stops and looks in the window. That's you.",
+			  "I'm not sentimental. I'm observational. And I observe that this place has changed things. Quietly. Without announcement. That's the best kind of change.",
+              "I'll tell you one thing I've never told anyone. When the diner was dark, the harbour felt different. Heavier. The night you opened, it lifted. I don't know how else to say it. It just lifted."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		}
+	  ]
+	},
+	"elderly_couple": {
+	  "_meta": {
+		"arc_type": "light",
+		"affinity": [
+		  "simple",
+		  "traditional",
+		  "soup",
+          "bread"
+		],
+		"schedule": "every_2_to_3_nights",
+		"payment_base": 14,
+		"payment_per_tier": 1,
+		"degradation_nights": 10,
+		"recovery_dish": "soup",
+		"arc_summary": "Sit in the corner. Share a single dish. Say very little. Their presence alone makes the diner feel inhabited."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "The Corner Table",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "*sits down quietly, same table as always* One bowl. Two spoons.",
+			  "*settles in. adjusts the salt. nods once.*",
+              "*the one nearest the window looks out at the fog for a moment before sitting. then sits.*"
+			],
+			[
+			  "*comes in together, takes the corner table without discussion*",
+			  "*one sits. gestures for the other to sit. they do.* The soup.",
+              "*they remove their coats in unison, which neither of them notices*"
+			],
+			[
+			  "*pauses in the doorway to look at the room, then enters* Good. *sits.*",
+			  "*both sit. the usual pause. then:* Same as last time, please.",
+              "*one helps the other with their coat. they've done it ten thousand times. neither thinks about it.*"
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "A Little More",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 4
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "We used to come here. Before. It's good that it's open again. *they eat slowly, the silence warm* Thank you. For this.",
+			  "This was our table then too. We weren't sure if anyone would know that. It's good that it still works as a table.",
+              "She used to put a candle here on Wednesdays. Small thing. We always came on Wednesdays. *one of them looks at the table* You don't have to, of course."
+			],
+			[
+			  "We came here for thirty years before it closed. Forty, maybe. *the other holds up a finger: forty-three.* Forty-three. Every few nights. Same table. Good to be back.",
+			  "The owner knew what we liked before we asked. That takes time. *one of them looks at you* You're starting to figure it out. We noticed.",
+              "She used to leave a candle. We'd look for it when we came in. It was a Wednesday thing. *a long pause* We still come on Wednesdays."
+			],
+			[
+			  "*one of them orders. the other nods, meaning: yes, exactly that.* It's good here. Different but the same. In the way that matters.",
+			  "The window is the same. The table is the same. You're different. That's allowed. *both eat*",
+              "We never sat anywhere else. Not once in all those years. We never talked about it. We just sat here. *looks at the table* Still the right table."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Still Here",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 10
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Fifty-three years on this island. We've thought about leaving. More than once. But this is our table. *one takes the other's hand without looking* You make the soup how she used to. I don't know how you know that.",
+			  "*quietly, after a long silence* We stayed because of each other, mostly. But also — well. There are worse reasons to stay than a table you know.",
+              "*one of them touches the other's sleeve without a word. then:* Same again tomorrow, if that's alright."
+			],
+			[
+			  "Fifty-three years. *the other holds up three fingers: fifty-three exactly.* Fifty-three. We've outlasted three port commanders and two tax regimes and one very bad winter. We're still here. So are you. Good.",
+			  "We've sat in this chair so many times I think the chair knows us. *pats the armrest* It's the same chair. She kept good chairs.",
+              "The soup is right. *a look passes between them*. She'd think so too. *they eat*"
+			],
+			[
+			  "When you've been married as long as we have, you stop needing to explain things. *one gestures at the room* All of it. This is what we mean. *the other nods*",
+			  "We almost left. Three times. The third time we got as far as the port board. We looked at it. We looked at each other. We came back here instead. *both take a slow sip of soup*",
+              "Fifty-three years and the best thing about them is sitting at this table. That might sound small. It isn't. *looks at you, then back at the soup* It really isn't."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		}
+	  ]
+	},
+	"soup_regular": {
+	  "_meta": {
+		"arc_type": "light",
+		"affinity": [
+		  "any_soup",
+		  "broths",
+          "chowder"
+		],
+		"schedule": "most_nights",
+		"payment_base": 8,
+		"payment_per_tier": 1,
+		"degradation_nights": 5,
+		"recovery_dish": "any_soup",
+		"arc_summary": "Young. Only ever orders soup. Always seems like they just stopped crying, or are about to. Never fully explained — the player is meant to feel fond without knowing why."
+	  },
+	  "tiers": [
+		{
+		  "tier": 0,
+		  "label": "Subdued",
+		  "unlock_condition": null,
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "Just soup, please. Whatever kind. It doesn't matter. *tucks hands into sleeves and waits*",
+			  "Soup. Thank you.",
+              "*sits. looks at the counter. waits.*"
+			],
+			[
+			  "*comes in quietly. sits at the end of the counter.*",
+			  "Soup. Please. *small voice*",
+              "Whatever's warm. *doesn't look up*"
+			],
+			[
+			  "*pauses in the doorway, then decides yes, comes in*",
+			  "Soup, if that's okay.",
+              "*sits down carefully, like they're not sure they're allowed to*"
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 1,
+		  "label": "Slightly Present",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 3
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "This is the only place I can sit for a whole hour without thinking too much. I don't know why soup specifically. The warmth, maybe. Is it weird that I come here alone every night? Don't answer that.",
+			  "I've been coming here every night and I don't think I've said more than three words. Thank you for not making that strange.",
+              "Soup again. I know. I'm a simple person. *small pause* That's not quite true. I'm a complicated person who only wants soup right now."
+			],
+			[
+			  "I think about saying something different when I come in. Every time. Then I get here and the soup is what I want, so. Soup again.",
+			  "Thank you for not — doing the thing where you're very nice about someone who seems sad. You just make the soup. That's right. That's exactly right.",
+              "I told myself last night I'd try something else. Then I walked in and smelled the soup and that was that. Maybe next time."
+			],
+			[
+			  "The thing about soup is it's always the right temperature eventually. You just wait. *pause* I think that's maybe why I like it.",
+			  "I keep coming back. I'm aware it might seem like a lot. It's a lot for me too. But the alternative is not coming back and I tried that for a week and it was worse.",
+              "One of the other regulars nodded at me tonight. The farmer, I think. I nodded back. That felt good. Small things."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		},
+		{
+		  "tier": 2,
+		  "label": "Almost Okay",
+		  "unlock_condition": {
+			"type": "visits",
+			"count": 7
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I had a bad year. I'm not going to explain it because I'm tired of explaining it. But this helps. Coming here helps. You don't ask me anything. You just make the soup. I don't know if you know how much that matters.",
+			  "I think I'm getting better. Or getting used to it. I'm not sure which. Either way. The soup helps.",
+              "I told someone about this place. Said: there's a diner, they don't ask questions, the soup is good. They said that sounded nice. It is. It really is."
+			],
+			[
+			  "I'm going to try something new next time. Not soup. I said that to test how it feels. It feels wrong. Soup for now. Maybe next month.",
+			  "I've been here — I counted — twenty-three times. I think that's when a place becomes yours. Twenty-three. This place is a little bit mine now. I hope that's okay.",
+              "Someone asked me where I eat. I said: there's a diner. They asked what it was like. I said: quiet, and nobody bothers you, and the soup is good. They said that sounded like a lot. It's exactly enough."
+			],
+			[
+			  "Things are easier than they were. I don't have a better way to say it. This is part of why. Having somewhere to come. Something reliable. I know that's a lot of weight to put on soup. It's not just soup.",
+			  "I almost didn't come tonight. Then I thought: the soup. And here I am. Some things make the right choice obvious.",
+              "Thank you. For opening. For keeping it open. For the soup specifically but also for all of it. I don't usually say thank you properly. So. Thank you."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
+		}
+	  ]
+	}
+  },
+  "corkboard_items": {
+	"cb_hand_drawn_coast_map": {
+	  "label": "Hand-Drawn Coast Map",
+	  "giver": "washed_up_traveller",
+	  "tier_given": 2,
+	  "description": "A rough pencil map of the island's coastline, annotated in two different handwriting styles. One set of notes is practical — depths, currents, landing spots. The other is older, faded, and keeps circling a point on the eastern shore with the words 'don't go here alone.'"
+	},
+	"cb_worn_travel_document": {
+	  "label": "Worn Travel Document",
+	  "giver": "washed_up_traveller",
+	  "tier_given": 3,
+	  "description": "A laminated document, partially water-damaged. The photo is faded beyond recognition. The destination field has been filled in, crossed out, and filled in again. The final entry simply reads: 'Here.'"
+	},
+	"cb_photo_diner_original_owner": {
+	  "label": "Photograph — Diner Interior, Old",
+	  "giver": "washed_up_traveller",
+	  "tier_given": 6,
+	  "description": "A black-and-white photograph of the diner, clearly decades old. The layout is the same, but the décor is different — warmer, more personal. A woman stands behind the counter, smiling at someone off-camera. She is holding a pressed flower."
+	},
+	"cb_traveller_journal_page": {
+	  "label": "Torn Journal Page",
+	  "giver": "washed_up_traveller",
+	  "tier_given": 8,
+	  "description": "A page torn from a personal journal. 'Day 1: Find a boat. Day 30: Find a better boat. Day 90: The fog looks different in the morning. Day 365: I stopped counting days.' The handwriting gets steadier as the entries progress."
+	},
+	"cb_old_photograph_diner_exterior": {
+	  "label": "Old Photograph — Diner Exterior",
+	  "giver": "elderly_baker",
+	  "tier_given": 2,
+	  "description": "A colour photograph, sun-bleached. The diner exterior is clean and painted — the shutters are green, not grey. A hand-painted sign above the door reads 'The Driftwood.' Below that, in smaller letters: 'Everyone eats here.'"
+	},
+	"cb_newspaper_clipping_disappearance": {
+	  "label": "Newspaper Clipping",
+	  "giver": "elderly_baker",
+	  "tier_given": 4,
+	  "description": "A clipping from an island gazette, undated. The headline reads: 'Local Diner Closes Unexpectedly.' The article is three sentences long. It mentions no reason. The last sentence reads: 'The lights were left on.'"
+	},
+	"cb_pressed_flower_framed": {
+	  "label": "Pressed Flower (Framed)",
+	  "giver": "elderly_baker",
+	  "tier_given": 5,
+	  "description": "A small dried flower, pressed between two pieces of glass in a simple wooden frame. On the back, in faded ink: 'For the next one. — M.' The flower is the same species as the one above the counter in the old photograph."
+	},
+	"cb_coastline_map_marked": {
+	  "label": "Coastline Map (Marked)",
+	  "giver": "failing_fisherman",
+	  "tier_given": 2,
+	  "description": "A practical fishing chart of the island's eastern coast. Certain areas are circled in red with the note 'good.' Others are crossed out with 'wrong now.' One area has been circled, crossed out, and re-circled multiple times. No note."
+	},
+	"cb_torn_letter_mainland": {
+	  "label": "Torn Letter",
+	  "giver": "newcomer",
+	  "tier_given": 2,
+	  "description": "Half a letter, torn cleanly. The remaining half begins mid-sentence: '...records that a settlement existed there prior to the current military administration. The island does not appear on any modern maritime chart. If you find it, do not announce your arrival. Find the diner first.'"
+	},
+	"cb_sheet_music_fragment": {
+	  "label": "Sheet Music Fragment",
+	  "giver": "musician",
+	  "tier_given": 2,
+	  "description": "Three bars of handwritten sheet music. No title. No key signature. The notes have been written and rewritten so many times the paper is almost worn through. At the bottom, a single word: 'remember.'"
+	},
+	"cb_cryptic_note_01": {
+	  "label": "Cryptic Note",
+	  "giver": "storm_visitor",
+	  "tier_given": 0,
+	  "description": "A folded note, damp from the rain. Inside, a single sentence in careful handwriting: 'The island remembers everyone who stayed. Ask yourself: what does it remember about you?'"
+	},
+	"cb_old_photo_before_island": {
+	  "label": "Photograph — Unknown Location",
+	  "giver": "storm_visitor",
+	  "tier_given": 1,
+	  "description": "A photograph that doesn't match anywhere on the island. Rolling green hills, no fog, a farmhouse in the background. On the reverse: a date that predates the island's recorded settlement by forty years."
+	},
+	"cb_island_charter_fragment": {
+	  "label": "Island Charter Fragment",
+	  "giver": "storm_visitor",
+	  "tier_given": 2,
+	  "description": "A fragment of an official-looking document, the seal worn away. The visible text reads: '...the residents of the island shall retain the right of free passage, and no authority shall levy fees upon departure. This covenant is permanent and irrevocable.' Below it, in different ink: 'Superseded. — Military Administration Order 7.'"
+	},
+	"cb_final_storm_note": {
+	  "label": "Final Note",
+	  "giver": "storm_visitor",
+	  "tier_given": 3,
+	  "description": "A note left on the table, no envelope. 'You've been kind to everyone who came through that door. That's rarer than you know. Whatever you decide — to leave or to stay — take that with you. It's the only thing that matters. Goodbye, and thank you for the soup.'"
+	},
+	"cb_lighthouse_log_page": {
+	  "label": "Lighthouse Log Page",
+	  "giver": "lighthouse_keeper",
+	  "tier_given": 2,
+	  "description": "A photocopied page from an official maritime log. Most entries are routine. One entry is circled in pencil: 'Unknown figure on eastern shore. Third sighting this month. Not a threat. Possibly not a person.' The date is from eleven years ago."
+	},
+	"cb_lighthouse_keeper_journal": {
+	  "label": "Previous Keeper's Journal (Excerpt)",
+	  "giver": "lighthouse_keeper",
+	  "tier_given": 3,
+	  "description": "Three torn pages from a handwritten journal, water-stained. 'The fog figure was at the eastern cove again. I left the lamp burning extra bright — not as a warning. As a welcome. I think they're waiting for something. I think the island is too. I hope it comes before I'm gone.'"
+	},
+	"cb_sealed_envelope_unknown_addressee": {
+	  "label": "Sealed Envelope",
+	  "giver": "drifting_merchant",
+	  "tier_given": 2,
+	  "description": "A thick envelope, sealed with dark wax. No sender. The addressee line reads: 'To whoever reopens the diner.' The wax is unbroken. Whatever is inside has been waiting."
+	}
+  }
+}

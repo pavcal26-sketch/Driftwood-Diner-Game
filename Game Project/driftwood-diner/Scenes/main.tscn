@@ -1,0 +1,59 @@
+[gd_scene format=3 uid="uid://b8j8h45rxapxt"]
+
+[ext_resource type="Texture2D" uid="uid://cyq3omvey1euf" path="res://Assets/diner_pixel_6px_24c.png" id="1_jjgbg"]
+[ext_resource type="PackedScene" uid="uid://cb1gjhvobv3bg" path="res://Scenes/CounterView.tscn" id="2_cv"]
+[ext_resource type="Script" path="res://Scripts/Main.gd" id="3_main"]
+[ext_resource type="PackedScene" path="res://Scenes/HUD.tscn" id="4_hud"]
+[ext_resource type="PackedScene" path="res://Scenes/CookingUI.tscn" id="5_cui"]
+[ext_resource type="PackedScene" path="res://Scenes/DayTransition.tscn" id="6_dt"]
+[ext_resource type="PackedScene" uid="uid://cxdebugmenu1" path="res://Scenes/DebugMenu.tscn" id="7_dbg"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("3_main")
+
+[node name="Diner" type="Node2D" parent="."]
+
+[node name="Background" type="Sprite2D" parent="Diner"]
+position = Vector2(575, 326)
+scale = Vector2(1.1279296, 1.1162108)
+texture = ExtResource("1_jjgbg")
+
+[node name="Windows" type="Node2D" parent="Diner"]
+
+[node name="Night" type="Sprite2D" parent="Diner/Windows"]
+centered = false
+visible = true
+
+[node name="Day" type="Sprite2D" parent="Diner/Windows"]
+centered = false
+visible = false
+
+[node name="FogOverlay" type="Sprite2D" parent="Diner/Windows"]
+centered = false
+visible = false
+modulate = Color(1, 1, 1, 0.5)
+
+[node name="Rain" type="Sprite2D" parent="Diner/Windows"]
+centered = false
+visible = false
+
+[node name="CanvasModulate" type="CanvasModulate" parent="Diner"]
+color = Color(1, 0.95, 0.85, 1)
+
+[node name="NPCLayer" type="Node2D" parent="Diner"]
+
+[node name="Ambience" type="AudioStreamPlayer" parent="Diner"]
+bus = "Ambience"
+
+[node name="CounterView" parent="." instance=ExtResource("2_cv")]
+
+[node name="HUD" parent="." instance=ExtResource("4_hud")]
+
+[node name="CookingUI" parent="." instance=ExtResource("5_cui")]
+
+[node name="DayTransition" parent="." instance=ExtResource("6_dt")]
+
+[node name="DebugMenu" parent="." instance=ExtResource("7_dbg")]
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
+bus = "Music"

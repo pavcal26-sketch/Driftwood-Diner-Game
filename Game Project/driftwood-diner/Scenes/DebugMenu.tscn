@@ -1,0 +1,77 @@
+[gd_scene format=3 uid="uid://cxdebugmenu1"]
+
+[ext_resource type="Script" path="res://Scripts/DebugMenu.gd" id="1_dbg"]
+
+[node name="DebugMenu" type="CanvasLayer"]
+layer = 100
+visible = false
+script = ExtResource("1_dbg")
+
+[node name="Panel" type="PanelContainer" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="VBox" type="VBoxContainer" parent="Panel/Margin"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "-- DEVELOPER DEBUG MENU --"
+horizontal_alignment = 1
+
+[node name="EconomyBox" type="HBoxContainer" parent="Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="AddMoneyBtn" type="Button" parent="Panel/Margin/VBox/EconomyBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "+ $1,000"
+
+[node name="ClearMoneyBtn" type="Button" parent="Panel/Margin/VBox/EconomyBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Set Money to 0"
+
+[node name="TimeBox" type="HBoxContainer" parent="Panel/Margin/VBox"]
+layout_mode = 2
+
+[node name="SkipPhaseBtn" type="Button" parent="Panel/Margin/VBox/TimeBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Skip Phase"
+
+[node name="ToggleRainBtn" type="Button" parent="Panel/Margin/VBox/TimeBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Toggle Rain"
+
+[node name="NPCLabel" type="Label" parent="Panel/Margin/VBox"]
+layout_mode = 2
+text = "Force NPC State:"
+theme_override_font_sizes/font_size = 18
+
+[node name="Scroll" type="ScrollContainer" parent="Panel/Margin/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="NPCList" type="VBoxContainer" parent="Panel/Margin/VBox/Scroll"]
+layout_mode = 2
+size_flags_horizontal = 3
