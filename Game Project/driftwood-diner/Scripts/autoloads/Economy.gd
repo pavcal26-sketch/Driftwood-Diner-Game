@@ -2,8 +2,8 @@ extends Node
 
 # Tracks player savings and handles the two ending thresholds.
 
-const PASSAGE_COST   := 6667   # Ending A — leave (divided by 1.5)
-const STAY_UPGRADE   := 8000   # Ending B — upgrade and stay (divided by 1.5)
+const PASSAGE_COST   := 5000   # Ending A — leave the island
+const STAY_UPGRADE   := 6000   # Ending B — upgrade and stay
 
 var savings: int = 0
 var _active_npc_id: String = ""   # who's at the counter right now

@@ -24,6 +24,7 @@ signal ingredient_received(ingredient_id: String)
 signal day_advanced(day_number: int)
 signal day_phase_changed(phase: String)   # "day" | "evening" | "night"
 signal weather_changed(weather: String)   # "clear" | "fog" | "rain"
+signal clock_tick(hour: float)            # fires every game-minute with current hour
 
 # --- Economy ---
 signal savings_changed(new_amount: int)

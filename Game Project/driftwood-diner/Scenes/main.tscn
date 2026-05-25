@@ -1,59 +1,70 @@
 [gd_scene format=3 uid="uid://b8j8h45rxapxt"]
 
-[ext_resource type="Texture2D" uid="uid://cyq3omvey1euf" path="res://Assets/diner_pixel_6px_24c.png" id="1_jjgbg"]
+[ext_resource type="Texture2D" uid="uid://cv1mpxvvufkh7" path="res://Assets/diner_pixel_6px_24c.png" id="1_jjgbg"]
+[ext_resource type="Texture2D" uid="uid://bq7kl2nenwcm" path="res://Assets/diner_non_window.png" id="1_nwin"]
+[ext_resource type="Texture2D" uid="uid://btnvgm66y2uwk" path="res://Assets/diner_window.png" id="1_win"]
 [ext_resource type="PackedScene" uid="uid://cb1gjhvobv3bg" path="res://Scenes/CounterView.tscn" id="2_cv"]
-[ext_resource type="Script" path="res://Scripts/Main.gd" id="3_main"]
+[ext_resource type="Script" uid="uid://bl03ahe8nisle" path="res://Scripts/Main.gd" id="3_main"]
 [ext_resource type="PackedScene" path="res://Scenes/HUD.tscn" id="4_hud"]
-[ext_resource type="PackedScene" path="res://Scenes/CookingUI.tscn" id="5_cui"]
+[ext_resource type="PackedScene" uid="uid://bg3dap87onjuv" path="res://Scenes/CookingUI.tscn" id="5_cui"]
 [ext_resource type="PackedScene" path="res://Scenes/DayTransition.tscn" id="6_dt"]
-[ext_resource type="PackedScene" uid="uid://cxdebugmenu1" path="res://Scenes/DebugMenu.tscn" id="7_dbg"]
+[ext_resource type="PackedScene" path="res://Scenes/DebugMenu.tscn" id="7_dbg"]
 
-[node name="Main" type="Node2D"]
+[node name="Main" type="Node2D" unique_id=462057264]
 script = ExtResource("3_main")
 
-[node name="Diner" type="Node2D" parent="."]
+[node name="Diner" type="Node2D" parent="." unique_id=1156527587]
 
-[node name="Background" type="Sprite2D" parent="Diner"]
+[node name="Exterior" type="Sprite2D" parent="Diner" unique_id=757906415]
+z_index = -2
+position = Vector2(198, -15)
+texture = ExtResource("1_win")
+
+[node name="RainLayer" type="Node2D" parent="Diner" unique_id=1834058828]
+z_index = -1
+
+[node name="Interior" type="Sprite2D" parent="Diner" unique_id=379116452]
+texture = ExtResource("1_nwin")
+
+[node name="Background" type="Sprite2D" parent="Diner" unique_id=462207595]
+visible = false
 position = Vector2(575, 326)
 scale = Vector2(1.1279296, 1.1162108)
 texture = ExtResource("1_jjgbg")
 
-[node name="Windows" type="Node2D" parent="Diner"]
+[node name="Windows" type="Node2D" parent="Diner" unique_id=56805732]
 
-[node name="Night" type="Sprite2D" parent="Diner/Windows"]
+[node name="Night" type="Sprite2D" parent="Diner/Windows" unique_id=216709375]
 centered = false
-visible = true
 
-[node name="Day" type="Sprite2D" parent="Diner/Windows"]
-centered = false
+[node name="Day" type="Sprite2D" parent="Diner/Windows" unique_id=798537633]
 visible = false
-
-[node name="FogOverlay" type="Sprite2D" parent="Diner/Windows"]
 centered = false
+
+[node name="FogOverlay" type="Sprite2D" parent="Diner/Windows" unique_id=188233244]
 visible = false
 modulate = Color(1, 1, 1, 0.5)
-
-[node name="Rain" type="Sprite2D" parent="Diner/Windows"]
 centered = false
-visible = false
 
-[node name="CanvasModulate" type="CanvasModulate" parent="Diner"]
+[node name="Rain" type="Sprite2D" parent="Diner/Windows" unique_id=505289894]
+visible = false
+centered = false
+
+[node name="CanvasModulate" type="CanvasModulate" parent="Diner" unique_id=1672235524]
 color = Color(1, 0.95, 0.85, 1)
 
-[node name="NPCLayer" type="Node2D" parent="Diner"]
+[node name="NPCLayer" type="Node2D" parent="Diner" unique_id=1083536223]
 
-[node name="Ambience" type="AudioStreamPlayer" parent="Diner"]
-bus = "Ambience"
+[node name="Ambience" type="AudioStreamPlayer" parent="Diner" unique_id=248060617]
 
-[node name="CounterView" parent="." instance=ExtResource("2_cv")]
+[node name="CounterView" parent="." unique_id=1296566851 instance=ExtResource("2_cv")]
 
-[node name="HUD" parent="." instance=ExtResource("4_hud")]
+[node name="HUD" parent="." unique_id=1802412628 instance=ExtResource("4_hud")]
 
-[node name="CookingUI" parent="." instance=ExtResource("5_cui")]
+[node name="CookingUI" parent="." unique_id=1643738902 instance=ExtResource("5_cui")]
 
-[node name="DayTransition" parent="." instance=ExtResource("6_dt")]
+[node name="DayTransition" parent="." unique_id=1900580149 instance=ExtResource("6_dt")]
 
-[node name="DebugMenu" parent="." instance=ExtResource("7_dbg")]
+[node name="DebugMenu" parent="." unique_id=129549250 instance=ExtResource("7_dbg")]
 
-[node name="MusicPlayer" type="AudioStreamPlayer" parent="."]
-bus = "Music"
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1272846575]

@@ -10,6 +10,10 @@ extends Node2D
 @onready var npc_layer    : Node2D         = $Diner/NPCLayer
 @onready var canvas_mod   : CanvasModulate = $Diner/CanvasModulate
 @onready var windows      : Node2D         = $Diner/Windows
+@onready var exterior     : Sprite2D       = $Diner/Exterior
+@onready var interior     : Sprite2D       = $Diner/Interior
+@onready var rain_layer   : Node2D         = $Diner/RainLayer
+# keep the old background ref for fallback — it's hidden in the scene
 @onready var background   : Sprite2D       = $Diner/Background
 
 var _recipe_book: CanvasLayer = null
@@ -44,15 +48,31 @@ var _counter_queue: Array[String] = []
 const SEAT_POSITIONS: Array[float] = [650.0, 800.0, 950.0, 1100.0, 1250.0, 1400.0]
 var _used_seats: Dictionary = {}
 
+# weather particles
 var _rain_particles: CPUParticles2D
+var _drizzle_particles: CPUParticles2D
+
+# lighting color table — keyed by hour, lerped between
+const LIGHTING_TABLE: Array[Dictionary] = [
+	{"hour": 0.0,  "color": Color(0.25, 0.28, 0.50, 1.0)},  # midnight — deep blue
+	{"hour": 5.0,  "color": Color(0.30, 0.30, 0.48, 1.0)},  # pre-dawn — still dark
+	{"hour": 6.0,  "color": Color(0.70, 0.55, 0.45, 1.0)},  # dawn — warm amber
+	{"hour": 7.5,  "color": Color(0.95, 0.88, 0.78, 1.0)},  # morning — warm white
+	{"hour": 12.0, "color": Color(1.00, 0.97, 0.90, 1.0)},  # noon — bright
+	{"hour": 16.0, "color": Color(1.00, 0.93, 0.82, 1.0)},  # afternoon — slightly warm
+	{"hour": 18.0, "color": Color(0.95, 0.72, 0.55, 1.0)},  # evening — golden hour
+	{"hour": 19.5, "color": Color(0.65, 0.50, 0.55, 1.0)},  # dusk — purple tint
+	{"hour": 21.0, "color": Color(0.35, 0.38, 0.55, 1.0)},  # night falls
+	{"hour": 24.0, "color": Color(0.25, 0.28, 0.50, 1.0)},  # wraps to midnight
+]
 
 func _ready() -> void:
 	_build_day_transition_anims()
 	_setup_weather_effects()
 	_connect_signals()
-	_apply_phase(GameManager.current_phase)
+	_fit_layers()
+	_apply_lighting(GameManager.game_hour)
 	_apply_weather(GameManager.current_weather)
-	_fit_background()
 	_build_recipe_book()
 	_build_corkboard_ui()
 
@@ -60,30 +80,58 @@ func _ready() -> void:
 	await get_tree().create_timer(2.0).timeout
 	spawn_npc("washed_up_traveller")
 
-func _fit_background() -> void:
+# -----------------------------------------------------------------------
+# Background layering — exterior behind rain behind interior
+# -----------------------------------------------------------------------
+func _fit_layers() -> void:
 	var vp: Vector2 = get_viewport_rect().size
-	if background.texture == null:
-		return
-	var tex_size: Vector2 = background.texture.get_size()
-	var scale_x: float = vp.x / tex_size.x
-	var scale_y: float = vp.y / tex_size.y
-	var s: float = maxf(scale_x, scale_y)
-	background.scale    = Vector2(s, s)
-	background.position = vp * 0.5
 
-	# compute where the visual floor is in world space
-	# the diner floor is approximately 73% down the texture
-	var floor_frac: float = 0.73
-	var tex_floor_y: float = tex_size.y * floor_frac           # pixels from top in texture
-	var offset_from_center: float = tex_floor_y - tex_size.y * 0.5
-	_floor_y    = vp.y * 0.5 + offset_from_center * s
-	_counter_x  = vp.x * 0.30   # 30% from left — in front of the bar, not behind it
-	_offscreen_x = vp.x + 200.0  # just off right edge
+	# scale interior (same dimensions as old background)
+	if interior.texture != null:
+		var tex_size: Vector2 = interior.texture.get_size()
+		var sx: float = vp.x / tex_size.x
+		var sy: float = vp.y / tex_size.y
+		var s: float = maxf(sx, sy)
+		interior.scale    = Vector2(s, s)
+		interior.position = vp * 0.5
+
+		# compute floor position from interior
+		var floor_frac: float = 0.73
+		var tex_floor_y: float = tex_size.y * floor_frac
+		var offset_from_center: float = tex_floor_y - tex_size.y * 0.5
+		_floor_y    = vp.y * 0.5 + offset_from_center * s
+		_counter_x  = vp.x * 0.30
+		_offscreen_x = vp.x + 200.0
+
+	# scale exterior to match interior pixel density, then position it
+	# so its center aligns with the transparent cutout in the interior.
+	# cutout measured at (410,137)-(1024,404) in 1024x583 interior texture
+	# cutout center in texture coords: (717, 270)
+	if exterior.texture != null:
+		var int_tex: Vector2 = interior.texture.get_size() if interior.texture else Vector2(1024, 583)
+		var int_scale: float = interior.scale.x
+
+		# same pixel density as interior
+		exterior.scale = interior.scale
+
+		# interior is centered at vp*0.5, so texture origin = vp*0.5 - int_tex*0.5*scale
+		# cutout center in texture space = (717, 270)
+		# cutout center in screen space = origin + cutout_center * scale
+		var int_origin: Vector2 = vp * 0.5 - int_tex * 0.5 * int_scale
+		var cutout_center_screen: Vector2 = int_origin + Vector2(709.0, 270.0) * int_scale
+
+		# exterior is also centered, so position = cutout center
+		exterior.position = cutout_center_screen
+
+func _fit_background() -> void:
+	# legacy — redirect to new layer system
+	_fit_layers()
 
 func _connect_signals() -> void:
-	SignalBus.day_phase_changed.connect(_apply_phase)
+	SignalBus.day_phase_changed.connect(_on_phase_changed)
 	SignalBus.day_phase_changed.connect(_schedule_phase_spawns)
 	SignalBus.weather_changed.connect(_apply_weather)
+	SignalBus.clock_tick.connect(_apply_lighting)
 	SignalBus.npc_at_counter.connect(_on_npc_at_counter)
 	SignalBus.npc_requests_counter.connect(_on_npc_requests_counter)
 	SignalBus.npc_left_counter.connect(_on_npc_left_counter)
@@ -202,53 +250,44 @@ func _on_npc_departed(npc_id: String) -> void:
 	_counter_queue.erase(npc_id)
 
 # -----------------------------------------------------------------------
-# Phase / Weather
+# Continuous lighting — lerps CanvasModulate based on game_hour
 # -----------------------------------------------------------------------
-func _setup_weather_effects() -> void:
-	_rain_particles = CPUParticles2D.new()
-	_rain_particles.emitting = false
-	_rain_particles.amount = 300
-	_rain_particles.lifetime = 1.2
-	_rain_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
-	_rain_particles.emission_rect_extents = Vector2(1200, 10)
-	_rain_particles.position = Vector2(960, -50)
-	_rain_particles.direction = Vector2(-0.2, 1.0)
-	_rain_particles.spread = 2.0
-	_rain_particles.gravity = Vector2(0, 1200)
-	_rain_particles.initial_velocity_min = 600.0
-	_rain_particles.initial_velocity_max = 800.0
-	_rain_particles.scale_amount_min = 2.0
-	_rain_particles.scale_amount_max = 4.5
-	_rain_particles.color = Color(0.6, 0.75, 0.95, 0.5)
-	windows.add_child(_rain_particles)
+func _apply_lighting(hour: float) -> void:
+	var color: Color = _lerp_lighting(hour)
+	canvas_mod.color = color
 
-func _apply_phase(phase: String) -> void:
-	var target_color := Color.WHITE
-	var day_alpha := 0.0
-	var night_alpha := 0.0
-
-	match phase:
-		"day":
-			target_color = Color(1.0, 0.96, 0.88, 1.0)
-			day_alpha = 1.0
-			night_alpha = 0.0
-		"evening":
-			target_color = Color(0.95, 0.75, 0.60, 1.0)
-			day_alpha = 1.0
-			night_alpha = 0.5
-		"night":
-			target_color = Color(0.35, 0.40, 0.60, 1.0) # Much darker and moodier for night
-			day_alpha = 0.0
-			night_alpha = 1.0
-
-	var t = create_tween().set_parallel(true)
-	t.tween_property(canvas_mod, "color", target_color, 8.0)
+	# also drive the window overlays based on time
 	var day_win = windows.get_node("Day")
 	var night_win = windows.get_node("Night")
 	day_win.visible = true
 	night_win.visible = true
-	t.tween_property(day_win, "modulate:a", day_alpha, 8.0)
-	t.tween_property(night_win, "modulate:a", night_alpha, 8.0)
+
+	# day windows bright during day, night windows bright at night
+	var night_factor: float = 0.0
+	if hour >= 20.0 or hour < 5.0:
+		night_factor = 1.0
+	elif hour >= 18.0:
+		night_factor = (hour - 18.0) / 2.0  # fade in 18-20
+	elif hour >= 5.0 and hour < 7.0:
+		night_factor = 1.0 - ((hour - 5.0) / 2.0)  # fade out 5-7
+
+	day_win.modulate.a = 1.0 - night_factor
+	night_win.modulate.a = night_factor
+
+func _lerp_lighting(hour: float) -> Color:
+	# find the two table entries we're between and lerp
+	for i in range(LIGHTING_TABLE.size() - 1):
+		var a: Dictionary = LIGHTING_TABLE[i]
+		var b: Dictionary = LIGHTING_TABLE[i + 1]
+		if hour >= a["hour"] and hour < b["hour"]:
+			var t: float = (hour - a["hour"]) / (b["hour"] - a["hour"])
+			return (a["color"] as Color).lerp(b["color"] as Color, t)
+	# fallback — shouldn't happen, but just in case
+	return LIGHTING_TABLE[0]["color"]
+
+# legacy compat — phase changed signal still fires, just doesn't drive lighting anymore
+func _on_phase_changed(_phase: String) -> void:
+	pass
 
 func _apply_weather(weather: String) -> void:
 	var fog = windows.get_node("FogOverlay")
@@ -258,12 +297,58 @@ func _apply_weather(weather: String) -> void:
 	fog.visible = true
 	var t = create_tween()
 	if weather == "fog":
-		t.tween_property(fog, "modulate:a", 0.6, 5.0)
+		t.tween_property(fog, "modulate:a", 0.75, 5.0)
 	else:
 		t.tween_property(fog, "modulate:a", 0.0, 5.0)
 
+	# rain particles now fall between exterior and interior layers
 	if _rain_particles:
 		_rain_particles.emitting = (weather == "rain")
+	if _drizzle_particles:
+		_drizzle_particles.emitting = (weather == "rain")
+
+# -----------------------------------------------------------------------
+# Weather particles — rain falls between the two background layers
+# -----------------------------------------------------------------------
+func _setup_weather_effects() -> void:
+	var vp: Vector2 = get_viewport_rect().size
+
+	# main rain streaks — visible through the window cutout
+	_rain_particles = CPUParticles2D.new()
+	_rain_particles.emitting = false
+	_rain_particles.amount = 200
+	_rain_particles.lifetime = 0.9
+	_rain_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	# cover the full width so rain shows through whatever windows exist
+	_rain_particles.emission_rect_extents = Vector2(vp.x * 0.5, 10)
+	_rain_particles.position = Vector2(vp.x * 0.5, -20)
+	_rain_particles.direction = Vector2(-0.3, 1.0)
+	_rain_particles.spread = 4.0
+	_rain_particles.gravity = Vector2(-60, 1000)
+	_rain_particles.initial_velocity_min = 550.0
+	_rain_particles.initial_velocity_max = 800.0
+	_rain_particles.scale_amount_min = 2.0
+	_rain_particles.scale_amount_max = 4.0
+	_rain_particles.color = Color(0.7, 0.82, 0.95, 0.8)
+	rain_layer.add_child(_rain_particles)
+
+	# fine drizzle — smaller, slower, more transparent
+	_drizzle_particles = CPUParticles2D.new()
+	_drizzle_particles.emitting = false
+	_drizzle_particles.amount = 100
+	_drizzle_particles.lifetime = 1.1
+	_drizzle_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	_drizzle_particles.emission_rect_extents = Vector2(vp.x * 0.5, 10)
+	_drizzle_particles.position = Vector2(vp.x * 0.5, -30)
+	_drizzle_particles.direction = Vector2(-0.2, 1.0)
+	_drizzle_particles.spread = 5.0
+	_drizzle_particles.gravity = Vector2(-30, 700)
+	_drizzle_particles.initial_velocity_min = 350.0
+	_drizzle_particles.initial_velocity_max = 500.0
+	_drizzle_particles.scale_amount_min = 1.0
+	_drizzle_particles.scale_amount_max = 2.0
+	_drizzle_particles.color = Color(0.7, 0.82, 0.95, 0.5)
+	rain_layer.add_child(_drizzle_particles)
 
 # -----------------------------------------------------------------------
 # UI
@@ -415,6 +500,10 @@ func _do_day_transition() -> void:
 
 func _schedule_phase_spawns(phase: String) -> void:
 	if _transitioning:
+		return
+	
+	# dawn is a transitional phase — don't spawn during it
+	if phase == "dawn":
 		return
 		
 	var full_pool: Array[String] = [

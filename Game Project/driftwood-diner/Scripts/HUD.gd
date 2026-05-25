@@ -6,7 +6,8 @@ signal advance_pressed
 signal corkboard_pressed
 
 @onready var day_label     : Label = $Control/DayCounter
-@onready var phase_label   : Label = $Control/PhaseDisplay
+@onready var clock_label   : Label = $Control/ClockDisplay
+@onready var phase_label   : Label = $Control/PhaseLabel
 @onready var savings_label : Label = $Control/SavingsDisplay/SavingsAmount
 
 func _ready() -> void:
@@ -14,16 +15,24 @@ func _ready() -> void:
 	$Control/ActionButtons/OpenRecipes.pressed.connect(func(): recipes_pressed.emit())
 	$Control/ActionButtons/OpenCorkboard.pressed.connect(func(): corkboard_pressed.emit())
 	$Control/ActionButtons/AdvanceDay.pressed.connect(func(): advance_pressed.emit())
-	SignalBus.day_phase_changed.connect(update_phase)
+	SignalBus.clock_tick.connect(_on_clock_tick)
 	update_day(GameManager.current_day)
-	update_phase(GameManager.current_phase)
+	_update_clock(GameManager.game_hour)
 	update_savings(Economy.savings)
+
+func _on_clock_tick(hour: float) -> void:
+	_update_clock(hour)
+
+func _update_clock(hour: float) -> void:
+	clock_label.text = GameManager.get_clock_string()
+	phase_label.text = GameManager.current_phase.capitalize()
 
 func update_day(day: int) -> void:
 	day_label.text = "Day %d" % day
 
-func update_phase(phase: String) -> void:
-	phase_label.text = "Time: " + phase.capitalize()
+func update_phase(_phase: String) -> void:
+	# kept for backward compat — clock_tick handles display now
+	pass
 
 func update_savings(amount: int) -> void:
 	savings_label.text = "$%s" % _comma(amount)

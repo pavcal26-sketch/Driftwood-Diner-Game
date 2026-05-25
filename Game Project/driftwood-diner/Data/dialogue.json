@@ -175,7 +175,7 @@
 		  "label": "Confidant",
 		  "unlock_condition": {
 			"type": "savings_reached",
-			"amount": 2000
+			"amount": 1500
 		  },
 		  "weather_required": null,
 		  "variants": [
@@ -273,7 +273,7 @@
 		  "label": "The Mirror Cracks",
 		  "unlock_condition": {
 			"type": "savings_reached",
-			"amount": 5300
+			"amount": 4000
 		  },
 		  "weather_required": null,
 		  "variants": [
