@@ -235,7 +235,15 @@ func _on_served(served_npc_id: String, dish_id: String) -> void:
 	SignalBus.npc_reaction.emit(npc_id, reaction)
 
 	await get_tree().create_timer(2.5).timeout
-	_walk_to_seat_then_leave()
+	_leave_from_counter()
+
+func _leave_from_counter() -> void:
+	_state = "leaving"
+	SignalBus.npc_left_counter.emit(npc_id)
+	var dist: float = abs(position.x - offscreen_x)
+	var tween: Tween = create_tween()
+	tween.tween_property(self, "position:x", offscreen_x, dist / WALK_SPEED)
+	tween.tween_callback(_on_left)
 
 func _walk_to_seat_then_leave() -> void:
 	_state = "returning"
@@ -252,7 +260,7 @@ func _idle_then_leave() -> void:
 
 func _leave() -> void:
 	_state = "leaving"
-	var dist: float = abs(seat_x - offscreen_x)
+	var dist: float = abs(position.x - offscreen_x)
 	var tween: Tween = create_tween()
 	tween.tween_property(self, "position:x", offscreen_x, dist / WALK_SPEED)
 	tween.tween_callback(_on_left)

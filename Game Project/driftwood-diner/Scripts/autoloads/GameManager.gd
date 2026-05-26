@@ -28,7 +28,6 @@ var _last_emitted_minute: int = -1
 
 func _ready() -> void:
 	current_phase = _phase_from_hour(game_hour)
-	SignalBus.day_advanced.connect(_on_day_advanced)
 
 func _process(delta: float) -> void:
 	var old_phase: String = current_phase
@@ -107,9 +106,6 @@ func _roll_weather() -> void:
 				current_weather = weather
 				SignalBus.weather_changed.emit(weather)
 			return
-
-func _on_day_advanced(_day: int) -> void:
-	pass
 
 # --- Save / Load ---
 const SAVE_PATH := "user://save.json"

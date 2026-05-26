@@ -49,6 +49,14 @@ func _populate_npcs() -> void:
 		lbl.custom_minimum_size = Vector2(180, 0)
 		hbox.add_child(lbl)
 		
+		var spawn_btn = Button.new()
+		spawn_btn.text = "Spawn"
+		spawn_btn.pressed.connect(func():
+			SignalBus.debug_spawn_npc.emit(npc)
+			print("Spawned ", npc)
+		)
+		hbox.add_child(spawn_btn)
+		
 		var add_visit = Button.new()
 		add_visit.text = "+1 Visit"
 		add_visit.pressed.connect(func():

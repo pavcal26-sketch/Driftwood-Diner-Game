@@ -19,6 +19,12 @@ func add_savings(amount: int) -> void:
 	if savings >= PASSAGE_COST:
 		SignalBus.passage_unlocked.emit()
 
+func spend_savings(amount: int) -> void:
+	savings -= amount
+	if savings < 0:
+		savings = 0
+	SignalBus.savings_changed.emit(savings)
+
 func _on_npc_served(npc_id: String, dish_id: String) -> void:
 	var meta := DialogueManager.get_npc_meta(npc_id)
 	var base: int    = meta.get("payment_base", 0)

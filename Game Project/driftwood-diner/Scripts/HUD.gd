@@ -30,10 +30,6 @@ func _update_clock(hour: float) -> void:
 func update_day(day: int) -> void:
 	day_label.text = "Day %d" % day
 
-func update_phase(_phase: String) -> void:
-	# kept for backward compat — clock_tick handles display now
-	pass
-
 func update_savings(amount: int) -> void:
 	savings_label.text = "$%s" % _comma(amount)
 

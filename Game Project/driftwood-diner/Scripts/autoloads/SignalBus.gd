@@ -20,6 +20,9 @@ signal dialogue_finished(npc_id: String)
 signal corkboard_item_received(item_id: String)
 signal ingredient_received(ingredient_id: String)
 
+# --- Debug ---
+signal debug_spawn_npc(npc_id: String)
+
 # --- World state ---
 signal day_advanced(day_number: int)
 signal day_phase_changed(phase: String)   # "day" | "evening" | "night"

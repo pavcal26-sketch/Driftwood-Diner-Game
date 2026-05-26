@@ -123,12 +123,7 @@ func _fit_layers() -> void:
 		# exterior is also centered, so position = cutout center
 		exterior.position = cutout_center_screen
 
-func _fit_background() -> void:
-	# legacy — redirect to new layer system
-	_fit_layers()
-
 func _connect_signals() -> void:
-	SignalBus.day_phase_changed.connect(_on_phase_changed)
 	SignalBus.day_phase_changed.connect(_schedule_phase_spawns)
 	SignalBus.weather_changed.connect(_apply_weather)
 	SignalBus.clock_tick.connect(_apply_lighting)
@@ -140,6 +135,7 @@ func _connect_signals() -> void:
 	SignalBus.npc_departed.connect(_on_npc_departed)
 	SignalBus.savings_changed.connect(func(v: int): hud.update_savings(v))
 	SignalBus.day_advanced.connect(func(d: int): hud.update_day(d))
+	SignalBus.debug_spawn_npc.connect(spawn_npc)
 
 	hud.cooking_pressed.connect(_toggle_cooking)
 	hud.recipes_pressed.connect(_toggle_recipes)
@@ -284,10 +280,6 @@ func _lerp_lighting(hour: float) -> Color:
 			return (a["color"] as Color).lerp(b["color"] as Color, t)
 	# fallback — shouldn't happen, but just in case
 	return LIGHTING_TABLE[0]["color"]
-
-# legacy compat — phase changed signal still fires, just doesn't drive lighting anymore
-func _on_phase_changed(_phase: String) -> void:
-	pass
 
 func _apply_weather(weather: String) -> void:
 	var fog = windows.get_node("FogOverlay")
