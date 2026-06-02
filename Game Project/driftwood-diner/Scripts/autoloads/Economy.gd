@@ -1,12 +1,18 @@
 extends Node
 
 # Tracks player savings and handles the two ending thresholds.
+# Diminishing returns: serving the same dish to the same NPC pays less each time.
 
 const PASSAGE_COST   := 5000   # Ending A — leave the island
 const STAY_UPGRADE   := 6000   # Ending B — upgrade and stay
 
+# payment multiplier curve — first time full, then drops
+# index = times_served_before (clamped to last entry)
+const DIMINISH_CURVE: Array[float] = [1.0, 0.75, 0.5, 0.25]
+
 var savings: int = 0
 var _active_npc_id: String = ""   # who's at the counter right now
+var _serve_history: Dictionary = {}  # "npc_id::dish_id" -> int (times served)
 
 func _ready() -> void:
 	SignalBus.npc_served.connect(_on_npc_served)
@@ -31,11 +37,25 @@ func _on_npc_served(npc_id: String, dish_id: String) -> void:
 	var per_tier: int = meta.get("payment_per_tier", 0)
 	var tier: int    = DialogueManager._npc_tiers.get(npc_id, 0)
 
-	# simple affinity check — expand this once CombinationDB dish tags are in
+	# affinity check
 	var affinity: Array = meta.get("affinity", [])
 	var multiplier := 1.0
 	if dish_id in affinity or "any" in affinity:
 		multiplier = 2.0
 
-	var total := int((base + per_tier * tier) * multiplier)
+	# diminishing returns — same dish to same NPC pays less each time
+	var history_key: String = npc_id + "::" + dish_id
+	var times_before: int = _serve_history.get(history_key, 0)
+	var diminish_idx: int = mini(times_before, DIMINISH_CURVE.size() - 1)
+	var diminish: float = DIMINISH_CURVE[diminish_idx]
+	_serve_history[history_key] = times_before + 1
+
+	var total := int((base + per_tier * tier) * multiplier * diminish)
 	add_savings(total)
+
+func get_save_data() -> Dictionary:
+	return {"savings": savings, "serve_history": _serve_history}
+
+func load_save_data(data: Dictionary) -> void:
+	savings = data.get("savings", 0)
+	_serve_history = data.get("serve_history", {})

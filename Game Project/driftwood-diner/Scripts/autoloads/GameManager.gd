@@ -68,6 +68,7 @@ func _phase_from_hour(h: float) -> String:
 # returns a formatted clock string like "9:42 PM"
 func get_clock_string() -> String:
 	var total_minutes: int = int(game_hour * 60.0)
+	@warning_ignore("integer_division")
 	var hours_24: int = total_minutes / 60
 	var minutes: int = total_minutes % 60
 	

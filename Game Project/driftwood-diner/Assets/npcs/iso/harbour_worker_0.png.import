@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dckfhgjikas53"
-path="res://.godot/imported/elderly_baker_0.png-c196b8112386cf6cdb0df129067fd65f.ctex"
+uid="uid://clnqapfyst472"
+path="res://.godot/imported/harbour_worker_0.png-b65894e91a1d189c91db709b0cfb46ef.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/npcs/iso/elderly_baker_0.png"
-dest_files=["res://.godot/imported/elderly_baker_0.png-c196b8112386cf6cdb0df129067fd65f.ctex"]
+source_file="res://Assets/npcs/iso/harbour_worker_0.png"
+dest_files=["res://.godot/imported/harbour_worker_0.png-b65894e91a1d189c91db709b0cfb46ef.ctex"]
 
 [params]
 

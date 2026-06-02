@@ -81,7 +81,7 @@ func record_visit(npc_id: String, weather: String = "clear") -> void:
 		_storm_visits[npc_id] = _storm_visits.get(npc_id, 0) + 1
 
 # Called after serving a dish.
-func record_dish_served(npc_id: String, dish_id: String) -> void:
+func record_dish_served(npc_id: String, _dish_id: String) -> void:
 	var key := npc_id + "_dishes"
 	_npc_visits[key] = _npc_visits.get(key, 0) + 1
 
@@ -140,7 +140,7 @@ func _give_item(gives: Dictionary) -> void:
 		"counter":
 			SignalBus.ingredient_received.emit(gives.get("id", ""))
 
-func _fire_trigger(trigger: String, npc_id: String) -> void:
+func _fire_trigger(trigger: String, _npc_id: String) -> void:
 	if _completed_signals.has(trigger):
 		return
 	_completed_signals.append(trigger)

@@ -76,9 +76,11 @@ func _ready() -> void:
 	_build_recipe_book()
 	_build_corkboard_ui()
 
-	# first night
+	# first night — traveller arrives, then kick off the evening spawn schedule
+	# (without this, NPCs only spawn on phase CHANGE, so nothing until hour 20)
 	await get_tree().create_timer(2.0).timeout
 	spawn_npc("washed_up_traveller")
+	_schedule_phase_spawns(GameManager.current_phase)
 
 # -----------------------------------------------------------------------
 # Background layering — exterior behind rain behind interior

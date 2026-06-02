@@ -16,7 +16,6 @@ var _npc_id:    String = ""
 var _accepting: bool   = false
 var _typing:    bool   = false
 var _full_text: String = ""
-var _char_idx:  int    = 0
 var _portraits: Array[Texture2D] = []
 var _frame_idx: int    = 0
 var _slide_tween: Tween = null

@@ -23,7 +23,7 @@ func _ready() -> void:
 func _on_clock_tick(hour: float) -> void:
 	_update_clock(hour)
 
-func _update_clock(hour: float) -> void:
+func _update_clock(_hour: float) -> void:
 	clock_label.text = GameManager.get_clock_string()
 	phase_label.text = GameManager.current_phase.capitalize()
 

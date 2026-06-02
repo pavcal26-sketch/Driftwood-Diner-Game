@@ -2,7 +2,8 @@
   "_meta": {
 	"version": "1.2",
 	"game": "The Driftwood Diner",
-	"schema": "tier unlock_condition types: null | {type:'visits',count} | {type:'dish_served',dish,cumulative} | {type:'savings_reached',amount} | {type:'corkboard_items_pinned',count} | {type:'npc_tier_reached',npc,tier} | {type:'storm_visits',count} | {type:'storm_visitor_visits',count} | {type:'ending_chosen',ending} | {type:'any_ending_reached'}. weather_required: null | 'fog' | 'rain' | 'any_storm'. gives_item: null | {type:'corkboard'|'ingredient'|'counter', id:string}. triggers: game signal strings emitted after dialogue plays. variants: array of 3 arrays of 3 strings — one array is picked at random each visit; the 3 strings within are displayed sequentially as the dialogue exchange."
+	"schema": "tier unlock_condition types: null | {type:'visits',count} | {type:'dish_served',dish,cumulative} | {type:'savings_reached',amount} | {type:'corkboard_items_pinned',count} | {type:'npc_tier_reached',npc,tier} | {type:'storm_visits',count} | {type:'storm_visitor_visits',count} | {type:'ending_chosen',ending} | {type:'any_ending_reached'}. weather_required: null | 'fog' | 'rain' | 'any_storm'. gives_item: null | {type:'corkboard'|'ingredient'|'counter', id:string}. triggers: game signal strings emitted after dialogue plays. variants: array of 3 arrays of 3 strings — one array is picked at random each visit; the 3 strings within are displayed sequentially as the dialogue exchange.",
+	"ending_prerequisites": "The ending choice UI requires BOTH: (1) Economy.savings >= PASSAGE_COST (mechanical gate) AND (2) the 'unlock_both_endings' trigger from Baker T5/Memory Cake (narrative gate). Neither alone is sufficient. The Traveller's T9/T10 fire AFTER the player has already chosen, as farewell scenes."
   },
   "npcs": {
 	"washed_up_traveller": {
@@ -199,9 +200,7 @@
 			"type": "ingredient",
 			"id": "seeds_packet"
 		  },
-		  "triggers": [
-            "unlock_gardening_hint"
-		  ]
+		  "triggers": []
 		},
 		{
 		  "tier": 6,
@@ -874,17 +873,17 @@
 		  "variants": [
 			[
 			  "Can I be honest with you? I wasn't on a ship that sank. I didn't get lost. I came here deliberately. I read about this island in a record that shouldn't exist. I was looking for something. I can't tell you what yet. I'm not sure I found it. I'm not sure I didn't.",
-			  "I've been carrying a letter for eighteen months. Someone gave it to me and said: find the island that isn't on any map, find the diner. Leave this there. I found the island. I found the diner. I'm not sure what to do with the letter.",
+			  "The person who sent me said someone else would bring a letter here — through the trade routes. They said: go first, find the diner, make sure it's open again. I found it. It's open. I think my part is done.",
               "You've been kind to me without asking what I'm doing here. I want you to know I noticed that. And I want you to know — I'm not here to cause trouble. Whatever I was looking for, I think it's already here."
 			],
 			[
 			  "Alright. True story: I wasn't an accident. I planned this. Someone sent me a document — handwritten, very old — describing an island that doesn't appear on charts. A diner with lights on. A corkboard. All of it. I thought it was a hoax until I found myself here.",
-			  "I have the letter. In my bag. Someone trusted me to bring it here, to this specific place. I don't know who they are. I don't know what it says. I was told: leave it somewhere safe. Here seemed right.",
+			  "There's a letter meant for this place — but I wasn't the one entrusted with it. A trader carries it, through the routes. My job was just to get here first and make sure someone was keeping the lights on.",
               "I wasn't going to tell you any of this. But you've been — steady. That's the word. Steady. Like you already knew everything and just decided to feed people anyway. That deserved honesty."
 			],
 			[
 			  "I've been rehearsing this. The honest version. Here it is: I came here on purpose, with a purpose, and I still don't fully understand either of those things. The island knows more about why I'm here than I do, I think.",
-			  "The letter has been in my pocket for eighteen months. It's worn through at the folds. I've thought about opening it every day. But it's not mine to open. The instruction was clear: find the diner, leave it there.",
+			  "There's a letter out there somewhere, making its way here through someone's cargo. The person who sent me said it would find the diner when the diner was ready. I was sent ahead — to make sure someone was here to receive it.",
               "I don't know if I found what I was looking for. I know I found something. I know this place is part of it. That'll have to be enough for now."
 			]
 		  ],
@@ -910,7 +909,7 @@
               "The Teacher asked if I wanted to stay on properly. I said I'd think about it. I've stopped thinking about it. Does that count as a decision?"
 			],
 			[
-			  "I delivered the letter. Put it on the corkboard. Don't ask me what it says — I never opened it. But it's there now. Where it was supposed to be. I feel — lighter.",
+			  "The letter arrived. The Merchant brought it — I saw it on the corkboard. I never opened it. But it's here now. Where it was supposed to be. I feel — lighter.",
 			  "I think whatever I came here to do is done. Which means I can stay for different reasons now. The Teacher has opinions about that.",
               "The island grows on you. That's the thing nobody told me. I thought I was visiting. The island had different plans."
 			],
@@ -1154,7 +1153,7 @@
 			[
 			  "The storms don't bother me. I think you've noticed. Other people shelter. I arrive. There's a reason for that. I'm not ready to say it yet.",
 			  "The light in the window. You keep it on later than most. I wanted you to know that I notice. That it matters.",
-              "Same soup as last time. Please. Some things should stay the same."
+              "Same soup as last time. Please. She made it the same way, you know. Some things should stay the same."
 			]
 		  ],
 		  "gives_item": {
@@ -1610,6 +1609,34 @@
 		  ],
 		  "gives_item": null,
 		  "triggers": []
+		},
+		{
+		  "tier": 3,
+		  "label": "The Gate",
+		  "unlock_condition": {
+			"type": "ending_chosen",
+			"ending": "A"
+		  },
+		  "weather_required": null,
+		  "variants": [
+			[
+			  "I'm on duty tonight. Officially. *doesn't look up from the logbook* The port's open. Everything's in order. I made sure of that.",
+			  "I filed the paperwork an hour ago. It went through clean. Nobody's going to stop you. *still not looking up* Safe crossing.",
+              "... I'm glad someone got out properly. For what that's worth."
+			],
+			[
+			  "*standing at the port gate, clipboard in hand* Everything checks out. You're clear. *a long pause* I wrote my transfer request this morning. For real this time. I'm not withdrawing it.",
+			  "The crossing should be calm tonight. I checked the weather report specifically. I don't usually do that. *adjusts his cap* Good luck out there.",
+              "You changed things here. Coming in, feeding people. I know I'm not supposed to say that on duty. Consider it off the record."
+			],
+			[
+			  "*at the gate. quiet. professional.* All in order. Port fees paid. Documentation complete. *hands you a form without looking at your face*",
+			  "I left something for you. In the bag with the paperwork. It's not official. It's just something I wrote down. You don't have to read it.",
+              "The gate's open. *steps aside* ... Keep going. Don't look back at the lights."
+			]
+		  ],
+		  "gives_item": null,
+		  "triggers": []
 		}
 	  ]
 	},
@@ -1878,7 +1905,7 @@
 			[
 			  "Three supply ships this month and none of them declared properly. I notice. My job is to notice. I write it down in a little book. Mostly nobody reads the little book.",
 			  "The Newcomer's been asking questions at the harbour. Very polite questions. The kind that seem casual but aren't. I like them. Sharp people are interesting.",
-              "You've become part of the gossip now, you know. 'The diner's open.' 'The cook's good.' 'Went last night.' You're the news. It's a compliment."
+              "You've become part of the gossip now. 'The diner's open.' 'The cook's good.' Even that strange child's been talking about the place — that kid's always known more than she should, but nobody asks how."
 			]
 		  ],
 		  "gives_item": null,
