@@ -81,6 +81,8 @@ func _ready() -> void:
 	await get_tree().create_timer(2.0).timeout
 	spawn_npc("washed_up_traveller")
 	_schedule_phase_spawns(GameManager.current_phase)
+	# ensure weather visuals are correct at boot (default is "clear")
+	_apply_weather(GameManager.current_weather)
 
 # -----------------------------------------------------------------------
 # Background layering — exterior behind rain behind interior
@@ -133,7 +135,8 @@ func _connect_signals() -> void:
 	SignalBus.npc_requests_counter.connect(_on_npc_requests_counter)
 	SignalBus.npc_left_counter.connect(_on_npc_left_counter)
 	SignalBus.dialogue_finished.connect(_on_dialogue_finished)
-	SignalBus.npc_arrived.connect(func(id: String): _present_npcs.append(id))
+	# npc_arrived no longer needs to register in _present_npcs — spawn_npc does that
+	# immediately. Keep listening for other uses (e.g. dialogue visit tracking).
 	SignalBus.npc_departed.connect(_on_npc_departed)
 	SignalBus.savings_changed.connect(func(v: int): hud.update_savings(v))
 	SignalBus.day_advanced.connect(func(d: int): hud.update_day(d))
@@ -163,6 +166,9 @@ func _input(event: InputEvent) -> void:
 func spawn_npc(npc_id: String) -> void:
 	if npc_id in _present_npcs:
 		return
+	# register IMMEDIATELY to prevent duplicate spawns from timers firing
+	# before walk-in animation completes (the npc_arrived signal is too late)
+	_present_npcs.append(npc_id)
 
 	var seat: float = _assign_seat(npc_id)
 
@@ -211,14 +217,13 @@ func _grant_counter(npc_id: String) -> void:
 
 func _on_npc_left_counter(_npc_id: String) -> void:
 	_counter_occupied = false
-	# let the next queued NPC approach
-	if not _counter_queue.is_empty():
+	# let the next queued NPC approach (iterative, not recursive)
+	while not _counter_queue.is_empty():
 		var next_id: String = _counter_queue.pop_front()
-		# make sure they're still present
 		if next_id in _present_npcs:
 			_grant_counter(next_id)
-		elif not _counter_queue.is_empty():
-			_on_npc_left_counter("")  # try next
+			return
+	# nobody left in queue — counter is free
 
 func _on_npc_at_counter(npc_id: String) -> void:
 	var meta     : Dictionary = DialogueManager.get_npc_meta(npc_id)
@@ -287,19 +292,40 @@ func _apply_weather(weather: String) -> void:
 	var fog = windows.get_node("FogOverlay")
 	var static_rain = windows.get_node("Rain")
 	static_rain.visible = false
-
 	fog.visible = true
-	var t = create_tween()
-	if weather == "fog":
-		t.tween_property(fog, "modulate:a", 0.75, 5.0)
-	else:
-		t.tween_property(fog, "modulate:a", 0.0, 5.0)
 
-	# rain particles now fall between exterior and interior layers
-	if _rain_particles:
-		_rain_particles.emitting = (weather == "rain")
-	if _drizzle_particles:
-		_drizzle_particles.emitting = (weather == "rain")
+	# kill any leftover weather tween so they don't fight
+	var t := create_tween().set_parallel(true)
+
+	match weather:
+		"fog":
+			t.tween_property(fog, "modulate:a", 0.75, 4.0)
+			if _rain_particles:
+				_rain_particles.emitting = false
+			if _drizzle_particles:
+				_drizzle_particles.emitting = false
+
+		"rain":
+			# rain gets particles + light fog for atmosphere
+			t.tween_property(fog, "modulate:a", 0.35, 3.0)
+			if _rain_particles:
+				_rain_particles.emitting = true
+			if _drizzle_particles:
+				_drizzle_particles.emitting = true
+
+		_:  # "clear" and anything else
+			t.tween_property(fog, "modulate:a", 0.0, 5.0)
+			if _rain_particles:
+				_rain_particles.emitting = false
+			if _drizzle_particles:
+				_drizzle_particles.emitting = false
+
+	# storm_visitor only appears during rain — spawn with a moody delay
+	if weather == "rain" and "storm_visitor" not in _present_npcs:
+		get_tree().create_timer(randf_range(8.0, 20.0)).timeout.connect(func():
+			if not _transitioning and GameManager.current_weather == "rain":
+				spawn_npc("storm_visitor")
+		)
 
 # -----------------------------------------------------------------------
 # Weather particles — rain falls between the two background layers

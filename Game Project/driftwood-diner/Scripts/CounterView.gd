@@ -93,9 +93,10 @@ func _load_portraits(npc_id: String) -> void:
 
 func _read_png_texture(path: String) -> Texture2D:
 	# Happy path: import system has a cached .ctex
-	var tex := load(path) as Texture2D
-	if tex:
-		return tex
+	if ResourceLoader.exists(path):
+		var tex := load(path) as Texture2D
+		if tex:
+			return tex
 	# Fallback: read raw bytes and detect actual format from header
 	var os_path := ProjectSettings.globalize_path(path)
 	var fa := FileAccess.open(os_path, FileAccess.READ)

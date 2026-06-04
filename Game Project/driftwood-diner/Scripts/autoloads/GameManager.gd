@@ -103,9 +103,9 @@ func _roll_weather() -> void:
 	for weather in WEATHER_CHANCES:
 		cumulative += WEATHER_CHANCES[weather]
 		if roll <= cumulative:
-			if weather != current_weather:
-				current_weather = weather
-				SignalBus.weather_changed.emit(weather)
+			current_weather = weather
+			# always emit — Main needs to re-apply effects even for the same weather
+			SignalBus.weather_changed.emit(weather)
 			return
 
 # --- Save / Load ---

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cma1cyb8uc8pe"
-path="res://.godot/imported/lighthouse_keeper_0.png-fe9c961883f7301646eae6d075c6a4e9.ctex"
+uid="uid://dco0hth04t5ja"
+path="res://.godot/imported/intro_2.png-53513e01440a74edbb50ce5785e9f609.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/npcs/iso/lighthouse_keeper_0.png"
-dest_files=["res://.godot/imported/lighthouse_keeper_0.png-fe9c961883f7301646eae6d075c6a4e9.ctex"]
+source_file="res://Assets/intro/intro_2.png"
+dest_files=["res://.godot/imported/intro_2.png-53513e01440a74edbb50ce5785e9f609.ctex"]
 
 [params]
 

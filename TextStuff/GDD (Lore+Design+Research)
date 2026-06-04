@@ -11,7 +11,7 @@
 
 The Driftwood Diner is a **2D side-view** cosy mystery cooking game set on a fog-covered island. The player washes ashore with no memory of how they got there and no way to leave. They take shelter in an abandoned restaurant, get the lights on, and start cooking. Drawn by the smell of food and the glow of light, islanders begin to arrive. Through repeated visits and shared meals, the player earns the trust of the island's residents, uncovers the history of the restaurant, and must ultimately decide: save enough to pay for passage and leave, or choose to stay.
 
-The port is controlled by soldiers — passage off the island costs money ($10,000). By cooking meals and serving island residents, the player earns income and trust, uncovers the island's history through NPC stories and corkboard items, and faces their choice. If the player earns $12,000 without choosing to leave, the game ends with them building a life on the island.
+The port is controlled by soldiers — passage off the island costs money ($5,000). By cooking meals and serving island residents, the player earns income and trust, uncovers the island's history through NPC stories and corkboard items, and faces their choice. If the player earns $6,000 without choosing to leave, the game ends with them building a life on the island.
 
 ## 2. Setting
 
@@ -44,7 +44,7 @@ Fog and rain change daily (simple random roll). Weather affects which NPCs appea
 The core mechanic. When the player opens the cooking UI (C key), a **2D overlay** appears showing a virtual counter surface. The player drags ingredient icons from a pantry panel onto the counter and combines two items to attempt a recipe. Successful combinations produce a dish or a new ingredient. Failed combinations produce nothing. There is no recipe book shown in-world — **discovery is the reward**.
 
 - ~30 base ingredients available as icons in a pantry panel within the UI
-- **120+ combinations** including chained recipes (A+B=C, then C+D=E)
+- **147 recipes** including chained recipes (A+B=C, then C+D=E) and NPC-gifted ingredient combinations
 - Some recipes require leaving items on the counter **overnight** before completing
 - Items left out for **4+ nights** go stale
 - A **recipe log** panel tracks all discoveries; undiscovered recipes show as ???
@@ -65,7 +65,7 @@ NPCs arrive at the diner during the night phase on their own schedule. The playe
 
 ### 4.3 Dialogue System
 
-**No dialogue choices.** The player listens. NPCs have tiered dialogue states that unlock as relationship meters fill through cooking and repeated visits. Early dialogue is guarded and brief. Later dialogue is personal, warm, and story-revealing. Dialogue is displayed in a dialogue box UI.
+**No dialogue choices.** The player listens. NPCs have tiered dialogue states that unlock as relationship meters fill through cooking and repeated visits. Early dialogue is guarded and brief. Later dialogue is personal, warm, and story-revealing. Dialogue is pulled from a JSON schema featuring 3 random variants per tier to keep repeat visits fresh, and displayed in a dialogue box UI.
 
 ### 4.4 Corkboard
 
@@ -160,7 +160,7 @@ Missing their instrument. Hums while eating. Quiet and melancholy. Their arc con
 **Only appears during fog or rain.** Says very little. Leaves a corkboard item each visit without explanation. Other NPCs **do not seem to know who they are**. The most mysterious NPC — their identity is never fully resolved.
 
 - **Affinity:** warm drinks, soups
-- **Schedule:** fog/rain nights only
+- **Schedule:** fog/rain nights only (spawns automatically 8–20s after rain starts)
 - **Leaves:** one corkboard item per visit (cryptic notes, old photographs from before the island changed)
 
 #### Additional Medium NPCs (4–6, designed during development)
@@ -195,10 +195,10 @@ The diner fills with regulars. Fragments of the island's history emerge through 
 The full history of the restaurant is revealed through the Baker's final arc and the last corkboard items. The player learns who ran it before them, why it closed, and what happened to the island. The Traveller's reason for staying becomes clear. The player faces a choice.
 
 ### Ending A — Leave
-The player accumulates $10,000 and chooses to pay the port fee. The diner is left behind. Warm but bittersweet. A departure sequence plays — the player walks to the harbour, boards a boat, looks back at the diner's light one last time.
+The player accumulates $5,000 and chooses to pay the port fee. The diner is left behind. Warm but bittersweet. A departure sequence plays — the player walks to the harbour, boards a boat, looks back at the diner's light one last time.
 
 ### Ending B — Stay
-The player reaches $10,000 and declines to leave — or earns $12,000 without ever choosing to go. The final scene mirrors the opening of the Washed-Up Traveller's arc: one day, another stranger will wash ashore and find the lights already on.
+The player reaches $5,000 and declines to leave — or earns $6,000 without ever choosing to go. The final scene mirrors the opening of the Washed-Up Traveller's arc: one day, another stranger will wash ashore and find the lights already on.
 
 **Neither ending is framed as correct.**
 
@@ -206,8 +206,8 @@ The player reaches $10,000 and declines to leave — or earns $12,000 without ev
 
 | Condition | Type | How to reach it |
 |-----------|------|-----------------|
-| Ending A — Leave | Win | Accumulate $10,000 and choose to pay the port fee |
-| Ending B — Stay | Win | Reach $10,000 and decline, or reach $12,000 (auto-trigger) |
+| Ending A — Leave | Win | Accumulate $5,000 and choose to pay the port fee |
+| Ending B — Stay | Win | Reach $5,000 and decline, or reach $6,000 (auto-trigger) |
 | NPC departure | Soft fail | Ignore an NPC across multiple nights until relationship meter hits zero |
 | Soft fail recovery | Recovery | Leave a specific dish on the counter overnight as an offering — takes several days, not guaranteed |
 
@@ -223,7 +223,9 @@ If a **deep arc NPC** departs permanently, certain story content becomes inacces
 
 **The contrast between warm interior and cold foggy exterior carries most of the atmosphere.**
 
-**NPCs:** unique pixel art sprites per character. Readable silhouettes, expressive animations. Each NPC should be immediately identifiable by shape and colour palette alone.
+**NPCs:** There is a deliberate split in art direction for characters:
+- **Diner Floor:** Side-view pixel art walking sprites (with nearest-neighbour filtering) as they enter and walk to their seats.
+- **Counter / Dialogue:** High-resolution, isometric painterly portraits when the player is actively talking to them at the counter.
 
 **2D flat assets (corkboard items):** illustrated or hand-drawn style. Photographs, notes, maps, clippings, receipts. These are the game's primary storytelling medium alongside dialogue.
 
@@ -234,7 +236,7 @@ If a **deep arc NPC** departs permanently, certain story content becomes inacces
 | **2D environment tileset** | 1 set (~50–80 tiles) | Diner walls, floors, ceiling, windows, furniture, kitchen equipment, lighting fixtures, decorations — pixel art tiles/sprites |
 | **2D parallax background layers** | 4–5 layers | Harbour, coastline, sky, fog overlay, weather effects — scrolling behind the diner cross-section |
 | **Player sprite sheet** | 1 | Idle, walk, interact, carry animations (side-view) |
-| **NPC sprite sheets** | ~18 | Unique sprite per NPC: idle, walk, sit, eat, react positive, react negative, leave |
+| **NPC sprites & portraits** | ~18 | Pixel art side-view walking sprites, plus isometric painterly portraits for counter dialogue |
 | **2D counter item sprites** | ~15 | Items NPCs place on the counter |
 | **2D ingredient icons (UI)** | ~30 | Flat illustrated icons for cooking UI pantry |
 | **2D dish result icons (UI)** | ~30 | Flat illustrated icons for cooking UI results |
@@ -258,7 +260,7 @@ If a **deep arc NPC** departs permanently, certain story content becomes inacces
 - **Engine:** Godot 4. 2D side-view via CharacterBody2D + Camera2D.
 - **Target platform:** PC (Windows). Distribution via itch.io.
 - **Save system:** persistent save file tracking: NPC relationship states, corkboard items collected, recipes discovered, day count, weather state, player savings.
-- **Weather system:** simple daily random roll affecting fog/rain state and NPC conditional spawn triggers.
+- **Weather system:** simple daily random roll affecting fog/rain state and NPC conditional spawn triggers. Rain includes separate falling/drizzle particle layers and atmospheric fog tinting.
 - **Rendering:** CanvasModulate for day/night tint. PointLight2D for interior warm lighting. ParallaxBackground for exterior layers.
 
 ## 13. Out of Scope
@@ -296,7 +298,7 @@ Explorable exterior island environment, player character customisation, stamina 
 | npc_data.gd | Autoload | All NPC definitions: affinities, dialogue tiers, schedule conditions, payment amounts, items they leave |
 | dialogue_manager.gd | Autoload | Serve correct dialogue tier based on current relationship meter value |
 | corkboard_ui.gd | CorkboardUI.tscn root | Track pinned items, display full-screen examination view, trigger NPC dialogue unlocks |
-| economy.gd | Autoload | Track player savings, passage cost ($10,000), cap ($12,000), payment from NPC serves, ending threshold check |
+| economy.gd | Autoload | Track player savings, passage cost ($5,000), cap ($6,000), payment from NPC serves, ending threshold check |
 | recipe_log.gd | UI RecipeLog panel | Display discovered/undiscovered combos; filter views (all, overnight, mystery) |
 | diner_progression.gd | Diner.tscn root | Swap diner tile/decoration layers (early/mid/late game) at story milestones |
 
@@ -333,7 +335,7 @@ Explorable exterior island environment, player character customisation, stamina 
 - One NPC spawns at night at the diner door, walks to seat, waits, reacts to served dish, pays player, leaves
 - Relationship meter increases/decreases based on dish served vs affinity
 - Dialogue triggers at tier thresholds (3 tiers minimum for test NPC)
-- economy.gd tracks savings; SavingsDisplay UI shows current total and passage cost ($10,000)
+- economy.gd tracks savings; SavingsDisplay UI shows current total and passage cost ($5,000)
 - NPC leaves a sprite item at the CounterZone on arrival or departure; player picks it up with E
 
 > ⚠ **Tricky:** NavigationRegion2D baking. Bake as soon as diner tilemap is blocked out. Re-bake whenever tile layout changes.
@@ -346,7 +348,7 @@ Explorable exterior island environment, player character customisation, stamina 
 
 ### Stage 6 — Content Build (Weeks 6–11)
 - All NPC arcs scripted (deep arcs first, then medium, then light)
-- 120+ combinations loaded into combination_db.gd from design spreadsheet
+- 147 recipes loaded into combination_db.gd from design spreadsheet
 - All 2D environment tiles and sprite assets created as pixel art
 - All NPC sprites with full animation sets
 - All 2D ingredient and dish icons created and integrated into CookingUI
@@ -355,9 +357,9 @@ Explorable exterior island environment, player character customisation, stamina 
 - Full audio pass: ambient tracks, SFX, weather transitions
 
 ### Stage 7 — Both Endings (Weeks 11–12)
-- economy.gd ending threshold check: when savings >= $10,000, offer the choice
+- economy.gd ending threshold check: when savings >= $5,000, offer the choice
 - Ending A (Leave): player confirms payment, departure sequence and ending screen
-- Ending B (Stay): player declines, or savings hit $12,000 → final scene mirrors Traveller arc opening
+- Ending B (Stay): player declines, or savings hit $6,000 → final scene mirrors Traveller arc opening
 - Baker arc finale: Pressed Flower chain completes, Memory Cake unlocks full ending dialogue
 - Soft fail recovery: overnight offering mechanic for departed NPCs
 
@@ -450,4 +452,4 @@ The research also noted that preferred challenge levels vary between players. Im
 
 A 2D cafe/cooking game developed in Godot, distributed on itch.io. The game focuses heavily on **storytelling and NPC interaction** as its primary engagement mechanism. This focus on narrative intricacy makes the game's world feel larger and more in-depth than it really is, increasing immersion within a limited development scope.
 
-**Core progression:** The player earns money by cooking for NPCs. At $10,000, they can choose to leave the island. At $12,000, the game ends with the player building a life on the island. Higher NPC relationships increase visit frequency and payment amounts, creating a positive feedback loop between storytelling engagement and mechanical progression.
+**Core progression:** The player earns money by cooking for NPCs. At $5,000, they can choose to leave the island. At $6,000, the game ends with the player building a life on the island. Higher NPC relationships increase visit frequency and payment amounts, creating a positive feedback loop between storytelling engagement and mechanical progression.

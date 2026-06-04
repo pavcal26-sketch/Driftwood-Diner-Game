@@ -5,4 +5,8 @@
 [node name="NPC" type="Node2D"]
 script = ExtResource("1_npc")
 
+[node name="Sprite" type="Sprite2D" parent="."]
+centered = true
+texture_filter = 0
+
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]

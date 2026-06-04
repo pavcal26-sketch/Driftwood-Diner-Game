@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ca8e81tnonvqh"
-path="res://.godot/imported/harbour_worker_1.png-87489704aed87516c5dcef0f6ac79d60.ctex"
+uid="uid://5adyvqj1begh"
+path="res://.godot/imported/ending_4.png-22057feb671f34e55747467d640c6099.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/npcs/iso/harbour_worker_1.png"
-dest_files=["res://.godot/imported/harbour_worker_1.png-87489704aed87516c5dcef0f6ac79d60.ctex"]
+source_file="res://Assets/ending/ending_4.png"
+dest_files=["res://.godot/imported/ending_4.png-22057feb671f34e55747467d640c6099.ctex"]
 
 [params]
 
