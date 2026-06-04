@@ -44,15 +44,23 @@ func get_lines(npc_id: String) -> Array:
 
 	var tiers: Array = npc.get("tiers", [])
 	var best_tier: Dictionary = tiers[0]  # fallback to tier 0
+	var best_tier_idx: int = 0
 
-	for t in tiers:
-		if _tier_unlocked(npc_id, t):
-			best_tier = t
+	for i in range(tiers.size()):
+		if _tier_unlocked(npc_id, tiers[i]):
+			best_tier = tiers[i]
+			best_tier_idx = i
 
 	if _debug_forced_tiers.has(npc_id):
 		var forced_idx: int = _debug_forced_tiers[npc_id]
 		if forced_idx < tiers.size():
 			best_tier = tiers[forced_idx]
+			best_tier_idx = forced_idx
+
+	# Track the highest tier this NPC has reached — this is what
+	# npc_tier_reached conditions check against. Without this,
+	# cross-NPC story gates (Baker T4, Traveller T7, etc.) never unlock.
+	_npc_tiers[npc_id] = maxi(_npc_tiers.get(npc_id, 0), best_tier_idx)
 
 	# fire any triggers attached to this tier
 	for trigger in best_tier.get("triggers", []):

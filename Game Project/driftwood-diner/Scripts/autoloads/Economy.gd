@@ -37,11 +37,17 @@ func _on_npc_served(npc_id: String, dish_id: String) -> void:
 	var per_tier: int = meta.get("payment_per_tier", 0)
 	var tier: int    = DialogueManager._npc_tiers.get(npc_id, 0)
 
-	# affinity check
+	# affinity check — uses substring matching so category keywords
+	# like "comfort" match dish IDs like "comfort_meal"
 	var affinity: Array = meta.get("affinity", [])
 	var multiplier := 1.0
-	if dish_id in affinity or "any" in affinity:
+	if "any" in affinity:
 		multiplier = 2.0
+	else:
+		for keyword: String in affinity:
+			if dish_id.contains(keyword) or keyword.contains(dish_id):
+				multiplier = 2.0
+				break
 
 	# diminishing returns — same dish to same NPC pays less each time
 	var history_key: String = npc_id + "::" + dish_id

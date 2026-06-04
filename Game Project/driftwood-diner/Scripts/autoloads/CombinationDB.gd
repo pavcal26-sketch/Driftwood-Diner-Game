@@ -224,7 +224,18 @@ func _make_key(ingredients: Array) -> String:
 	return "+".join(sorted)
 
 func is_valid_dish(dish_id: String) -> bool:
-	return dish_id in _recipes.values()
+	# A result is a "dish" (servable) only if it's a recipe output
+	# AND not re-used as an input ingredient in another recipe.
+	# This stops intermediates like "brine", "flatbread", etc. from
+	# getting ★ markers and being served to NPCs.
+	if dish_id not in _recipes.values():
+		return false
+	# Check if this result is used as an ingredient in any recipe key
+	for key: String in _recipes:
+		var parts: Array = key.split("+")
+		if dish_id in parts:
+			return false  # it's an intermediate — used as input elsewhere
+	return true
 
 func get_all_recipes() -> Dictionary:
 	return _recipes

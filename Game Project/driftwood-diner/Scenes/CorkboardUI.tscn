@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://cbcorkboard"]
+
+[ext_resource type="Script" path="res://Scripts/CorkboardUI.gd" id="1"]
+
+[node name="CorkboardUI" type="CanvasLayer"]
+layer = 10
+visible = false
+script = ExtResource("1")

@@ -12,9 +12,11 @@ func _ready() -> void:
 	$Panel/Margin/VBox/TimeBox/SkipPhaseBtn.pressed.connect(func():
 		var gm = GameManager
 		if gm.current_phase == "day":
-			gm._set_phase("evening")
+			gm.game_hour = 17.0  # evening starts at 5 PM
+			gm.set_phase("evening")
 		elif gm.current_phase == "evening":
-			gm._set_phase("night")
+			gm.game_hour = 21.0  # night starts at 9 PM
+			gm.set_phase("night")
 		else:
 			gm.advance_day()
 	)

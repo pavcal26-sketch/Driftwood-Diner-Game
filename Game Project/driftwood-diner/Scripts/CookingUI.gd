@@ -166,12 +166,13 @@ func _on_serve_npc_pressed(npc_id: String) -> void:
 	var disp_dish: String  = dish_id.replace("_", " ").capitalize()
 	var disp_npc: String   = npc_id.replace("_", " ").capitalize()
 
+	# Warn if it's not their preference, but don't block the serve.
+	# Wrong dishes should be servable — NPCBase handles the reaction.
 	if not NPCBase.accepts_dish(npc_id, dish_id):
-		info_label.text = disp_npc + " doesn't want " + disp_dish + "."
-		_shake($Control/ServePanel)
-		return
+		info_label.text = "Served " + disp_dish + " to " + disp_npc + "... they seem unsure."
+	else:
+		info_label.text = "Served " + disp_dish + " to " + disp_npc + "!"
 
-	info_label.text = "Served " + disp_dish + " to " + disp_npc + "!"
 	_selected_dish = null
 
 	# poof dish away
