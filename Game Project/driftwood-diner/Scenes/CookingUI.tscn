@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" path="res://Assets/cooking_bg.png" id="2_wood"]
 
 [node name="CookingUI" type="CanvasLayer" unique_id=1041503226]
-layer = 8
+layer = 12
 visible = false
 script = ExtResource("1_cui")
 

@@ -118,7 +118,7 @@ func save_game(extra_data: Dictionary = {}) -> void:
 		"nights": nights_survived,
 		"game_hour": game_hour,
 	}
-	data.merge(extra_data)
+	data.merge(extra_data, true)
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	file.store_string(JSON.stringify(data))
 	file.close()

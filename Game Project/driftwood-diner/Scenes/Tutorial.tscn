@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://cbtutorial"]
+
+[ext_resource type="Script" path="res://Scripts/Tutorial.gd" id="1"]
+
+[node name="Tutorial" type="CanvasLayer"]
+layer = 20
+visible = false
+script = ExtResource("1")

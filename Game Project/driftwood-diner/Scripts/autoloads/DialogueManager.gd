@@ -158,6 +158,10 @@ func _on_corkboard_item(item_id: String) -> void:
 	if not _pinned_corkboard.has(item_id):
 		_pinned_corkboard.append(item_id)
 
+# Public accessor for corkboard UI
+func get_pinned_items() -> Array:
+	return _pinned_corkboard
+
 # Serialize state for save system.
 func get_save_data() -> Dictionary:
 	return {

@@ -1,8 +1,8 @@
 extends CanvasLayer
 
 # Corkboard UI — a visual pinboard where lore items are displayed as
-# scattered note cards with pushpins. Click a card to read its full
-# description in the detail panel on the right.
+# scattered note cards with pushpins and item images. Click a card to
+# read its full description in the detail panel on the right.
 
 signal closed
 
@@ -11,6 +11,7 @@ var _board_container: Control       # the main cork area where cards scatter
 var _detail_title: Label
 var _detail_giver: Label
 var _detail_desc: RichTextLabel
+var _detail_image: TextureRect      # item image in detail panel
 var _detail_panel: PanelContainer
 var _empty_label: Label
 
@@ -21,9 +22,9 @@ var _selected_card: Control = null
 # Preloaded textures
 var _pin_texture: Texture2D = null
 
-# Layout constants
-const CARD_SIZE := Vector2(200, 120)
-const BOARD_MARGIN := Vector2(40, 40)
+# Layout constants — cards are now wider to fit image + text side by side
+const CARD_SIZE := Vector2(260, 140)
+const BOARD_MARGIN := Vector2(30, 30)
 
 # Cork-toned colors for the note cards — each NPC gets a distinct tint
 const CARD_TINTS: Dictionary = {
@@ -41,13 +42,31 @@ const DEFAULT_TINT := Color(0.85, 0.83, 0.78, 0.92)  # neutral cream
 func _ready() -> void:
 	layer = 10
 	visible = false
-	_pin_texture = _try_load("res://Assets/corkboard/pushpin.png")
+	_pin_texture = _try_load_tex("res://Assets/corkboard/pushpin.png")
 	_build_ui()
 
-func _try_load(path: String) -> Texture2D:
+func _try_load_tex(path: String) -> Texture2D:
 	if ResourceLoader.exists(path):
 		return load(path) as Texture2D
-	return null
+	# fallback: try raw file load for non-imported assets
+	var fa := FileAccess.open(ProjectSettings.globalize_path(path), FileAccess.READ)
+	if fa == null:
+		return null
+	var bytes := fa.get_buffer(fa.get_length())
+	fa.close()
+	if bytes.size() < 8:
+		return null
+	var img := Image.new()
+	var err: int
+	if bytes[0] == 0x89 and bytes[1] == 0x50:
+		err = img.load_png_from_buffer(bytes)
+	elif bytes[0] == 0xFF and bytes[1] == 0xD8:
+		err = img.load_jpg_from_buffer(bytes)
+	else:
+		return null
+	if err != OK or img.is_empty():
+		return null
+	return ImageTexture.create_from_image(img)
 
 # -----------------------------------------------------------------------
 # Build the entire UI in code — keeps it self-contained
@@ -58,13 +77,13 @@ func _build_ui() -> void:
 	add_child(root)
 
 	# Cork background texture
-	var bg_tex: Texture2D = _try_load("res://Assets/corkboard/corkboard_bg.png")
+	var bg_tex: Texture2D = _try_load_tex("res://Assets/corkboard/corkboard_bg.png")
 	if bg_tex:
 		var bg := TextureRect.new()
 		bg.set_anchors_preset(Control.PRESET_FULL_RECT)
 		bg.texture = bg_tex
-		bg.expand_mode = 1  # EXPAND_IGNORE_SIZE
-		bg.stretch_mode = 6 # KEEP_ASPECT_COVERED
+		bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		bg.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
 		root.add_child(bg)
 	else:
 		# Fallback — warm brown color
@@ -79,7 +98,7 @@ func _build_ui() -> void:
 	vignette.color = Color(0, 0, 0, 0.15)
 	root.add_child(vignette)
 
-	# Title pinned to the top
+	# Title pinned to the top centre
 	var title_card := PanelContainer.new()
 	var title_style := StyleBoxFlat.new()
 	title_style.bg_color = Color(0.92, 0.88, 0.78, 0.95)
@@ -100,15 +119,19 @@ func _build_ui() -> void:
 	title_lbl.add_theme_color_override("font_color", Color(0.25, 0.20, 0.15))
 	title_card.add_child(title_lbl)
 
-	# Pin on the title card
+	# Pin on the title card — fixed: uses custom_minimum_size instead of stretching
 	if _pin_texture:
 		var pin := TextureRect.new()
 		pin.texture = _pin_texture
-		pin.position = Vector2(90, -12)
+		pin.custom_minimum_size = Vector2(24, 24)
+		pin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		pin.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		pin.position = Vector2(90, -10)
 		pin.z_index = 5
+		pin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		title_card.add_child(pin)
 
-	# Main horizontal split — board area (left 65%) + detail panel (right 35%)
+	# Main horizontal split — board area (left 62%) + detail panel (right 38%)
 	var hbox := HBoxContainer.new()
 	hbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 	hbox.set_anchor(SIDE_TOP, 0.08)
@@ -145,7 +168,6 @@ func _build_ui() -> void:
 	detail_style.set_border_width_all(2)
 	detail_style.set_corner_radius_all(3)
 	detail_style.set_content_margin_all(20)
-	# subtle shadow
 	detail_style.shadow_color = Color(0, 0, 0, 0.2)
 	detail_style.shadow_size = 6
 	_detail_panel.add_theme_stylebox_override("panel", detail_style)
@@ -176,6 +198,14 @@ func _build_ui() -> void:
 	sep.color = Color(0.5, 0.42, 0.35, 0.4)
 	detail_vbox.add_child(sep)
 
+	# Detail image — shows the item's full-size image
+	_detail_image = TextureRect.new()
+	_detail_image.custom_minimum_size = Vector2(0, 180)
+	_detail_image.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	_detail_image.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	_detail_image.visible = false
+	detail_vbox.add_child(_detail_image)
+
 	# Description
 	_detail_desc = RichTextLabel.new()
 	_detail_desc.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -185,12 +215,19 @@ func _build_ui() -> void:
 	_detail_desc.add_theme_color_override("default_color", Color(0.20, 0.18, 0.15))
 	detail_vbox.add_child(_detail_desc)
 
-	# Close button at the bottom of the detail panel
+	# Close button
 	var close_btn := Button.new()
 	close_btn.text = "Close  [ K ]"
 	close_btn.add_theme_font_size_override("font_size", 14)
 	close_btn.pressed.connect(func(): closed.emit())
 	detail_vbox.add_child(close_btn)
+
+# -----------------------------------------------------------------------
+# Load item thumbnail — looks in Assets/corkboard/items/{item_id}.png
+# -----------------------------------------------------------------------
+func _load_item_image(item_id: String) -> Texture2D:
+	var path := "res://Assets/corkboard/items/%s.png" % item_id
+	return _try_load_tex(path)
 
 # -----------------------------------------------------------------------
 # Refresh — called when opening the corkboard
@@ -205,17 +242,16 @@ func refresh() -> void:
 		_detail_title.text = "Select an item to inspect"
 		_detail_giver.text = ""
 		_detail_desc.text = ""
+		_detail_image.visible = false
 		return
 
-	# Scatter cards across the board with slight random rotation and offset
+	# Scatter cards across the board
 	var board_size: Vector2 = _board_container.size
 	if board_size.x < 100:
-		# fallback if container hasn't been laid out yet
 		board_size = Vector2(1200, 800)
 
-	# Calculate a loose grid with randomness
-	var cols: int = maxi(1, int(board_size.x / (CARD_SIZE.x + 30)))
-	var rows: int = maxi(1, int(board_size.y / (CARD_SIZE.y + 20)))
+	var cols: int = maxi(1, int(board_size.x / (CARD_SIZE.x + 20)))
+	var rows: int = maxi(1, int(board_size.y / (CARD_SIZE.y + 15)))
 
 	for i in range(items.size()):
 		var item_id: String = items[i]
@@ -235,15 +271,15 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	var giver: String = item_data.get("giver", "unknown")
 	var label: String = item_data.get("label", item_id.replace("_", " ").capitalize())
 
-	# Position — grid-based with jitter so it looks natural, not mechanical
+	# Position — grid with jitter for that scattered look
 	var col: int = index % cols
 	var row: int = index / cols
 	var cell_w: float = board_size.x / float(cols)
 	var cell_h: float = board_size.y / float(rows + 1)
 	var base_x: float = col * cell_w + (cell_w - CARD_SIZE.x) * 0.5
 	var base_y: float = row * cell_h + (cell_h - CARD_SIZE.y) * 0.5
-	var jitter_x: float = randf_range(-25, 25)
-	var jitter_y: float = randf_range(-15, 15)
+	var jitter_x: float = randf_range(-20, 20)
+	var jitter_y: float = randf_range(-12, 12)
 	var pos := Vector2(
 		clampf(base_x + jitter_x, BOARD_MARGIN.x, board_size.x - CARD_SIZE.x - BOARD_MARGIN.x),
 		clampf(base_y + jitter_y, BOARD_MARGIN.y, board_size.y - CARD_SIZE.y - BOARD_MARGIN.y)
@@ -257,8 +293,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	card_style.border_color = Color(tint.r * 0.7, tint.g * 0.7, tint.b * 0.7, 0.5)
 	card_style.set_border_width_all(1)
 	card_style.set_corner_radius_all(2)
-	card_style.set_content_margin_all(10)
-	# subtle paper shadow
+	card_style.set_content_margin_all(8)
 	card_style.shadow_color = Color(0, 0, 0, 0.25)
 	card_style.shadow_size = 4
 	card_style.shadow_offset = Vector2(2, 3)
@@ -267,59 +302,80 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	card.size = CARD_SIZE
 	card.position = pos
 
-	# Slight random rotation for that scattered-papers look
-	var angle: float = randf_range(-0.06, 0.06)  # ~3.5 degrees max
+	# Slight random rotation
+	var angle: float = randf_range(-0.05, 0.05)
 	card.rotation = angle
 	card.pivot_offset = CARD_SIZE * 0.5
 
-	# Card content
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 4)
-	card.add_child(vbox)
+	# Card layout: image on left, text on right
+	var card_hbox := HBoxContainer.new()
+	card_hbox.add_theme_constant_override("separation", 8)
+	card.add_child(card_hbox)
+
+	# Item thumbnail
+	var item_tex: Texture2D = _load_item_image(item_id)
+	if item_tex:
+		var thumb := TextureRect.new()
+		thumb.texture = item_tex
+		thumb.custom_minimum_size = Vector2(80, 0)
+		thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		thumb.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		card_hbox.add_child(thumb)
+
+	# Text column
+	var text_vbox := VBoxContainer.new()
+	text_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_vbox.add_theme_constant_override("separation", 3)
+	card_hbox.add_child(text_vbox)
 
 	var title_lbl := Label.new()
 	title_lbl.text = label
-	title_lbl.add_theme_font_size_override("font_size", 13)
+	title_lbl.add_theme_font_size_override("font_size", 12)
 	title_lbl.add_theme_color_override("font_color", Color(0.20, 0.18, 0.15))
 	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title_lbl.custom_minimum_size.y = 36
-	vbox.add_child(title_lbl)
+	title_lbl.custom_minimum_size.y = 30
+	text_vbox.add_child(title_lbl)
 
-	# Thin line
+	# Thin divider
 	var line := ColorRect.new()
 	line.custom_minimum_size = Vector2(0, 1)
 	line.color = Color(0.4, 0.35, 0.30, 0.3)
-	vbox.add_child(line)
+	text_vbox.add_child(line)
 
 	var giver_lbl := Label.new()
 	giver_lbl.text = "— " + giver.replace("_", " ").capitalize()
-	giver_lbl.add_theme_font_size_override("font_size", 11)
+	giver_lbl.add_theme_font_size_override("font_size", 10)
 	giver_lbl.add_theme_color_override("font_color", Color(0.40, 0.35, 0.30, 0.7))
-	vbox.add_child(giver_lbl)
+	text_vbox.add_child(giver_lbl)
 
-	# Preview text — first 60 chars of description
+	# Preview text
 	var desc: String = item_data.get("description", "")
-	var preview: String = desc.substr(0, 55) + "..." if desc.length() > 55 else desc
+	var preview: String = desc.substr(0, 45) + "..." if desc.length() > 45 else desc
 	var preview_lbl := Label.new()
 	preview_lbl.text = preview
-	preview_lbl.add_theme_font_size_override("font_size", 10)
-	preview_lbl.add_theme_color_override("font_color", Color(0.35, 0.30, 0.25, 0.6))
+	preview_lbl.add_theme_font_size_override("font_size", 9)
+	preview_lbl.add_theme_color_override("font_color", Color(0.35, 0.30, 0.25, 0.55))
 	preview_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	preview_lbl.clip_text = true
-	preview_lbl.custom_minimum_size.y = 30
-	vbox.add_child(preview_lbl)
+	preview_lbl.custom_minimum_size.y = 24
+	text_vbox.add_child(preview_lbl)
 
-	# Pushpin at the top
+	# Pushpin — fixed: no stretching, proper aspect ratio
 	if _pin_texture:
 		var pin := TextureRect.new()
 		pin.texture = _pin_texture
-		pin.position = Vector2(CARD_SIZE.x * 0.5 - 16 + randf_range(-20, 20), -14)
+		pin.custom_minimum_size = Vector2(22, 22)
+		pin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		pin.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		pin.position = Vector2(CARD_SIZE.x * 0.5 - 11 + randf_range(-15, 15), -10)
 		pin.z_index = 5
+		pin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card.add_child(pin)
 
 	# Make it clickable
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
-	card.gui_input.connect(_on_card_input.bind(card, item_data))
+	card.gui_input.connect(_on_card_input.bind(card, item_id, item_data))
 
 	# Hover effect
 	card.mouse_entered.connect(_on_card_hover.bind(card, true))
@@ -328,17 +384,17 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	_board_container.add_child(card)
 	_cards.append(card)
 
-	# Entrance animation — cards float in from slightly below
+	# Entrance animation — cards float in from below
 	card.modulate.a = 0.0
 	card.position.y += 20
 	var tw := create_tween()
 	tw.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	tw.tween_property(card, "modulate:a", 1.0, 0.3).set_delay(index * 0.08)
-	tw.parallel().tween_property(card, "position:y", pos.y, 0.4).set_delay(index * 0.08)
+	tw.tween_property(card, "modulate:a", 1.0, 0.3).set_delay(index * 0.07)
+	tw.parallel().tween_property(card, "position:y", pos.y, 0.4).set_delay(index * 0.07)
 
-func _on_card_input(event: InputEvent, card: Control, item_data: Dictionary) -> void:
+func _on_card_input(event: InputEvent, card: Control, item_id: String, item_data: Dictionary) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		_select_card(card, item_data)
+		_select_card(card, item_id, item_data)
 
 func _on_card_hover(card: Control, entered: bool) -> void:
 	if card == _selected_card:
@@ -351,7 +407,7 @@ func _on_card_hover(card: Control, entered: bool) -> void:
 		tw.tween_property(card, "scale", Vector2.ONE, 0.15)
 		card.z_index = 0
 
-func _select_card(card: Control, item_data: Dictionary) -> void:
+func _select_card(card: Control, item_id: String, item_data: Dictionary) -> void:
 	# Deselect previous
 	if _selected_card != null and is_instance_valid(_selected_card):
 		var tw := create_tween().set_ease(Tween.EASE_OUT)
@@ -374,6 +430,14 @@ func _select_card(card: Control, item_data: Dictionary) -> void:
 	_detail_title.text = label
 	_detail_giver.text = "Given by: %s  ·  Tier %d" % [giver.replace("_", " ").capitalize(), tier]
 	_detail_desc.text = desc
+
+	# Show full-size item image in detail panel
+	var full_tex: Texture2D = _load_item_image(item_id)
+	if full_tex:
+		_detail_image.texture = full_tex
+		_detail_image.visible = true
+	else:
+		_detail_image.visible = false
 
 func _input(event: InputEvent) -> void:
 	if not visible:

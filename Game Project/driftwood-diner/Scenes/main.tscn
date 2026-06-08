@@ -9,6 +9,8 @@
 [ext_resource type="PackedScene" uid="uid://bg3dap87onjuv" path="res://Scenes/CookingUI.tscn" id="5_cui"]
 [ext_resource type="PackedScene" path="res://Scenes/DayTransition.tscn" id="6_dt"]
 [ext_resource type="PackedScene" path="res://Scenes/DebugMenu.tscn" id="7_dbg"]
+[ext_resource type="PackedScene" path="res://Scenes/CorkboardUI.tscn" id="8_cork"]
+[ext_resource type="PackedScene" path="res://Scenes/Tutorial.tscn" id="9_tut"]
 
 [node name="Main" type="Node2D" unique_id=462057264]
 script = ExtResource("3_main")
@@ -64,6 +66,10 @@ color = Color(1, 0.95, 0.85, 1)
 [node name="CookingUI" parent="." unique_id=1643738902 instance=ExtResource("5_cui")]
 
 [node name="DayTransition" parent="." unique_id=1900580149 instance=ExtResource("6_dt")]
+
+[node name="CorkboardUI" parent="." instance=ExtResource("8_cork")]
+
+[node name="Tutorial" parent="." instance=ExtResource("9_tut")]
 
 [node name="DebugMenu" parent="." unique_id=129549250 instance=ExtResource("7_dbg")]
 

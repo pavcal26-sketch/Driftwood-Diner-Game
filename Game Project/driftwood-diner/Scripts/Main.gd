@@ -20,11 +20,8 @@ var _recipe_book: CanvasLayer = null
 var _recipe_list: VBoxContainer = null   # direct ref — avoids fragile node-path lookup
 var _dialogue_opened_cooking: bool = false  # track whether we should reopen cooking UI after dialogue
 
-var _corkboard_ui: CanvasLayer = null
-var _corkboard_list: VBoxContainer = null
-var _corkboard_detail_title: Label = null
-var _corkboard_detail_giver: Label = null
-var _corkboard_detail_desc: RichTextLabel = null
+@onready var corkboard_ui : CanvasLayer    = $CorkboardUI
+@onready var tutorial     : CanvasLayer    = $Tutorial
 
 const NPC_SCENE := preload("res://Scenes/NPC.tscn")
 
@@ -74,7 +71,8 @@ func _ready() -> void:
 	_apply_lighting(GameManager.game_hour)
 	_apply_weather(GameManager.current_weather)
 	_build_recipe_book()
-	_build_corkboard_ui()
+	# CorkboardUI is now a scene instance — wire its closed signal
+	corkboard_ui.closed.connect(_toggle_corkboard)
 
 	# first night — traveller arrives, then kick off the evening spawn schedule
 	# (without this, NPCs only spawn on phase CHANGE, so nothing until hour 20)
@@ -145,6 +143,7 @@ func _connect_signals() -> void:
 	hud.cooking_pressed.connect(_toggle_cooking)
 	hud.recipes_pressed.connect(_toggle_recipes)
 	hud.corkboard_pressed.connect(_toggle_corkboard)
+	# Note: corkboard_ui.closed is connected in _ready after scene is loaded
 	hud.advance_pressed.connect(_advance_day)
 	cooking_ui.closed.connect(_toggle_cooking)
 
@@ -230,22 +229,19 @@ func _on_npc_at_counter(npc_id: String) -> void:
 	var lines    : Array      = DialogueManager.get_lines(npc_id)
 	var name_str : String     = meta.get("display_name",
 		npc_id.replace("_", " ").capitalize())
-	# hide cooking UI and HUD during pre-serve dialogue; mark that we should reopen it when done
-	_dialogue_opened_cooking = cooking_ui.visible
-	cooking_ui.visible = false
-	hud.visible = false
+		
+	# Play bell sound to notify the player without kicking them out of the UI
+	var bell := AudioStreamPlayer.new()
+	bell.stream = preload("res://Assets/Audio/customer_bell.mp3")
+	bell.volume_db = 2.0
+	bell.finished.connect(bell.queue_free)
+	add_child(bell)
+	bell.play()
+	
 	counter_view.show_npc(npc_id, lines, name_str)
 
 func _on_dialogue_finished(_npc_id: String) -> void:
-	# only restore cooking UI if it was visible before the dialogue, AND this
-	# isn't a post-serve reaction (those come from npc_reaction signal, which
-	# CounterView handles independently — cooking_ui should stay visible during them)
-	if _dialogue_opened_cooking:
-		cooking_ui.visible = true
-		hud.visible = false
-		_dialogue_opened_cooking = false
-	else:
-		hud.visible = true
+	pass # used to restore cooking UI here, but we no longer hide it
 
 func _on_npc_departed(npc_id: String) -> void:
 	_present_npcs.erase(npc_id)
@@ -374,19 +370,29 @@ func _setup_weather_effects() -> void:
 # UI
 # -----------------------------------------------------------------------
 func _toggle_cooking() -> void:
-	cooking_ui.visible = not cooking_ui.visible
-	hud.visible = not cooking_ui.visible
-	if _recipe_book:
-		_recipe_book.visible = false
+	if not cooking_ui.visible:
+		cooking_ui.visible = true
+		hud.visible = false
+		if _recipe_book:
+			_recipe_book.visible = false
+		corkboard_ui.visible = false
+		tutorial.on_cooking_opened()
+	else:
+		cooking_ui.visible = false
+		hud.visible = true
 
 func _toggle_recipes() -> void:
 	if _recipe_book == null:
 		return
 	_recipe_book.visible = not _recipe_book.visible
-	hud.visible = not _recipe_book.visible
-	if cooking_ui.visible:
+	if _recipe_book.visible:
 		cooking_ui.visible = false
-	_refresh_recipe_book()
+		corkboard_ui.visible = false
+		hud.visible = false
+		_refresh_recipe_book()
+		tutorial.on_recipes_opened()
+	else:
+		hud.visible = true
 
 func _build_recipe_book() -> void:
 	# create a simple CanvasLayer overlay listing all known combinations
@@ -486,14 +492,14 @@ func _close_all_ui() -> void:
 	cooking_ui.visible = false
 	if _recipe_book:
 		_recipe_book.visible = false
-	if _corkboard_ui:
-		_corkboard_ui.visible = false
+	corkboard_ui.visible = false
 	hud.visible = true
 
 func _advance_day() -> void:
 	if _transitioning:
 		return
 	_do_day_transition()
+	tutorial.on_day_advanced()
 
 func _do_day_transition() -> void:
 	_transitioning = true
@@ -573,189 +579,14 @@ func _build_day_transition_anims() -> void:
 	_day_trans_anim.add_animation_library("", lib)
 
 # -----------------------------------------------------------------------
-# Corkboard UI
+# Corkboard UI — now a scene instance ($CorkboardUI)
 # -----------------------------------------------------------------------
 func _toggle_corkboard() -> void:
-	if _corkboard_ui == null:
-		return
-	_corkboard_ui.visible = not _corkboard_ui.visible
-	hud.visible = not _corkboard_ui.visible
+	corkboard_ui.visible = not corkboard_ui.visible
+	hud.visible = not corkboard_ui.visible
 	if cooking_ui.visible:
 		cooking_ui.visible = false
 	if _recipe_book:
 		_recipe_book.visible = false
-	_refresh_corkboard()
-
-func _build_corkboard_ui() -> void:
-	_corkboard_ui = CanvasLayer.new()
-	_corkboard_ui.layer = 9
-	_corkboard_ui.visible = false
-	add_child(_corkboard_ui)
-
-	var root := Control.new()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_corkboard_ui.add_child(root)
-
-	# Backdrop - dark warm cork/wood brown
-	var bg := ColorRect.new()
-	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color(0.12, 0.09, 0.08, 0.95)
-	root.add_child(bg)
-
-	var panel := PanelContainer.new()
-	panel.set_anchors_preset(Control.PRESET_CENTER)
-	panel.set_anchor(SIDE_LEFT,   0.08)
-	panel.set_anchor(SIDE_TOP,    0.05)
-	panel.set_anchor(SIDE_RIGHT,  0.92)
-	panel.set_anchor(SIDE_BOTTOM, 0.95)
-	root.add_child(panel)
-
-	var margin := MarginContainer.new()
-	margin.add_theme_constant_override("margin_left",   32)
-	margin.add_theme_constant_override("margin_right",  32)
-	margin.add_theme_constant_override("margin_top",    24)
-	margin.add_theme_constant_override("margin_bottom", 24)
-	panel.add_child(margin)
-
-	var vbox := VBoxContainer.new()
-	vbox.add_theme_constant_override("separation", 16)
-	margin.add_child(vbox)
-
-	# Title
-	var title := Label.new()
-	title.text = "THE CORKBOARD"
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 28)
-	title.modulate = Color(1.0, 0.85, 0.6)  # Warm golden tint
-	vbox.add_child(title)
-
-	# Main Split Layout
-	var hbox := HBoxContainer.new()
-	hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	hbox.add_theme_constant_override("separation", 24)
-	vbox.add_child(hbox)
-
-	# Left side: Scroll List of Pinned Items
-	var left_panel := PanelContainer.new()
-	left_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	left_panel.size_flags_stretch_ratio = 0.4
-	hbox.add_child(left_panel)
-
-	var left_margin := MarginContainer.new()
-	left_margin.add_theme_constant_override("margin_left", 12)
-	left_margin.add_theme_constant_override("margin_right", 12)
-	left_margin.add_theme_constant_override("margin_top", 12)
-	left_margin.add_theme_constant_override("margin_bottom", 12)
-	left_panel.add_child(left_margin)
-
-	var left_vbox := VBoxContainer.new()
-	left_vbox.add_theme_constant_override("separation", 8)
-	left_margin.add_child(left_vbox)
-
-	var list_title := Label.new()
-	list_title.text = "Pinned Notes & Items"
-	list_title.add_theme_font_size_override("font_size", 16)
-	list_title.modulate = Color(0.8, 0.8, 0.8)
-	left_vbox.add_child(list_title)
-
-	var scroll := ScrollContainer.new()
-	scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	left_vbox.add_child(scroll)
-
-	_corkboard_list = VBoxContainer.new()
-	_corkboard_list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_corkboard_list.add_theme_constant_override("separation", 6)
-	scroll.add_child(_corkboard_list)
-
-	# Right side: Detail View
-	var right_panel := PanelContainer.new()
-	right_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	right_panel.size_flags_stretch_ratio = 0.6
-	hbox.add_child(right_panel)
-
-	var right_margin := MarginContainer.new()
-	right_margin.add_theme_constant_override("margin_left", 20)
-	right_margin.add_theme_constant_override("margin_right", 20)
-	right_margin.add_theme_constant_override("margin_top", 20)
-	right_margin.add_theme_constant_override("margin_bottom", 20)
-	right_panel.add_child(right_margin)
-
-	var right_vbox := VBoxContainer.new()
-	right_vbox.add_theme_constant_override("separation", 12)
-	right_margin.add_child(right_vbox)
-
-	_corkboard_detail_title = Label.new()
-	_corkboard_detail_title.text = "Select an item to inspect"
-	_corkboard_detail_title.add_theme_font_size_override("font_size", 20)
-	_corkboard_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_corkboard_detail_title.modulate = Color(0.95, 0.9, 0.8)
-	right_vbox.add_child(_corkboard_detail_title)
-
-	_corkboard_detail_giver = Label.new()
-	_corkboard_detail_giver.text = ""
-	_corkboard_detail_giver.add_theme_font_size_override("font_size", 14)
-	_corkboard_detail_giver.modulate = Color(0.6, 0.6, 0.6)
-	right_vbox.add_child(_corkboard_detail_giver)
-
-	# Horizontal separator
-	var sep := ColorRect.new()
-	sep.custom_minimum_size = Vector2(0, 2)
-	sep.color = Color(0.3, 0.25, 0.22)
-	right_vbox.add_child(sep)
-
-	_corkboard_detail_desc = RichTextLabel.new()
-	_corkboard_detail_desc.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_corkboard_detail_desc.bbcode_enabled = true
-	_corkboard_detail_desc.text = ""
-	_corkboard_detail_desc.add_theme_font_size_override("normal_font_size", 16)
-	right_vbox.add_child(_corkboard_detail_desc)
-
-	# Footer close button
-	var close_btn := Button.new()
-	close_btn.text = "Close  [ K ]"
-	close_btn.pressed.connect(_toggle_corkboard)
-	vbox.add_child(close_btn)
-
-func _refresh_corkboard() -> void:
-	if _corkboard_ui == null or _corkboard_list == null:
-		return
-		
-	# Clear list
-	for child in _corkboard_list.get_children():
-		child.queue_free()
-		
-	# Set detail defaults
-	_corkboard_detail_title.text = "Select an item to inspect"
-	_corkboard_detail_giver.text = ""
-	_corkboard_detail_desc.text = ""
-	
-	var items: Array = DialogueManager._pinned_corkboard
-	if items.is_empty():
-		var lbl := Label.new()
-		lbl.text = "The board is empty.\n\nListen to visitors; some may give you notes or objects to pin up."
-		lbl.modulate = Color(0.5, 0.5, 0.5)
-		lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_corkboard_list.add_child(lbl)
-		return
-		
-	for item_id: String in items:
-		var item_data := DialogueManager.get_corkboard_item(item_id)
-		if item_data.is_empty():
-			continue
-			
-		var btn := Button.new()
-		btn.text = item_data.get("label", item_id.replace("_", " ").capitalize())
-		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
-		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		btn.pressed.connect(_show_corkboard_detail.bind(item_data))
-		_corkboard_list.add_child(btn)
-
-func _show_corkboard_detail(item_data: Dictionary) -> void:
-	var label: String = item_data.get("label", "Unknown Item")
-	var giver: String = item_data.get("giver", "unknown")
-	var tier: int = item_data.get("tier_given", 0)
-	var desc: String = item_data.get("description", "")
-	
-	_corkboard_detail_title.text = label
-	_corkboard_detail_giver.text = "Given by: %s (Tier %d)" % [giver.replace("_", " ").capitalize(), tier]
-	_corkboard_detail_desc.text = desc
+	if corkboard_ui.visible:
+		corkboard_ui.refresh()
