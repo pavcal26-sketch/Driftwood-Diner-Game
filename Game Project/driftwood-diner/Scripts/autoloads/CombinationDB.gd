@@ -210,6 +210,18 @@ var _recipes: Dictionary = {
 	"merchant_bread+spiced_fish_stew": "trade_route_dinner",
 }
 
+const NOT_DISHES: Array[String] = [
+	"brine",
+	"smoked_salt",
+	"seasoned_salt",
+	"flower_water",
+	"fresh_sprouts",
+	"mystery_seasoning",
+	"heirloom_vegetables",
+	"deep_water_fish",
+	"prize_catch"
+]
+
 func try_combine(a: String, b: String) -> String:
 	var key: String = _make_key([a, b])
 	return _recipes.get(key, "")
@@ -224,18 +236,12 @@ func _make_key(ingredients: Array) -> String:
 	return "+".join(sorted)
 
 func is_valid_dish(dish_id: String) -> bool:
-	# A result is a "dish" (servable) only if it's a recipe output
-	# AND not re-used as an input ingredient in another recipe.
-	# This stops intermediates like "brine", "flatbread", etc. from
-	# getting ★ markers and being served to NPCs.
-	if dish_id not in _recipes.values():
+	# A result is a "dish" (servable) if it's a recipe output.
+	# We no longer block items that are used as ingredients, 
+	# because things like 'bread_loaf' and 'fish_stew' are dishes AND ingredients!
+	if dish_id in NOT_DISHES:
 		return false
-	# Check if this result is used as an ingredient in any recipe key
-	for key: String in _recipes:
-		var parts: Array = key.split("+")
-		if dish_id in parts:
-			return false  # it's an intermediate — used as input elsewhere
-	return true
+	return dish_id in _recipes.values()
 
 func get_all_recipes() -> Dictionary:
 	return _recipes

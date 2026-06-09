@@ -2,12 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dnuyoq7202omd"
-valid=false
+uid="uid://chs8ma7yi7mjf"
+path="res://.godot/imported/failing_fisherman_1.png-20947be5e4876c4e921749de3178f3fa.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
-source_file="res://Assets/diner_background.png"
+source_file="res://Assets/npcs/sprites/failing_fisherman_1.png"
+dest_files=["res://.godot/imported/failing_fisherman_1.png-20947be5e4876c4e921749de3178f3fa.ctex"]
 
 [params]
 
