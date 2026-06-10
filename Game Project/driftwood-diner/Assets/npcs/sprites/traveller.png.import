@@ -2,12 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://blmyssehgy6o3"
-valid=false
+uid="uid://eyd0a1j4fhbp"
+path="res://.godot/imported/traveller.png-f04fbcefb6c192c48b47138cd9ef4b95.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
-source_file="res://Assets/cooking_bg.png"
+source_file="res://Assets/npcs/sprites/traveller.png"
+dest_files=["res://.godot/imported/traveller.png-f04fbcefb6c192c48b47138cd9ef4b95.ctex"]
 
 [params]
 
