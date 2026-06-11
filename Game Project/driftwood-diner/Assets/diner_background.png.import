@@ -2,12 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dnuyoq7202omd"
-valid=false
+uid="uid://3mtgnqdhihxd"
+path="res://.godot/imported/diner_background.png-a3f82a5a6dc4860789e56a694ffef027.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://Assets/diner_background.png"
+dest_files=["res://.godot/imported/diner_background.png-a3f82a5a6dc4860789e56a694ffef027.ctex"]
 
 [params]
 

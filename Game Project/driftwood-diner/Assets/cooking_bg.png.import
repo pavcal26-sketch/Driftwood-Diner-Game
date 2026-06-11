@@ -2,12 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://blmyssehgy6o3"
-valid=false
+uid="uid://bym0peji6d0no"
+path="res://.godot/imported/cooking_bg.png-30930b8508a1ccca6c729f722ba71f6c.ctex"
+metadata={
+"vram_texture": false
+}
 
 [deps]
 
 source_file="res://Assets/cooking_bg.png"
+dest_files=["res://.godot/imported/cooking_bg.png-30930b8508a1ccca6c729f722ba71f6c.ctex"]
 
 [params]
 
