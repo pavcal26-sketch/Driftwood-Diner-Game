@@ -14,6 +14,9 @@ var savings: int = 0
 var _active_npc_id: String = ""   # who's at the counter right now
 var _serve_history: Dictionary = {}  # "npc_id::dish_id" -> int (times served)
 
+var _passage_unlocked_fired: bool = false
+var _stay_triggered: bool = false
+
 func _ready() -> void:
 	SignalBus.npc_served.connect(_on_npc_served)
 	SignalBus.npc_at_counter.connect(func(id): _active_npc_id = id)
@@ -22,7 +25,12 @@ func _ready() -> void:
 func add_savings(amount: int) -> void:
 	savings += amount
 	SignalBus.savings_changed.emit(savings)
-	if savings >= PASSAGE_COST:
+	
+	if savings >= STAY_UPGRADE and not _stay_triggered:
+		_stay_triggered = true
+		SignalBus.story_signal.emit("play_ending_b_sequence")
+	elif savings >= PASSAGE_COST and not _passage_unlocked_fired:
+		_passage_unlocked_fired = true
 		SignalBus.passage_unlocked.emit()
 
 func spend_savings(amount: int) -> void:
@@ -37,15 +45,16 @@ func _on_npc_served(npc_id: String, dish_id: String) -> void:
 	var per_tier: int = meta.get("payment_per_tier", 0)
 	var tier: int    = DialogueManager._npc_tiers.get(npc_id, 0)
 
-	# affinity check — uses substring matching so category keywords
-	# like "comfort" match dish IDs like "comfort_meal"
-	var affinity: Array = meta.get("affinity", [])
+	var meta_affinity: Array = meta.get("affinity", [])
 	var multiplier := 1.0
-	if "any" in affinity:
+	
+	if "any" in meta_affinity:
 		multiplier = 2.0
-	else:
-		for keyword: String in affinity:
-			if dish_id.contains(keyword) or keyword.contains(dish_id):
+	elif NPCBase.NPC_PREFERENCES.has(npc_id):
+		var prefs: Dictionary = NPCBase.NPC_PREFERENCES[npc_id]
+		var accepts: Array = prefs.get("accepts", [])
+		for keyword: String in accepts:
+			if dish_id.contains(keyword):
 				multiplier = 2.0
 				break
 
@@ -60,8 +69,15 @@ func _on_npc_served(npc_id: String, dish_id: String) -> void:
 	add_savings(total)
 
 func get_save_data() -> Dictionary:
-	return {"savings": savings, "serve_history": _serve_history}
+	return {
+		"savings": savings, 
+		"serve_history": _serve_history,
+		"passage_unlocked": _passage_unlocked_fired,
+		"stay_triggered": _stay_triggered
+	}
 
 func load_save_data(data: Dictionary) -> void:
 	savings = data.get("savings", 0)
 	_serve_history = data.get("serve_history", {})
+	_passage_unlocked_fired = data.get("passage_unlocked", false)
+	_stay_triggered = data.get("stay_triggered", false)

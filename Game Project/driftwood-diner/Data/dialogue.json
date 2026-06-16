@@ -540,7 +540,8 @@
 		  "label": "The Flower Returns",
 		  "unlock_condition": {
 			"type": "dish_served",
-			"dish": "memory_cake"
+			"dish": "memory_cake",
+			"cumulative": 1
 		  },
 		  "weather_required": null,
 		  "variants": [

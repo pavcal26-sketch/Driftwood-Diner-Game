@@ -28,11 +28,6 @@ z_index = -1
 [node name="Interior" type="Sprite2D" parent="Diner" unique_id=379116452]
 texture = ExtResource("1_nwin")
 
-[node name="Background" type="Sprite2D" parent="Diner" unique_id=462207595]
-visible = false
-position = Vector2(575, 326)
-scale = Vector2(1.1279296, 1.1162108)
-texture = ExtResource("1_jjgbg")
 
 [node name="Windows" type="Node2D" parent="Diner" unique_id=56805732]
 

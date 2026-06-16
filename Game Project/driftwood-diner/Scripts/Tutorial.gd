@@ -183,7 +183,7 @@ func _dismiss() -> void:
 
 	var tw := create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
 	tw.tween_property(_panel, "modulate:a", 0.0, 0.2)
-	tw.tween_property(_panel, "position:y", _panel.position.y + 20, 0.25)
+	tw.tween_property(_panel, "position:y", _panel.position.y + 30, 0.25)
 	tw.tween_callback(func(): visible = false)
 
 func _input(event: InputEvent) -> void:

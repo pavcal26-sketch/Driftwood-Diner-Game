@@ -88,10 +88,11 @@ func record_visit(npc_id: String, weather: String = "clear") -> void:
 	if weather in ["fog", "rain"]:
 		_storm_visits[npc_id] = _storm_visits.get(npc_id, 0) + 1
 
-# Called after serving a dish.
-func record_dish_served(npc_id: String, _dish_id: String) -> void:
+func record_dish_served(npc_id: String, dish_id: String) -> void:
 	var key := npc_id + "_dishes"
 	_npc_visits[key] = _npc_visits.get(key, 0) + 1
+	var specific_key := npc_id + "::" + dish_id
+	_npc_visits[specific_key] = _npc_visits.get(specific_key, 0) + 1
 
 func debug_add_visit(npc_id: String) -> void:
 	_npc_visits[npc_id] = _npc_visits.get(npc_id, 0) + 1
@@ -119,8 +120,13 @@ func _tier_unlocked(npc_id: String, tier: Dictionary) -> bool:
 		"visits":
 			return _npc_visits.get(npc_id, 0) >= cond.get("count", 999)
 		"dish_served":
-			var key := npc_id + "_dishes"
-			return _npc_visits.get(key, 0) >= cond.get("cumulative", 999)
+			var target_dish: String = cond.get("dish", "")
+			if target_dish != "" and target_dish != "baked_affinity_match" and target_dish != "seafood_affinity_match":
+				var specific_key := npc_id + "::" + target_dish
+				return _npc_visits.get(specific_key, 0) >= cond.get("cumulative", 999)
+			else:
+				var key := npc_id + "_dishes"
+				return _npc_visits.get(key, 0) >= cond.get("cumulative", 999)
 		"savings_reached":
 			return _savings_snapshot >= cond.get("amount", 999999)
 		"corkboard_items_pinned":

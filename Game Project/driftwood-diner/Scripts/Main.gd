@@ -16,6 +16,7 @@ extends Node2D
 # keep the old background ref for fallback — it's hidden in the scene
 @onready var background   : Sprite2D       = $Diner/Background
 
+var _weather_tween: Tween = null
 var _recipe_book: CanvasLayer = null
 var _recipe_list: VBoxContainer = null   # direct ref — avoids fragile node-path lookup
 var _dialogue_opened_cooking: bool = false  # track whether we should reopen cooking UI after dialogue
@@ -139,6 +140,7 @@ func _connect_signals() -> void:
 	SignalBus.savings_changed.connect(func(v: int): hud.update_savings(v))
 	SignalBus.day_advanced.connect(func(d: int): hud.update_day(d))
 	SignalBus.debug_spawn_npc.connect(spawn_npc)
+	SignalBus.story_signal.connect(_on_story_signal)
 
 	hud.cooking_pressed.connect(_toggle_cooking)
 	hud.recipes_pressed.connect(_toggle_recipes)
@@ -157,6 +159,15 @@ func _input(event: InputEvent) -> void:
 	if event.is_action_pressed("action_corkboard"):
 		_toggle_corkboard()
 	if event.is_action_pressed("action_end_night"):
+		_advance_day()
+
+func _on_story_signal(trigger: String) -> void:
+	if trigger == "play_ending_a_sequence" or trigger == "play_ending_b_sequence":
+		# Save state before ending
+		GameManager.save_all()
+		GameManager.set_meta("ending_type", "A" if trigger == "play_ending_a_sequence" else "B")
+		get_tree().change_scene_to_file("res://Scenes/EndingCutscene.tscn")
+	elif trigger == "force_day_advance":
 		_advance_day()
 
 # -----------------------------------------------------------------------
@@ -291,7 +302,10 @@ func _apply_weather(weather: String) -> void:
 	fog.visible = true
 
 	# kill any leftover weather tween so they don't fight
-	var t := create_tween().set_parallel(true)
+	if _weather_tween and _weather_tween.is_valid():
+		_weather_tween.kill()
+	_weather_tween = create_tween().set_parallel(true)
+	var t := _weather_tween
 
 	match weather:
 		"fog":
@@ -315,13 +329,6 @@ func _apply_weather(weather: String) -> void:
 				_rain_particles.emitting = false
 			if _drizzle_particles:
 				_drizzle_particles.emitting = false
-
-	# storm_visitor only appears during rain — spawn with a moody delay
-	if weather == "rain" and "storm_visitor" not in _present_npcs:
-		get_tree().create_timer(randf_range(8.0, 20.0)).timeout.connect(func():
-			if not _transitioning and GameManager.current_weather == "rain":
-				spawn_npc("storm_visitor")
-		)
 
 # -----------------------------------------------------------------------
 # Weather particles — rain falls between the two background layers
@@ -536,14 +543,26 @@ func _schedule_phase_spawns(phase: String) -> void:
 		"washed_up_traveller", "elderly_baker", "failing_fisherman",
 		"newcomer", "musician", "harbour_worker", "soup_regular",
 		"quiet_farmer", "elderly_couple", "night_shift_guard",
-		"lighthouse_keeper", "drifting_merchant", "strange_child"
+		"lighthouse_keeper", "drifting_merchant", "strange_child", "storm_visitor"
 	]
+	
+	var valid_pool: Array[String] = []
+	for npc in full_pool:
+		var meta = DialogueManager.get_npc_meta(npc)
+		var schedule: String = meta.get("schedule", "most_nights")
+		if schedule == "fog_or_rain_only" and GameManager.current_weather not in ["fog", "rain"]:
+			continue
+		if schedule == "rain_only" and GameManager.current_weather != "rain":
+			continue
+		if schedule == "rare" and randf() > 0.3:
+			continue
+		valid_pool.append(npc)
 	
 	var count: int = randi_range(1, 2)
 	if phase == "night":
 		count = randi_range(1, 3)
 		
-	var shuffled: Array[String] = full_pool.duplicate()
+	var shuffled: Array[String] = valid_pool.duplicate()
 	shuffled.shuffle()
 
 	for i in range(mini(count, shuffled.size())):

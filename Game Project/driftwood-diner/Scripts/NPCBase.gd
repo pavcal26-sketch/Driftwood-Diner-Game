@@ -81,6 +81,7 @@ var _walk_timer: float = 0.0
 const WALK_FRAME_INTERVAL: float = 0.18   # seconds per walk frame
 
 @onready var _sprite: Sprite2D = $Sprite
+var anim_node: Node2D = null  # Prepared for Spriter Pro or other complex animation nodes
 
 var seat_x:      float = 900.0
 var counter_x:   float = 380.0
@@ -105,15 +106,20 @@ func setup(id: String, assigned_seat_x: float = 700.0) -> void:
 	_walk_in()
 
 func _load_sprite(id: String) -> void:
-	# Try numbered frames first (_0, _1), then plain name
+	# Try numbered frames first (_0, _1, etc.), then plain name
 	var frames: Array[Texture2D] = []
-	for i in range(4):
+	var i := 0
+	while i < 5:
 		var path := "res://Assets/npcs/sprites/%s_%d.png" % [id, i]
 		var tex := _try_load_texture(path)
 		if tex:
 			frames.append(tex)
+		elif frames.is_empty() and i == 0:
+			# If index 0 is missing, it might start at index 1.
+			pass
 		else:
 			break
+		i += 1
 	if frames.is_empty():
 		var tex := _try_load_texture("res://Assets/npcs/sprites/%s.png" % id)
 		if tex:
@@ -122,6 +128,7 @@ func _load_sprite(id: String) -> void:
 		_sprite.texture = frames[0]
 		_sprite.visible = true
 		_has_sprite = true
+		anim_node = _sprite
 		# store extra frames as metadata for walk cycle
 		set_meta("walk_frames", frames)
 	else:
@@ -330,8 +337,11 @@ func _walk_to_seat_then_leave() -> void:
 
 func _set_direction(dir: int) -> void:
 	# dir: -1 = walking left, 1 = walking right
-	if _has_sprite:
-		_sprite.flip_h = (dir > 0)
+	if _has_sprite and anim_node:
+		if anim_node is Sprite2D:
+			anim_node.flip_h = (dir > 0)
+		else:
+			anim_node.scale.x = abs(anim_node.scale.x) * (-1 if dir > 0 else 1)
 
 func _idle_then_leave() -> void:
 	_state = "seated"

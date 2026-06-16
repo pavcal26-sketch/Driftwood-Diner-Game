@@ -27,6 +27,7 @@ var tonight_roster: Array[String] = []
 var _last_emitted_minute: int = -1
 
 func _ready() -> void:
+	load_all()
 	current_phase = _phase_from_hour(game_hour)
 
 func _process(delta: float) -> void:
@@ -42,6 +43,12 @@ func _process(delta: float) -> void:
 	# auto-advance day at dawn (5:00 AM)
 	# only trigger once by checking old hour was before 5 and new is after
 	var new_phase: String = _phase_from_hour(game_hour)
+	
+	if old_phase == "night" and new_phase == "dawn":
+		SignalBus.day_phase_changed.emit(new_phase)
+		# Tell Main to force a day advance if the player hasn't manually clicked End Night
+		SignalBus.story_signal.emit("force_day_advance")
+		
 	current_phase = new_phase
 	
 	# emit clock_tick every game-minute
@@ -89,6 +96,7 @@ func advance_day() -> void:
 	SignalBus.day_phase_changed.emit(current_phase)
 	SignalBus.clock_tick.emit(game_hour)
 	SignalBus.day_advanced.emit(current_day)
+	save_all()  # auto-save at the start of every new day
 
 func set_phase(phase: String) -> void:
 	# legacy compat — lets code force a phase if needed
@@ -120,6 +128,9 @@ func save_game(extra_data: Dictionary = {}) -> void:
 	}
 	data.merge(extra_data, true)
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		push_error("GameManager: Failed to open save file for writing.")
+		return
 	file.store_string(JSON.stringify(data))
 	file.close()
 
@@ -127,6 +138,8 @@ func load_game() -> Dictionary:
 	if not FileAccess.file_exists(SAVE_PATH):
 		return {}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if file == null:
+		return {}
 	var result: Variant = JSON.parse_string(file.get_as_text())
 	file.close()
 	if result is Dictionary:
@@ -138,3 +151,22 @@ func load_game() -> Dictionary:
 		current_phase   = _phase_from_hour(game_hour)
 		return d
 	return {}
+
+func save_all() -> void:
+	var state := {}
+	# Grab state from all orchestrators
+	if get_node_or_null("/root/Economy"):
+		state["economy"] = Economy.get_save_data()
+	if get_node_or_null("/root/DialogueManager"):
+		state["dialogue"] = DialogueManager.get_save_data()
+	# Can add CookingUI, Tutorial later via direct method calling or signals
+	save_game(state)
+
+func load_all() -> void:
+	var data := load_game()
+	if data.is_empty():
+		return
+	if data.has("economy") and get_node_or_null("/root/Economy"):
+		Economy.load_save_data(data["economy"])
+	if data.has("dialogue") and get_node_or_null("/root/DialogueManager"):
+		DialogueManager.load_save_data(data["dialogue"])
