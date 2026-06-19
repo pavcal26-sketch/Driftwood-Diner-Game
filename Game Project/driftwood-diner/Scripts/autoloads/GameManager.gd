@@ -20,9 +20,6 @@ const WEATHER_CHANCES: Dictionary = {
 	"rain":  0.2,
 }
 
-# Which NPCs are eligible to visit tonight (set by npc_spawn_manager)
-var tonight_roster: Array[String] = []
-
 # track last emitted minute so we only fire clock_tick once per game-minute
 var _last_emitted_minute: int = -1
 
@@ -133,6 +130,11 @@ func save_game(extra_data: Dictionary = {}) -> void:
 		return
 	file.store_string(JSON.stringify(data))
 	file.close()
+	# On web exports, flush the virtual filesystem to IndexedDB so saves persist
+	if OS.has_feature("web"):
+		# Godot 4 exposes JS.eval for Emscripten FS sync
+		if ClassDB.class_exists("JavaScriptBridge"):
+			JavaScriptBridge.eval("if(typeof FS!=='undefined')FS.syncfs(false,function(e){});")
 
 func load_game() -> Dictionary:
 	if not FileAccess.file_exists(SAVE_PATH):

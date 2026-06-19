@@ -184,3 +184,6 @@ func load_save_data(data: Dictionary) -> void:
 	_storm_visits        = data.get("storm_visits", {})
 	_pinned_corkboard    = data.get("pinned_corkboard", [])
 	_completed_signals   = data.get("completed_signals", [])
+	# sync savings snapshot so savings_reached conditions work after load
+	if get_node_or_null("/root/Economy"):
+		_savings_snapshot = Economy.savings

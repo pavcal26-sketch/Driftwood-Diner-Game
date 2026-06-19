@@ -41,7 +41,7 @@ signal debug_spawn_npc(npc_id: String)
 @warning_ignore("unused_signal")
 signal day_advanced(day_number: int)
 @warning_ignore("unused_signal")
-signal day_phase_changed(phase: String)   # "day" | "evening" | "night"
+signal day_phase_changed(phase: String)   # "dawn" | "day" | "evening" | "night"
 @warning_ignore("unused_signal")
 signal weather_changed(weather: String)   # "clear" | "fog" | "rain"
 @warning_ignore("unused_signal")

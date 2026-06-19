@@ -13,13 +13,10 @@ extends Node2D
 @onready var exterior     : Sprite2D       = $Diner/Exterior
 @onready var interior     : Sprite2D       = $Diner/Interior
 @onready var rain_layer   : Node2D         = $Diner/RainLayer
-# keep the old background ref for fallback — it's hidden in the scene
-@onready var background   : Sprite2D       = $Diner/Background
 
 var _weather_tween: Tween = null
 var _recipe_book: CanvasLayer = null
 var _recipe_list: VBoxContainer = null   # direct ref — avoids fragile node-path lookup
-var _dialogue_opened_cooking: bool = false  # track whether we should reopen cooking UI after dialogue
 
 @onready var corkboard_ui : CanvasLayer    = $CorkboardUI
 @onready var tutorial     : CanvasLayer    = $Tutorial
@@ -89,42 +86,33 @@ func _ready() -> void:
 func _fit_layers() -> void:
 	var vp: Vector2 = get_viewport_rect().size
 
-	# scale interior (same dimensions as old background)
+	# Interior (windowless, 1024x583) is the primary layer — scale to fill viewport.
+	# Exterior (full diner, 2752x1566) is the same image at ~2.69x resolution.
+	# Scale the exterior down by the resolution ratio so both overlap pixel-perfectly.
 	if interior.texture != null:
-		var tex_size: Vector2 = interior.texture.get_size()
-		var sx: float = vp.x / tex_size.x
-		var sy: float = vp.y / tex_size.y
+		var int_size: Vector2 = interior.texture.get_size()
+		var sx: float = vp.x / int_size.x
+		var sy: float = vp.y / int_size.y
 		var s: float = maxf(sx, sy)
+
 		interior.scale    = Vector2(s, s)
 		interior.position = vp * 0.5
 
-		# compute floor position from interior
+		# scale exterior to match — it's higher res, so scale down proportionally
+		if exterior.texture != null:
+			var ext_size: Vector2 = exterior.texture.get_size()
+			var ratio_x: float = int_size.x / ext_size.x
+			var ratio_y: float = int_size.y / ext_size.y
+			exterior.scale    = Vector2(s * ratio_x, s * ratio_y)
+			exterior.position = vp * 0.5
+
+		# compute floor position from the interior layer
 		var floor_frac: float = 0.73
-		var tex_floor_y: float = tex_size.y * floor_frac
-		var offset_from_center: float = tex_floor_y - tex_size.y * 0.5
+		var tex_floor_y: float = int_size.y * floor_frac
+		var offset_from_center: float = tex_floor_y - int_size.y * 0.5
 		_floor_y    = vp.y * 0.5 + offset_from_center * s
 		_counter_x  = vp.x * 0.30
 		_offscreen_x = vp.x + 200.0
-
-	# scale exterior to match interior pixel density, then position it
-	# so its center aligns with the transparent cutout in the interior.
-	# cutout measured at (410,137)-(1024,404) in 1024x583 interior texture
-	# cutout center in texture coords: (717, 270)
-	if exterior.texture != null:
-		var int_tex: Vector2 = interior.texture.get_size() if interior.texture else Vector2(1024, 583)
-		var int_scale: float = interior.scale.x
-
-		# same pixel density as interior
-		exterior.scale = interior.scale
-
-		# interior is centered at vp*0.5, so texture origin = vp*0.5 - int_tex*0.5*scale
-		# cutout center in texture space = (717, 270)
-		# cutout center in screen space = origin + cutout_center * scale
-		var int_origin: Vector2 = vp * 0.5 - int_tex * 0.5 * int_scale
-		var cutout_center_screen: Vector2 = int_origin + Vector2(709.0, 270.0) * int_scale
-
-		# exterior is also centered, so position = cutout center
-		exterior.position = cutout_center_screen
 
 func _connect_signals() -> void:
 	SignalBus.day_phase_changed.connect(_schedule_phase_spawns)

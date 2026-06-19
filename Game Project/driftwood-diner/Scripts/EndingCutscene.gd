@@ -1,65 +1,102 @@
 extends Control
 
+# Ending cutscene slideshow. Reads which ending from GameManager meta.
+# Ending A: ending_1 -> ending_5 (leaving the island)  
+# Ending B: ending_b_1 -> ending_b_4 + stay_1 -> stay_4 (staying and rebuilding)
+
 @onready var texture_rect = $TextureRect
 @onready var fader = $Fader
 
-var images: Array[Texture2D] = []
-var _current_idx: int = 0
+var _slides: Array[String] = []
+var _current_slide: int = 0
+var _can_advance: bool = false
 var _is_ending: bool = false
 
 func _ready() -> void:
-	# The correct chronological sequence based on the uploaded images:
-	# 1. Walking on the path (ending_3.png)
-	# 2. Handing the envelope / port fee (ending_2.png)
-	# 3. Getting into the boat (ending_1.png)
-	# 4. Sailing away / looking back (ending_5.png)
+	# determine which ending set to show
+	var ending_type: String = "A"
+	if GameManager.has_meta("ending_type"):
+		ending_type = GameManager.get_meta("ending_type")
 	
-	var tex_walk  = load("res://Assets/ending/ending_3.png") as Texture2D
-	var tex_pay   = load("res://Assets/ending/ending_2.png") as Texture2D
-	var tex_board = load("res://Assets/ending/ending_1.png") as Texture2D
-	var tex_sail  = load("res://Assets/ending/ending_5.png") as Texture2D
-	
-	if tex_walk:  images.append(tex_walk)
-	if tex_pay:   images.append(tex_pay)
-	if tex_board: images.append(tex_board)
-	if tex_sail:  images.append(tex_sail)
-	
-	fader.color = Color.BLACK
-	
-	if images.size() > 0:
-		_play_next_image()
+	if ending_type == "B":
+		# Ending B: the diner upgrade + staying montage
+		_slides = [
+			"res://Assets/ending/ending_b_1.png",
+			"res://Assets/ending/ending_b_2.png",
+			"res://Assets/ending/ending_b_3.png",
+			"res://Assets/ending/ending_b_4.png",
+			"res://Assets/ending/stay_1.png",
+			"res://Assets/ending/stay_2.png",
+			"res://Assets/ending/stay_3.png",
+			"res://Assets/ending/stay_4.png",
+		]
 	else:
-		_end_sequence()
+		# Ending A: leaving the island — chronological order
+		_slides = [
+			"res://Assets/ending/ending_3.png",   # walking on the path
+			"res://Assets/ending/ending_2.png",   # handing the envelope / port fee
+			"res://Assets/ending/ending_4.png",   # looking back at the diner
+			"res://Assets/ending/ending_1.png",   # getting into the boat
+			"res://Assets/ending/ending_5.png",   # sailing away
+		]
+	
+	# start from black
+	fader.color = Color.BLACK
+	fader.modulate.a = 1.0
+	_show_slide(0)
 
-func _play_next_image() -> void:
-	if _current_idx >= images.size():
+func _show_slide(index: int) -> void:
+	if index >= _slides.size():
 		_end_sequence()
 		return
-		
-	texture_rect.texture = images[_current_idx]
-	_current_idx += 1
 	
-	var tween = create_tween()
+	_current_slide = index
+	_can_advance = false
 	
-	# Fade in
-	tween.tween_property(fader, "color:a", 0.0, 2.0)
-	# Wait
-	tween.tween_interval(4.0)
-	# Fade out
-	tween.tween_property(fader, "color:a", 1.0, 2.0)
+	# load texture — gracefully skip missing files
+	var tex = load(_slides[index]) as Texture2D
+	if tex:
+		texture_rect.texture = tex
+	else:
+		# skip broken slide
+		_show_slide(index + 1)
+		return
 	
-	tween.tween_callback(_play_next_image)
-
-func _end_sequence() -> void:
-	if _is_ending: return
-	_is_ending = true
-	# In the full game, this would return to the main menu or close.
-	# For now, just boot back to the diner so the player isn't stuck.
-	get_tree().change_scene_to_file("res://Scenes/main.tscn")
+	# fade in from black
+	var tw := create_tween()
+	tw.tween_property(fader, "color:a", 0.0, 2.0)
+	tw.tween_interval(3.0)  # hold the image for a moment
+	tw.tween_callback(func(): _can_advance = true)
 
 func _input(event: InputEvent) -> void:
-	# Allow skipping with Esc/Space/Click
-	if event is InputEventKey and event.pressed:
-		_end_sequence()
-	elif event is InputEventMouseButton and event.pressed:
-		_end_sequence()
+	if _is_ending:
+		return
+	if not _can_advance:
+		# allow skip of entire cutscene with Escape
+		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+			_end_sequence()
+		return
+	# any click or key press advances to next slide
+	if event is InputEventMouseButton and event.pressed:
+		_advance()
+	elif event is InputEventKey and event.pressed:
+		_advance()
+
+func _advance() -> void:
+	_can_advance = false
+	# fade to black, then show next slide
+	var tw := create_tween()
+	tw.tween_property(fader, "color:a", 1.0, 1.5)
+	tw.tween_callback(func(): _show_slide(_current_slide + 1))
+
+func _end_sequence() -> void:
+	if _is_ending:
+		return
+	_is_ending = true
+	# fade to black and return to title screen
+	var tw := create_tween()
+	tw.tween_property(fader, "color:a", 1.0, 2.0)
+	tw.tween_interval(1.5)
+	tw.tween_callback(func():
+		get_tree().change_scene_to_file("res://Scenes/TitleScreen.tscn")
+	)

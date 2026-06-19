@@ -77,6 +77,20 @@ func _load_portraits(npc_id: String) -> void:
 		var tex := _read_png_texture("res://Assets/npcs/iso/%s.png" % npc_id)
 		if tex:
 			_portraits.append(tex)
+	
+	# fallback: try the walking sprites directory if no iso portrait exists
+	if _portraits.is_empty():
+		var j := 0
+		while j < 5:
+			var spath := "res://Assets/npcs/sprites/%s_%d.png" % [npc_id, j]
+			var stex := _read_png_texture(spath)
+			if stex:
+				_portraits.append(stex)
+			elif _portraits.is_empty() and j == 0:
+				pass  # might start at _1
+			else:
+				break
+			j += 1
 
 	if not _portraits.is_empty():
 		npc_portrait.texture = _portraits[0]
