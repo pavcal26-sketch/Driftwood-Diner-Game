@@ -270,7 +270,16 @@ func approach_counter() -> void:
 
 func _on_at_counter() -> void:
 	SignalBus.npc_at_counter.emit(npc_id)
+	# reset dialogue state for this visit
+	_dialogue_active = true
+	_pending_serve_dish = ""
+	# Start listening for serves immediately — player can cook while dialogue is up
+	SignalBus.npc_served.connect(_on_served)
 	SignalBus.dialogue_finished.connect(_on_dialogue_done, CONNECT_ONE_SHOT)
+
+# tracks whether we got served while dialogue was still showing
+var _pending_serve_dish: String = ""
+var _dialogue_active: bool = true
 
 func _on_dialogue_done(finished_id: String) -> void:
 	if not is_instance_valid(self):
@@ -279,10 +288,18 @@ func _on_dialogue_done(finished_id: String) -> void:
 		# not our dialogue — wait for the next one
 		SignalBus.dialogue_finished.connect(_on_dialogue_done, CONNECT_ONE_SHOT)
 		return
+	_dialogue_active = false
+	
+	# if we got served during dialogue, process it now
+	if _pending_serve_dish != "":
+		var dish := _pending_serve_dish
+		_pending_serve_dish = ""
+		_process_serve(dish)
+		return
+	
 	_state = "waiting_food"
 	queue_redraw()
-	SignalBus.npc_served.connect(_on_served)
-	# patience timer
+	# patience timer — only starts after dialogue ends
 	var timer := get_tree().create_timer(45.0)
 	await timer.timeout
 	# guard: node may have been freed by a day advance
@@ -298,7 +315,15 @@ func _on_served(served_npc_id: String, dish_id: String) -> void:
 		return
 	if SignalBus.npc_served.is_connected(_on_served):
 		SignalBus.npc_served.disconnect(_on_served)
+	
+	# if dialogue is still showing, buffer the serve for after it finishes
+	if _dialogue_active:
+		_pending_serve_dish = dish_id
+		return
+	
+	_process_serve(dish_id)
 
+func _process_serve(dish_id: String) -> void:
 	_state = "satisfied"
 	queue_redraw()
 

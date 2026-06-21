@@ -33,18 +33,16 @@ func _process(delta: float) -> void:
 	# tick the clock forward
 	game_hour += (GAME_MINUTES_PER_SECOND * delta) / 60.0
 	
-	# wrap around midnight
+	# wrap around midnight — this IS the day boundary
 	if game_hour >= 24.0:
 		game_hour -= 24.0
+		# advance to the next day at midnight
+		SignalBus.story_signal.emit("force_day_advance")
 	
-	# auto-advance day at dawn (5:00 AM)
-	# only trigger once by checking old hour was before 5 and new is after
 	var new_phase: String = _phase_from_hour(game_hour)
 	
 	if old_phase == "night" and new_phase == "dawn":
 		SignalBus.day_phase_changed.emit(new_phase)
-		# Tell Main to force a day advance if the player hasn't manually clicked End Night
-		SignalBus.story_signal.emit("force_day_advance")
 		
 	current_phase = new_phase
 	

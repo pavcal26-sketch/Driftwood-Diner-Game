@@ -158,10 +158,9 @@ func _slide_out() -> void:
 
 func _on_slide_out_done() -> void:
 	visible = false
-	# only fire dialogue_finished for real pre-serve dialogue.
-	# reactions use a different path — NPC handles its own post-serve flow.
-	if not _is_reaction:
-		SignalBus.dialogue_finished.emit(_npc_id)
+	# always emit dialogue_finished so Main.gd can unpause NPCs
+	# the NPC at counter distinguishes pre-serve vs reaction internally
+	SignalBus.dialogue_finished.emit(_npc_id)
 	_is_reaction = false
 
 # -----------------------------------------------------------------------

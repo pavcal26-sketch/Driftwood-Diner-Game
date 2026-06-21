@@ -237,10 +237,30 @@ func _on_npc_at_counter(npc_id: String) -> void:
 	add_child(bell)
 	bell.play()
 	
+	# pause all OTHER NPCs so their timers don't tick during dialogue
+	_pause_npcs_except(npc_id)
 	counter_view.show_npc(npc_id, lines, name_str)
 
 func _on_dialogue_finished(_npc_id: String) -> void:
-	pass # used to restore cooking UI here, but we no longer hide it
+	_unpause_all_npcs()
+
+# -----------------------------------------------------------------------
+# NPC pause/unpause — freezes timers, tweens, and process during dialogue
+# -----------------------------------------------------------------------
+func _pause_npcs_except(active_npc_id: String) -> void:
+	for child in npc_layer.get_children():
+		if child is NPCBase and (child as NPCBase).npc_id != active_npc_id:
+			child.set_process(false)
+			child.set_physics_process(false)
+			# PROCESS_MODE_DISABLED pauses tweens and await timers
+			child.process_mode = Node.PROCESS_MODE_DISABLED
+
+func _unpause_all_npcs() -> void:
+	for child in npc_layer.get_children():
+		if child is NPCBase:
+			child.process_mode = Node.PROCESS_MODE_INHERIT
+			child.set_process(true)
+			child.set_physics_process(true)
 
 func _on_npc_departed(npc_id: String) -> void:
 	_present_npcs.erase(npc_id)
