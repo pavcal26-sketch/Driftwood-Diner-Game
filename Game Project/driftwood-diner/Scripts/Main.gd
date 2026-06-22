@@ -138,6 +138,8 @@ func _connect_signals() -> void:
 	cooking_ui.closed.connect(_toggle_cooking)
 
 func _input(event: InputEvent) -> void:
+	if counter_view and counter_view.visible:
+		return
 	if event.is_action_pressed("ui_cancel"):
 		_close_all_ui()
 	if event.is_action_pressed("action_cook"):
@@ -229,13 +231,16 @@ func _on_npc_at_counter(npc_id: String) -> void:
 	var name_str : String     = meta.get("display_name",
 		npc_id.replace("_", " ").capitalize())
 		
-	# Play bell sound to notify the player without kicking them out of the UI
+	# Play bell sound to notify the player
 	var bell := AudioStreamPlayer.new()
 	bell.stream = preload("res://Assets/Audio/customer_bell.mp3")
 	bell.volume_db = 2.0
 	bell.finished.connect(bell.queue_free)
 	add_child(bell)
 	bell.play()
+	
+	# close any open UIs to show the dialogue
+	_close_all_ui()
 	
 	# pause all OTHER NPCs so their timers don't tick during dialogue
 	_pause_npcs_except(npc_id)
@@ -385,6 +390,8 @@ func _setup_weather_effects() -> void:
 # UI
 # -----------------------------------------------------------------------
 func _toggle_cooking() -> void:
+	if counter_view and counter_view.visible:
+		return
 	if not cooking_ui.visible:
 		cooking_ui.visible = true
 		hud.visible = false
@@ -397,6 +404,8 @@ func _toggle_cooking() -> void:
 		hud.visible = true
 
 func _toggle_recipes() -> void:
+	if counter_view and counter_view.visible:
+		return
 	if _recipe_book == null:
 		return
 	_recipe_book.visible = not _recipe_book.visible
@@ -513,6 +522,8 @@ func _close_all_ui() -> void:
 func _advance_day() -> void:
 	if _transitioning:
 		return
+	if counter_view and counter_view.visible:
+		return
 	_do_day_transition()
 	tutorial.on_day_advanced()
 
@@ -609,6 +620,8 @@ func _build_day_transition_anims() -> void:
 # Corkboard UI — now a scene instance ($CorkboardUI)
 # -----------------------------------------------------------------------
 func _toggle_corkboard() -> void:
+	if counter_view and counter_view.visible:
+		return
 	corkboard_ui.visible = not corkboard_ui.visible
 	hud.visible = not corkboard_ui.visible
 	if cooking_ui.visible:

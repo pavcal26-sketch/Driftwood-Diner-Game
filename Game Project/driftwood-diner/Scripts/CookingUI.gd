@@ -183,8 +183,8 @@ func _on_serve_npc_pressed(npc_id: String) -> void:
 	SignalBus.npc_served.emit(npc_id, dish_id)
 	DialogueManager.record_dish_served(npc_id, dish_id)
 
-	# kick player out of cooking UI after a brief pause so they see the feedback
-	await get_tree().create_timer(0.6).timeout
+	# kick player out of cooking UI after the poof animation finishes
+	await get_tree().create_timer(0.15).timeout
 	closed.emit()
 
 # called by CraftItem when clicked to select it for serving

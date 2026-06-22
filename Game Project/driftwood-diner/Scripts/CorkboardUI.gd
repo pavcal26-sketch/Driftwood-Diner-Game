@@ -19,8 +19,7 @@ var _empty_label: Label
 var _cards: Array[Control] = []
 var _selected_card: Control = null
 
-# Preloaded textures
-var _pin_texture: Texture2D = null
+
 
 # Layout constants — cards are now wider to fit image + text side by side
 const CARD_SIZE := Vector2(260, 140)
@@ -42,7 +41,6 @@ const DEFAULT_TINT := Color(0.85, 0.83, 0.78, 0.92)  # neutral cream
 func _ready() -> void:
 	layer = 10
 	visible = false
-	_pin_texture = _try_load_tex("res://Assets/corkboard/pushpin.png")
 	_build_ui()
 
 func _try_load_tex(path: String) -> Texture2D:
@@ -119,17 +117,7 @@ func _build_ui() -> void:
 	title_lbl.add_theme_color_override("font_color", Color(0.25, 0.20, 0.15))
 	title_card.add_child(title_lbl)
 
-	# Pin on the title card — fixed: uses custom_minimum_size instead of stretching
-	if _pin_texture:
-		var pin := TextureRect.new()
-		pin.texture = _pin_texture
-		pin.custom_minimum_size = Vector2(24, 24)
-		pin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		pin.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		pin.position = Vector2(90, -10)
-		pin.z_index = 5
-		pin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		title_card.add_child(pin)
+
 
 	# Main horizontal split — board area (left 62%) + detail panel (right 38%)
 	var hbox := HBoxContainer.new()
@@ -361,17 +349,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	preview_lbl.custom_minimum_size.y = 24
 	text_vbox.add_child(preview_lbl)
 
-	# Pushpin — fixed: no stretching, proper aspect ratio
-	if _pin_texture:
-		var pin := TextureRect.new()
-		pin.texture = _pin_texture
-		pin.custom_minimum_size = Vector2(22, 22)
-		pin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		pin.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		pin.position = Vector2(CARD_SIZE.x * 0.5 - 11 + randf_range(-15, 15), -10)
-		pin.z_index = 5
-		pin.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		card.add_child(pin)
+
 
 	# Make it clickable
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
