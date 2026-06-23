@@ -390,9 +390,9 @@ func _setup_weather_effects() -> void:
 # UI
 # -----------------------------------------------------------------------
 func _toggle_cooking() -> void:
-	if counter_view and counter_view.visible:
-		return
 	if not cooking_ui.visible:
+		if counter_view and counter_view.visible:
+			return
 		cooking_ui.visible = true
 		hud.visible = false
 		if _recipe_book:
@@ -404,18 +404,19 @@ func _toggle_cooking() -> void:
 		hud.visible = true
 
 func _toggle_recipes() -> void:
-	if counter_view and counter_view.visible:
-		return
 	if _recipe_book == null:
 		return
-	_recipe_book.visible = not _recipe_book.visible
-	if _recipe_book.visible:
+	if not _recipe_book.visible:
+		if counter_view and counter_view.visible:
+			return
+		_recipe_book.visible = true
 		cooking_ui.visible = false
 		corkboard_ui.visible = false
 		hud.visible = false
 		_refresh_recipe_book()
 		tutorial.on_recipes_opened()
 	else:
+		_recipe_book.visible = false
 		hud.visible = true
 
 func _build_recipe_book() -> void:
@@ -620,13 +621,16 @@ func _build_day_transition_anims() -> void:
 # Corkboard UI — now a scene instance ($CorkboardUI)
 # -----------------------------------------------------------------------
 func _toggle_corkboard() -> void:
-	if counter_view and counter_view.visible:
-		return
-	corkboard_ui.visible = not corkboard_ui.visible
-	hud.visible = not corkboard_ui.visible
-	if cooking_ui.visible:
-		cooking_ui.visible = false
-	if _recipe_book:
-		_recipe_book.visible = false
-	if corkboard_ui.visible:
+	if not corkboard_ui.visible:
+		if counter_view and counter_view.visible:
+			return
+		corkboard_ui.visible = true
+		hud.visible = false
+		if cooking_ui.visible:
+			cooking_ui.visible = false
+		if _recipe_book:
+			_recipe_book.visible = false
 		corkboard_ui.refresh()
+	else:
+		corkboard_ui.visible = false
+		hud.visible = true
