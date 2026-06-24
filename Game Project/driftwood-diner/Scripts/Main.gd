@@ -20,6 +20,8 @@ var _recipe_list: VBoxContainer = null   # direct ref — avoids fragile node-pa
 
 @onready var corkboard_ui : CanvasLayer    = $CorkboardUI
 @onready var tutorial     : CanvasLayer    = $Tutorial
+@onready var ambience_player : AudioStreamPlayer = $Diner/Ambience
+@onready var music_player    : AudioStreamPlayer = $MusicPlayer
 
 const NPC_SCENE := preload("res://Scenes/NPC.tscn")
 
@@ -79,6 +81,8 @@ func _ready() -> void:
 	_schedule_phase_spawns(GameManager.current_phase)
 	# ensure weather visuals are correct at boot (default is "clear")
 	_apply_weather(GameManager.current_weather)
+
+	_setup_audio()
 
 # -----------------------------------------------------------------------
 # Background layering — exterior behind rain behind interior
@@ -634,3 +638,28 @@ func _toggle_corkboard() -> void:
 	else:
 		corkboard_ui.visible = false
 		hud.visible = true
+
+# -----------------------------------------------------------------------
+# Audio Setup — loads and plays looping ocean ambience & music
+# -----------------------------------------------------------------------
+func _setup_audio() -> void:
+	var amb_stream = _load_audio_with_fallbacks("res://Assets/Audio/ocean_ambience")
+	if amb_stream:
+		ambience_player.stream = amb_stream
+		if not ambience_player.finished.is_connected(ambience_player.play):
+			ambience_player.finished.connect(ambience_player.play)
+		ambience_player.play()
+	
+	var music_stream = _load_audio_with_fallbacks("res://Assets/Audio/diner_music")
+	if music_stream:
+		music_player.stream = music_stream
+		if not music_player.finished.is_connected(music_player.play):
+			music_player.finished.connect(music_player.play)
+		music_player.play()
+
+func _load_audio_with_fallbacks(base_path: String) -> AudioStream:
+	for ext in [".mp3", ".ogg", ".wav"]:
+		var path = base_path + ext
+		if ResourceLoader.exists(path):
+			return load(path) as AudioStream
+	return null
