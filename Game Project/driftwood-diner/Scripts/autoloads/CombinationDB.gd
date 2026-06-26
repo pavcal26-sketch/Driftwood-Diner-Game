@@ -226,10 +226,6 @@ func try_combine(a: String, b: String) -> String:
 	var key: String = _make_key([a, b])
 	return _recipes.get(key, "")
 
-func try_combine_three(a: String, b: String, c: String) -> String:
-	var key: String = _make_key([a, b, c])
-	return _recipes.get(key, "")
-
 func _make_key(ingredients: Array) -> String:
 	var sorted: Array = ingredients.duplicate()
 	sorted.sort()
@@ -243,8 +239,5 @@ func is_valid_dish(dish_id: String) -> bool:
 		return false
 	return dish_id in _recipes.values()
 
-func get_all_recipes() -> Dictionary:
-	return _recipes
-
 func get_all_combinations() -> Dictionary:
-	return _recipes  # alias for recipe book
+	return _recipes

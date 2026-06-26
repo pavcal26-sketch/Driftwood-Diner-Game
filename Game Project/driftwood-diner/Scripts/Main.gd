@@ -15,8 +15,12 @@ extends Node2D
 @onready var rain_layer   : Node2D         = $Diner/RainLayer
 
 var _weather_tween: Tween = null
+var _ambience_tween: Tween = null
 var _recipe_book: CanvasLayer = null
 var _recipe_list: VBoxContainer = null   # direct ref — avoids fragile node-path lookup
+var _foghorn_timer: Timer = null
+var _spawn_timer: Timer = null
+var _fog_particles: CPUParticles2D = null
 
 @onready var corkboard_ui : CanvasLayer    = $CorkboardUI
 @onready var tutorial     : CanvasLayer    = $Tutorial
@@ -74,6 +78,10 @@ func _ready() -> void:
 	# CorkboardUI is now a scene instance — wire its closed signal
 	corkboard_ui.closed.connect(_toggle_corkboard)
 
+	_setup_audio()
+	_setup_foghorn()
+	_setup_spawner()
+
 	# first night — traveller arrives, then kick off the evening spawn schedule
 	# (without this, NPCs only spawn on phase CHANGE, so nothing until hour 20)
 	await get_tree().create_timer(2.0).timeout
@@ -81,8 +89,6 @@ func _ready() -> void:
 	_schedule_phase_spawns(GameManager.current_phase)
 	# ensure weather visuals are correct at boot (default is "clear")
 	_apply_weather(GameManager.current_weather)
-
-	_setup_audio()
 
 # -----------------------------------------------------------------------
 # Background layering — exterior behind rain behind interior
@@ -120,7 +126,9 @@ func _fit_layers() -> void:
 
 func _connect_signals() -> void:
 	SignalBus.day_phase_changed.connect(_schedule_phase_spawns)
+	SignalBus.day_phase_changed.connect(func(_p): _update_ambience())
 	SignalBus.weather_changed.connect(_apply_weather)
+	SignalBus.weather_changed.connect(func(_w): _update_ambience())
 	SignalBus.clock_tick.connect(_apply_lighting)
 	SignalBus.npc_at_counter.connect(_on_npc_at_counter)
 	SignalBus.npc_requests_counter.connect(_on_npc_requests_counter)
@@ -133,6 +141,7 @@ func _connect_signals() -> void:
 	SignalBus.day_advanced.connect(func(d: int): hud.update_day(d))
 	SignalBus.debug_spawn_npc.connect(spawn_npc)
 	SignalBus.story_signal.connect(_on_story_signal)
+	SignalBus.passage_unlocked.connect(_on_passage_unlocked)
 
 	hud.cooking_pressed.connect(_toggle_cooking)
 	hud.recipes_pressed.connect(_toggle_recipes)
@@ -163,6 +172,127 @@ func _on_story_signal(trigger: String) -> void:
 		get_tree().change_scene_to_file("res://Scenes/EndingCutscene.tscn")
 	elif trigger == "force_day_advance":
 		_advance_day()
+	elif trigger == "unlock_both_endings":
+		# Narrative gate met — check if economic gate is also met
+		_check_ending_gates()
+
+# -----------------------------------------------------------------------
+# Ending Choice System
+# -----------------------------------------------------------------------
+var _ending_choice_ui: CanvasLayer = null
+var _endings_narrative_unlocked: bool = false
+var _endings_economic_unlocked: bool = false
+
+func _check_ending_gates() -> void:
+	_endings_narrative_unlocked = true
+	if Economy.savings >= Economy.PASSAGE_COST:
+		_endings_economic_unlocked = true
+	if _endings_narrative_unlocked and _endings_economic_unlocked:
+		# Both gates met — show choice after a short dramatic pause
+		get_tree().create_timer(2.0).timeout.connect(_show_ending_choice)
+
+func _on_passage_unlocked() -> void:
+	_endings_economic_unlocked = true
+	if _endings_narrative_unlocked and _endings_economic_unlocked:
+		get_tree().create_timer(2.0).timeout.connect(_show_ending_choice)
+
+func _show_ending_choice() -> void:
+	if _ending_choice_ui != null:
+		return  # already showing
+	
+	_close_all_ui()
+	
+	_ending_choice_ui = CanvasLayer.new()
+	_ending_choice_ui.layer = 15
+	add_child(_ending_choice_ui)
+	
+	var root := Control.new()
+	root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_ending_choice_ui.add_child(root)
+	
+	# dark backdrop
+	var bg := ColorRect.new()
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	bg.color = Color(0.02, 0.03, 0.08, 0.85)
+	bg.modulate.a = 0.0
+	root.add_child(bg)
+	
+	# centered panel
+	var panel := PanelContainer.new()
+	panel.set_anchors_preset(Control.PRESET_CENTER)
+	panel.set_anchor(SIDE_LEFT, 0.2)
+	panel.set_anchor(SIDE_RIGHT, 0.8)
+	panel.set_anchor(SIDE_TOP, 0.2)
+	panel.set_anchor(SIDE_BOTTOM, 0.8)
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.10, 0.16, 0.95)
+	style.border_color = Color(0.45, 0.55, 0.75, 0.5)
+	style.set_border_width_all(2)
+	style.set_corner_radius_all(8)
+	style.set_content_margin_all(32)
+	panel.add_theme_stylebox_override("panel", style)
+	root.add_child(panel)
+	
+	var vbox := VBoxContainer.new()
+	vbox.add_theme_constant_override("separation", 20)
+	panel.add_child(vbox)
+	
+	var title := Label.new()
+	title.text = "A Choice"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title.add_theme_font_size_override("font_size", 28)
+	title.add_theme_color_override("font_color", Color(0.85, 0.80, 0.65))
+	vbox.add_child(title)
+	
+	var desc := RichTextLabel.new()
+	desc.bbcode_enabled = true
+	desc.text = "[center]You've saved enough. The Baker's story is told. The pressed flower sits framed on the corkboard.\n\nThe ferry leaves at dawn. You could be on it.\nOr you could stay. Keep the lights on. Wait for the next soul the tide brings in.\n\n[color=#b8a080]What will you do?[/color][/center]"
+	desc.fit_content = true
+	desc.scroll_active = false
+	desc.add_theme_font_size_override("normal_font_size", 16)
+	desc.add_theme_color_override("default_color", Color(0.75, 0.72, 0.68))
+	vbox.add_child(desc)
+	
+	var spacer := Control.new()
+	spacer.custom_minimum_size = Vector2(0, 10)
+	vbox.add_child(spacer)
+	
+	var btn_box := HBoxContainer.new()
+	btn_box.add_theme_constant_override("separation", 40)
+	btn_box.alignment = BoxContainer.ALIGNMENT_CENTER
+	vbox.add_child(btn_box)
+	
+	var leave_btn := Button.new()
+	leave_btn.text = "Leave the Island"
+	leave_btn.custom_minimum_size = Vector2(200, 50)
+	leave_btn.add_theme_font_size_override("font_size", 16)
+	leave_btn.pressed.connect(func(): _on_ending_chosen("A"))
+	btn_box.add_child(leave_btn)
+	
+	var stay_btn := Button.new()
+	stay_btn.text = "Stay and Rebuild"
+	stay_btn.custom_minimum_size = Vector2(200, 50)
+	stay_btn.add_theme_font_size_override("font_size", 16)
+	stay_btn.pressed.connect(func(): _on_ending_chosen("B"))
+	btn_box.add_child(stay_btn)
+	
+	# fade in
+	var tw := create_tween()
+	tw.tween_property(bg, "modulate:a", 1.0, 1.5)
+
+func _on_ending_chosen(ending: String) -> void:
+	# Record the choice
+	DialogueManager.set_ending_choice(ending)
+	GameManager.save_all()
+	
+	# Remove choice UI
+	if _ending_choice_ui:
+		_ending_choice_ui.queue_free()
+		_ending_choice_ui = null
+	
+	# Spawn the Traveller for their farewell — T9/T10 will now unlock
+	# because ending_chosen condition is met
+	spawn_npc("washed_up_traveller")
 
 # -----------------------------------------------------------------------
 # NPC spawning with unique seats
@@ -185,6 +315,14 @@ func spawn_npc(npc_id: String) -> void:
 		npc_base.counter_x   = _counter_x
 		npc_base.offscreen_x = _offscreen_x
 	npc.setup(npc_id, seat)
+
+	# Play bell sound to notify the player when NPC enters
+	var bell := AudioStreamPlayer.new()
+	bell.stream = preload("res://Assets/Audio/customer_bell.mp3")
+	bell.volume_db = 2.0
+	bell.finished.connect(bell.queue_free)
+	add_child(bell)
+	bell.play()
 
 func _assign_seat(npc_id: String) -> float:
 	# find the first unused seat position
@@ -235,14 +373,6 @@ func _on_npc_at_counter(npc_id: String) -> void:
 	var name_str : String     = meta.get("display_name",
 		npc_id.replace("_", " ").capitalize())
 		
-	# Play bell sound to notify the player
-	var bell := AudioStreamPlayer.new()
-	bell.stream = preload("res://Assets/Audio/customer_bell.mp3")
-	bell.volume_db = 2.0
-	bell.finished.connect(bell.queue_free)
-	add_child(bell)
-	bell.play()
-	
 	# close any open UIs to show the dialogue
 	_close_all_ui()
 	
@@ -331,6 +461,8 @@ func _apply_weather(weather: String) -> void:
 				_rain_particles.emitting = false
 			if _drizzle_particles:
 				_drizzle_particles.emitting = false
+			if _fog_particles:
+				_fog_particles.emitting = true
 
 		"rain":
 			# rain gets particles + light fog for atmosphere
@@ -339,6 +471,8 @@ func _apply_weather(weather: String) -> void:
 				_rain_particles.emitting = true
 			if _drizzle_particles:
 				_drizzle_particles.emitting = true
+			if _fog_particles:
+				_fog_particles.emitting = false
 
 		_:  # "clear" and anything else
 			t.tween_property(fog, "modulate:a", 0.0, 5.0)
@@ -346,6 +480,8 @@ func _apply_weather(weather: String) -> void:
 				_rain_particles.emitting = false
 			if _drizzle_particles:
 				_drizzle_particles.emitting = false
+			if _fog_particles:
+				_fog_particles.emitting = false
 
 # -----------------------------------------------------------------------
 # Weather particles — rain falls between the two background layers
@@ -389,6 +525,34 @@ func _setup_weather_effects() -> void:
 	_drizzle_particles.scale_amount_max = 2.0
 	_drizzle_particles.color = Color(0.7, 0.82, 0.95, 0.5)
 	rain_layer.add_child(_drizzle_particles)
+
+	# fog particles - soft drifting mist shapes
+	_fog_particles = CPUParticles2D.new()
+	_fog_particles.emitting = false
+	_fog_particles.amount = 15
+	_fog_particles.lifetime = 12.0
+	_fog_particles.preprocess = 10.0
+	_fog_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
+	_fog_particles.emission_rect_extents = Vector2(vp.x * 0.5, vp.y * 0.5)
+	_fog_particles.position = vp * 0.5
+	_fog_particles.direction = Vector2(-1.0, 0.1)
+	_fog_particles.spread = 15.0
+	_fog_particles.gravity = Vector2.ZERO
+	_fog_particles.initial_velocity_min = 10.0
+	_fog_particles.initial_velocity_max = 30.0
+	_fog_particles.scale_amount_min = 80.0
+	_fog_particles.scale_amount_max = 200.0
+	_fog_particles.color = Color(0.8, 0.82, 0.88, 0.12)
+	
+	# Gradient to fade in and out smoothly
+	var color_ramp := Gradient.new()
+	color_ramp.add_point(0.0, Color(0.8, 0.82, 0.88, 0.0))
+	color_ramp.add_point(0.2, Color(0.8, 0.82, 0.88, 0.12))
+	color_ramp.add_point(0.8, Color(0.8, 0.82, 0.88, 0.12))
+	color_ramp.add_point(1.0, Color(0.8, 0.82, 0.88, 0.0))
+	_fog_particles.color_ramp = color_ramp
+	
+	rain_layer.add_child(_fog_particles)
 
 # -----------------------------------------------------------------------
 # UI
@@ -555,14 +719,45 @@ func _do_day_transition() -> void:
 	day_trans.visible = false
 	_transitioning = false
 
+func _setup_spawner() -> void:
+	_spawn_timer = Timer.new()
+	_spawn_timer.one_shot = false
+	_spawn_timer.timeout.connect(_on_spawn_timer_timeout)
+	add_child(_spawn_timer)
+
 func _schedule_phase_spawns(phase: String) -> void:
 	if _transitioning:
 		return
 	
-	# dawn is a transitional phase — don't spawn during it
-	if phase == "dawn":
+	if phase == "dawn" or phase == "day":
+		_spawn_timer.stop()
 		return
 		
+	# Start recurring spawn checks during evening and night (check every 20-30s)
+	_spawn_timer.wait_time = randf_range(20.0, 30.0)
+	_spawn_timer.start()
+	
+	# Also spawn 1-2 initial customers immediately (with short delays)
+	var count := randi_range(1, 2)
+	for i in range(count):
+		var delay := randf_range(1.0, 5.0)
+		get_tree().create_timer(delay).timeout.connect(func():
+			if not _transitioning and GameManager.current_phase in ["evening", "night"]:
+				_spawn_random_npc()
+		)
+
+func _on_spawn_timer_timeout() -> void:
+	if _transitioning or GameManager.current_phase not in ["evening", "night"]:
+		return
+		
+	# Limit maximum simultaneous NPCs in diner to 4
+	if _present_npcs.size() < 4:
+		_spawn_random_npc()
+		
+	# Randomize next spawn check time
+	_spawn_timer.wait_time = randf_range(25.0, 45.0)
+
+func _spawn_random_npc() -> void:
 	var full_pool: Array[String] = [
 		"washed_up_traveller", "elderly_baker", "failing_fisherman",
 		"newcomer", "musician", "harbour_worker", "soup_regular",
@@ -572,6 +767,10 @@ func _schedule_phase_spawns(phase: String) -> void:
 	
 	var valid_pool: Array[String] = []
 	for npc in full_pool:
+		# Don't spawn if they are already present
+		if npc in _present_npcs:
+			continue
+			
 		var meta = DialogueManager.get_npc_meta(npc)
 		var schedule: String = meta.get("schedule", "most_nights")
 		if schedule == "fog_or_rain_only" and GameManager.current_weather not in ["fog", "rain"]:
@@ -581,20 +780,12 @@ func _schedule_phase_spawns(phase: String) -> void:
 		if schedule == "rare" and randf() > 0.3:
 			continue
 		valid_pool.append(npc)
-	
-	var count: int = randi_range(1, 2)
-	if phase == "night":
-		count = randi_range(1, 3)
 		
-	var shuffled: Array[String] = valid_pool.duplicate()
-	shuffled.shuffle()
-
-	for i in range(mini(count, shuffled.size())):
-		var delay = randf_range(2.0, 15.0) if phase != "night" else randf_range(2.0, 8.0)
-		get_tree().create_timer(delay).timeout.connect(func():
-			if not _transitioning:
-				spawn_npc(shuffled[i])
-		)
+	if valid_pool.is_empty():
+		return
+		
+	var chosen = valid_pool[randi() % valid_pool.size()]
+	spawn_npc(chosen)
 
 # -----------------------------------------------------------------------
 # Day transition animations
@@ -643,19 +834,86 @@ func _toggle_corkboard() -> void:
 # Audio Setup — loads and plays looping ocean ambience & music
 # -----------------------------------------------------------------------
 func _setup_audio() -> void:
-	var amb_stream = _load_audio_with_fallbacks("res://Assets/Audio/ocean_ambience")
-	if amb_stream:
-		ambience_player.stream = amb_stream
-		if not ambience_player.finished.is_connected(ambience_player.play):
-			ambience_player.finished.connect(ambience_player.play)
-		ambience_player.play()
-	
+	# Keep diner music looping
 	var music_stream = _load_audio_with_fallbacks("res://Assets/Audio/diner_music")
 	if music_stream:
 		music_player.stream = music_stream
 		if not music_player.finished.is_connected(music_player.play):
 			music_player.finished.connect(music_player.play)
 		music_player.play()
+		
+	# Start initial ambience
+	_update_ambience()
+
+func _update_ambience() -> void:
+	var target_base := "res://Assets/Audio/ocean_ambience"
+	if GameManager.current_weather == "rain":
+		target_base = "res://Assets/Audio/light_rain_indoors"
+	elif GameManager.current_phase == "night":
+		target_base = "res://Assets/Audio/night_ambience"
+		
+	var target_stream := _load_audio_with_fallbacks(target_base)
+	if target_stream == null:
+		# Fallback to ocean ambience if rain/night are missing
+		target_stream = _load_audio_with_fallbacks("res://Assets/Audio/ocean_ambience")
+		if target_stream == null:
+			return
+			
+	if ambience_player.stream == target_stream and ambience_player.playing:
+		return
+		
+	# Smooth crossfade
+	if _ambience_tween and _ambience_tween.is_valid():
+		_ambience_tween.kill()
+		
+	_ambience_tween = create_tween()
+	var target_vol := -12.0 # Quieter background ambience level
+	if ambience_player.playing:
+		_ambience_tween.tween_property(ambience_player, "volume_db", -80.0, 1.2)
+		_ambience_tween.tween_callback(func():
+			ambience_player.stop()
+			ambience_player.stream = target_stream
+			ambience_player.volume_db = -80.0
+			ambience_player.play()
+		)
+		_ambience_tween.tween_property(ambience_player, "volume_db", target_vol, 1.2)
+	else:
+		ambience_player.stream = target_stream
+		ambience_player.volume_db = -80.0
+		ambience_player.play()
+		_ambience_tween.tween_property(ambience_player, "volume_db", target_vol, 1.2)
+
+	if not ambience_player.finished.is_connected(ambience_player.play):
+		ambience_player.finished.connect(ambience_player.play)
+
+func _setup_foghorn() -> void:
+	_foghorn_timer = Timer.new()
+	_foghorn_timer.wait_time = 45.0
+	_foghorn_timer.one_shot = false
+	_foghorn_timer.timeout.connect(_on_foghorn_timer_timeout)
+	add_child(_foghorn_timer)
+	_foghorn_timer.start()
+
+func _on_foghorn_timer_timeout() -> void:
+	var roll := randf()
+	var chance := 0.10
+	if GameManager.current_weather == "fog":
+		chance = 0.40
+		
+	if roll < chance:
+		_play_foghorn()
+
+func _play_foghorn() -> void:
+	var stream = _load_audio_with_fallbacks("res://Assets/Audio/foghorn")
+	if stream == null:
+		return
+		
+	var player := AudioStreamPlayer.new()
+	player.stream = stream
+	player.volume_db = -12.0
+	player.finished.connect(player.queue_free)
+	add_child(player)
+	player.play()
 
 func _load_audio_with_fallbacks(base_path: String) -> AudioStream:
 	for ext in [".mp3", ".ogg", ".wav"]:

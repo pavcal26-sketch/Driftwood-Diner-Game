@@ -26,10 +26,7 @@ func add_savings(amount: int) -> void:
 	savings += amount
 	SignalBus.savings_changed.emit(savings)
 	
-	if savings >= STAY_UPGRADE and not _stay_triggered:
-		_stay_triggered = true
-		SignalBus.story_signal.emit("play_ending_b_sequence")
-	elif savings >= PASSAGE_COST and not _passage_unlocked_fired:
+	if savings >= PASSAGE_COST and not _passage_unlocked_fired:
 		_passage_unlocked_fired = true
 		SignalBus.passage_unlocked.emit()
 
@@ -45,18 +42,16 @@ func _on_npc_served(npc_id: String, dish_id: String) -> void:
 	var per_tier: int = meta.get("payment_per_tier", 0)
 	var tier: int    = DialogueManager._npc_tiers.get(npc_id, 0)
 
-	var meta_affinity: Array = meta.get("affinity", [])
+	# Affinity bonus — use NPC_PREFERENCES as the single source of truth
+	# NPC_PREFERENCES uses substring matching on dish_id which actually works,
+	# unlike the _meta.affinity categories which used descriptive labels
 	var multiplier := 1.0
-	
-	if "any" in meta_affinity:
-		multiplier = 2.0
-	elif NPCBase.NPC_PREFERENCES.has(npc_id):
-		var prefs: Dictionary = NPCBase.NPC_PREFERENCES[npc_id]
-		var accepts: Array = prefs.get("accepts", [])
-		for keyword: String in accepts:
-			if dish_id.contains(keyword):
-				multiplier = 2.0
-				break
+	if NPCBase.NPC_PREFERENCES.has(npc_id):
+		if NPCBase.accepts_dish(npc_id, dish_id):
+			multiplier = 2.0
+	else:
+		# NPCs without explicit preferences accept and enjoy anything
+		multiplier = 1.5
 
 	# diminishing returns — same dish to same NPC pays less each time
 	var history_key: String = npc_id + "::" + dish_id

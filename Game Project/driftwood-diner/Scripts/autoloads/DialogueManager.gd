@@ -13,6 +13,7 @@ var _pinned_corkboard: Array = []    # item ids pinned to corkboard
 var _completed_signals: Array = []   # story signals already emitted
 var _savings_snapshot: int = 0       # cached from Economy for unlock checks
 var _debug_forced_tiers: Dictionary = {}
+var _chosen_ending: String = ""      # "A" or "B" — set when player picks
 
 func _ready() -> void:
 	_load_dialogue()
@@ -93,6 +94,22 @@ func record_dish_served(npc_id: String, dish_id: String) -> void:
 	_npc_visits[key] = _npc_visits.get(key, 0) + 1
 	var specific_key := npc_id + "::" + dish_id
 	_npc_visits[specific_key] = _npc_visits.get(specific_key, 0) + 1
+	
+	# Handle specific affinity matches so DialogueManager can unlock affinity-gated tiers correctly
+	if NPCBase.accepts_dish(npc_id, dish_id):
+		var aff_key := ""
+		match npc_id:
+			"washed_up_traveller":
+				aff_key = "any_affinity_match"
+			"elderly_baker":
+				aff_key = "baked_affinity_match"
+			"failing_fisherman":
+				aff_key = "seafood_affinity_match"
+			"musician":
+				aff_key = "sweet_affinity_match"
+		if aff_key != "":
+			var full_aff_key := npc_id + "::" + aff_key
+			_npc_visits[full_aff_key] = _npc_visits.get(full_aff_key, 0) + 1
 
 func debug_add_visit(npc_id: String) -> void:
 	_npc_visits[npc_id] = _npc_visits.get(npc_id, 0) + 1
@@ -121,7 +138,7 @@ func _tier_unlocked(npc_id: String, tier: Dictionary) -> bool:
 			return _npc_visits.get(npc_id, 0) >= cond.get("count", 999)
 		"dish_served":
 			var target_dish: String = cond.get("dish", "")
-			if target_dish != "" and target_dish != "baked_affinity_match" and target_dish != "seafood_affinity_match":
+			if target_dish != "":
 				var specific_key := npc_id + "::" + target_dish
 				return _npc_visits.get(specific_key, 0) >= cond.get("cumulative", 999)
 			else:
@@ -140,7 +157,8 @@ func _tier_unlocked(npc_id: String, tier: Dictionary) -> bool:
 		"storm_visitor_visits":
 			return _storm_visits.get("storm_visitor", 0) >= cond.get("count", 999)
 		"ending_chosen":
-			return false  # handled externally
+			var required_ending: String = cond.get("ending", "")
+			return _chosen_ending == required_ending
 		"any_ending_reached":
 			return _completed_signals.has("ending_reached")
 	return false
@@ -168,6 +186,11 @@ func _on_corkboard_item(item_id: String) -> void:
 func get_pinned_items() -> Array:
 	return _pinned_corkboard
 
+# Called when the player makes their ending choice
+func set_ending_choice(ending: String) -> void:
+	_chosen_ending = ending
+	_completed_signals.append("ending_reached")
+
 # Serialize state for save system.
 func get_save_data() -> Dictionary:
 	return {
@@ -176,6 +199,7 @@ func get_save_data() -> Dictionary:
 		"storm_visits": _storm_visits,
 		"pinned_corkboard": _pinned_corkboard,
 		"completed_signals": _completed_signals,
+		"chosen_ending": _chosen_ending,
 	}
 
 func load_save_data(data: Dictionary) -> void:
@@ -184,6 +208,7 @@ func load_save_data(data: Dictionary) -> void:
 	_storm_visits        = data.get("storm_visits", {})
 	_pinned_corkboard    = data.get("pinned_corkboard", [])
 	_completed_signals   = data.get("completed_signals", [])
+	_chosen_ending       = data.get("chosen_ending", "")
 	# sync savings snapshot so savings_reached conditions work after load
 	if get_node_or_null("/root/Economy"):
 		_savings_snapshot = Economy.savings

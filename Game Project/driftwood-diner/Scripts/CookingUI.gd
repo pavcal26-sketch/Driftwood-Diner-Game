@@ -25,7 +25,12 @@ func _ready() -> void:
 	SignalBus.npc_left_counter.connect(_on_npc_left)
 	SignalBus.npc_served.connect(_on_npc_served)
 	SignalBus.ingredient_received.connect(_on_ingredient_received)
-	_rebuild_sidebar()
+	
+	if GameManager.last_loaded_data.has("cooking_ui"):
+		load_save_data(GameManager.last_loaded_data["cooking_ui"])
+	else:
+		_rebuild_sidebar()
+		
 	_rebuild_npc_panel()
 	$Control/InfoBar/HBox/CloseButton.pressed.connect(func(): closed.emit())
 	$Control/InfoBar/HBox/ClearButton.pressed.connect(clear_workspace)
@@ -215,6 +220,12 @@ func get_save_data() -> Dictionary:
 	return {"discovered": discovered, "dishes": _dishes}
 
 func load_save_data(data: Dictionary) -> void:
-	discovered = data.get("discovered", discovered)
-	_dishes     = data.get("dishes", [])
+	if data.has("discovered"):
+		discovered.clear()
+		for item in data["discovered"]:
+			discovered.append(item as String)
+	if data.has("dishes"):
+		_dishes.clear()
+		for item in data["dishes"]:
+			_dishes.append(item as String)
 	_rebuild_sidebar()

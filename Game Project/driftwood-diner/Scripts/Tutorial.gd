@@ -10,6 +10,7 @@ var _label: RichTextLabel
 var _close_hint: Label
 var _active: bool = false
 var _current_step: String = ""
+var _panel_origin_y: float = 0.0
 
 # Which tutorials have been shown — persisted with save data
 var _completed: Array[String] = []
@@ -50,7 +51,11 @@ func _ready() -> void:
 	layer = 20  # above everything
 	visible = false
 	_build_ui()
+	_panel_origin_y = _panel.position.y
 	_connect_triggers()
+	
+	if GameManager.last_loaded_data.has("tutorial"):
+		load_save_data(GameManager.last_loaded_data["tutorial"])
 
 func _build_ui() -> void:
 	var root := Control.new()
@@ -158,15 +163,14 @@ func show_tutorial(step: String) -> void:
 	var data: Dictionary = TUTORIALS[step]
 	_label.text = data.get("text", "")
 
-	# Animate in
+	# Animate in — use stored origin to prevent cumulative drift
 	_active = true
 	visible = true
 	_panel.modulate.a = 0.0
-	_panel.position.y += 30
-	var target_y: float = _panel.position.y - 30
+	_panel.position.y = _panel_origin_y + 30
 	var tw := create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	tw.tween_property(_panel, "modulate:a", 1.0, 0.35)
-	tw.parallel().tween_property(_panel, "position:y", target_y, 0.4)
+	tw.parallel().tween_property(_panel, "position:y", _panel_origin_y, 0.4)
 
 func _on_dismiss(event: InputEvent) -> void:
 	if not _active:
@@ -183,8 +187,11 @@ func _dismiss() -> void:
 
 	var tw := create_tween().set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_CUBIC)
 	tw.tween_property(_panel, "modulate:a", 0.0, 0.2)
-	tw.tween_property(_panel, "position:y", _panel.position.y + 30, 0.25)
-	tw.tween_callback(func(): visible = false)
+	tw.tween_property(_panel, "position:y", _panel_origin_y + 30, 0.25)
+	tw.tween_callback(func():
+		visible = false
+		_panel.position.y = _panel_origin_y
+	)
 
 func _input(event: InputEvent) -> void:
 	if not _active:

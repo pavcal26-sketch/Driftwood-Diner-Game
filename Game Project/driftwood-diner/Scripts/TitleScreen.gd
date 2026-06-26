@@ -31,10 +31,11 @@ func _on_delete_confirmed() -> void:
 	if get_node_or_null("/root/GameManager"):
 		GameManager.current_day = 1
 		GameManager.nights_survived = 0
-		GameManager.game_hour = 19.0
+		GameManager.game_hour = 18.0
 		GameManager.current_weather = "clear"
+		GameManager.last_loaded_data = {}
 	if get_node_or_null("/root/Economy"):
-		Economy.savings = 0
+		Economy.load_save_data({})
 	if get_node_or_null("/root/DialogueManager"):
 		DialogueManager.load_save_data({})
 	

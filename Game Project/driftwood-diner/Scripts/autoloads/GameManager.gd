@@ -22,6 +22,7 @@ const WEATHER_CHANCES: Dictionary = {
 
 # track last emitted minute so we only fire clock_tick once per game-minute
 var _last_emitted_minute: int = -1
+var last_loaded_data: Dictionary = {}
 
 func _ready() -> void:
 	load_all()
@@ -153,20 +154,31 @@ func load_game() -> Dictionary:
 	return {}
 
 func save_all() -> void:
-	var state := {}
+	var state := last_loaded_data.duplicate(true)
 	# Grab state from all orchestrators
 	if get_node_or_null("/root/Economy"):
 		state["economy"] = Economy.get_save_data()
 	if get_node_or_null("/root/DialogueManager"):
 		state["dialogue"] = DialogueManager.get_save_data()
-	# Can add CookingUI, Tutorial later via direct method calling or signals
+	
+	# Grab active scene UI states if present
+	var current_scene = get_tree().current_scene
+	if current_scene:
+		var cooking_ui = current_scene.get_node_or_null("CookingUI")
+		if cooking_ui and cooking_ui.has_method("get_save_data"):
+			state["cooking_ui"] = cooking_ui.get_save_data()
+		var tutorial = current_scene.get_node_or_null("Tutorial")
+		if tutorial and tutorial.has_method("get_save_data"):
+			state["tutorial"] = tutorial.get_save_data()
+			
 	save_game(state)
+	last_loaded_data = state
 
 func load_all() -> void:
-	var data := load_game()
-	if data.is_empty():
+	last_loaded_data = load_game()
+	if last_loaded_data.is_empty():
 		return
-	if data.has("economy") and get_node_or_null("/root/Economy"):
-		Economy.load_save_data(data["economy"])
-	if data.has("dialogue") and get_node_or_null("/root/DialogueManager"):
-		DialogueManager.load_save_data(data["dialogue"])
+	if last_loaded_data.has("economy") and get_node_or_null("/root/Economy"):
+		Economy.load_save_data(last_loaded_data["economy"])
+	if last_loaded_data.has("dialogue") and get_node_or_null("/root/DialogueManager"):
+		DialogueManager.load_save_data(last_loaded_data["dialogue"])
