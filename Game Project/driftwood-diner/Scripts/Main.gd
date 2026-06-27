@@ -318,8 +318,8 @@ func spawn_npc(npc_id: String) -> void:
 
 	# Play bell sound to notify the player when NPC enters
 	var bell := AudioStreamPlayer.new()
-	bell.stream = preload("res://Assets/Audio/customer_bell.mp3")
-	bell.volume_db = 2.0
+	bell.stream = _load_audio_with_fallbacks("res://Assets/Audio/customer_bell")
+	bell.volume_db = 8.0
 	bell.finished.connect(bell.queue_free)
 	add_child(bell)
 	bell.play()
@@ -456,7 +456,7 @@ func _apply_weather(weather: String) -> void:
 
 	match weather:
 		"fog":
-			t.tween_property(fog, "modulate:a", 0.75, 4.0)
+			t.tween_property(fog, "modulate:a", 0.92, 4.0)
 			if _rain_particles:
 				_rain_particles.emitting = false
 			if _drizzle_particles:
@@ -529,7 +529,7 @@ func _setup_weather_effects() -> void:
 	# fog particles - soft drifting mist shapes
 	_fog_particles = CPUParticles2D.new()
 	_fog_particles.emitting = false
-	_fog_particles.amount = 15
+	_fog_particles.amount = 45
 	_fog_particles.lifetime = 12.0
 	_fog_particles.preprocess = 10.0
 	_fog_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
@@ -540,15 +540,15 @@ func _setup_weather_effects() -> void:
 	_fog_particles.gravity = Vector2.ZERO
 	_fog_particles.initial_velocity_min = 10.0
 	_fog_particles.initial_velocity_max = 30.0
-	_fog_particles.scale_amount_min = 80.0
-	_fog_particles.scale_amount_max = 200.0
-	_fog_particles.color = Color(0.8, 0.82, 0.88, 0.12)
+	_fog_particles.scale_amount_min = 120.0
+	_fog_particles.scale_amount_max = 300.0
+	_fog_particles.color = Color(0.8, 0.82, 0.88, 0.28)
 	
 	# Gradient to fade in and out smoothly
 	var color_ramp := Gradient.new()
 	color_ramp.add_point(0.0, Color(0.8, 0.82, 0.88, 0.0))
-	color_ramp.add_point(0.2, Color(0.8, 0.82, 0.88, 0.12))
-	color_ramp.add_point(0.8, Color(0.8, 0.82, 0.88, 0.12))
+	color_ramp.add_point(0.2, Color(0.8, 0.82, 0.88, 0.28))
+	color_ramp.add_point(0.8, Color(0.8, 0.82, 0.88, 0.28))
 	color_ramp.add_point(1.0, Color(0.8, 0.82, 0.88, 0.0))
 	_fog_particles.color_ramp = color_ramp
 	

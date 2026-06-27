@@ -1,0 +1,30 @@
+- [x] Fix GameManager.gd: declare `last_loaded_data`, update `load_all()` and `save_all()`.
+- [x] Fix CookingUI.gd: connect `_ready()` to load from `GameManager.last_loaded_data`.
+- [x] Fix Tutorial.gd: connect `_ready()` to load from `GameManager.last_loaded_data`.
+- [x] Fix TitleScreen.gd: reset `last_loaded_data` and Economy state on delete.
+- [x] Fix Main.gd:
+  - [x] Relocate entry bell trigger to `spawn_npc()`.
+  - [x] Implement ambience crossfade and audio setup.
+  - [x] Add foghorn timer and distant sound player.
+  - [x] Add drifting fog particles to window layers.
+  - [x] Setup spawner timer for continuous spawns.
+- [x] Implement Endings & Choice UI:
+  - [x] Create choice dialog UI overlay in Main.gd when both gates (Narrative & Economic) are met.
+  - [x] Set and serialize chosen ending state in DialogueManager.gd.
+  - [x] Hook DialogueManager's ending choice into the unlock conditions for Traveller's T9/T10 dialogue.
+- [x] Baker T5 locked behind 999 dishes: Verified dialogue.json already has `cumulative: 1`.
+- [x] Fix Affinity system:
+  - [x] Align Economy payment bonuses to use NPC preferences instead of broken descriptive categories.
+  - [x] Update DialogueManager's `record_dish_served` to explicitly track affinity categories.
+- [x] Fix Tutorial Panel Drift: Store and animate from original Y coordinates.
+- [x] Clean up Dead Code: Remove `try_combine_three` and duplicate `get_all_recipes` from CombinationDB.gd.
+- [x] Enhance Fog & Atmosphere:
+  - [x] Increase window fog modulate opacity target to `0.92`.
+  - [x] Increase fog particle count, size, and alpha opacity for a denser coastal atmosphere.
+- [x] Fix Customer Entry Bell:
+  - [x] Load entry bell audio dynamically via fallback loading to guarantee format resolution.
+  - [x] Increase bell volume-db to `8.0` so it is clearly audible.
+- [x] Add Musician Sprites:
+  - [x] Crop torso-up dialogue portraits (`musician_0.png`, `musician_1.png`) and save in `res://Assets/npcs/iso/`.
+  - [x] Crop full-body in-world sprites and save in `res://Assets/npcs/sprites/`.
+- [x] Verify everything compiles and runs clean.
