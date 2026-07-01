@@ -116,13 +116,15 @@ func _roll_weather() -> void:
 const SAVE_PATH := "user://save.json"
 
 func save_game(extra_data: Dictionary = {}) -> void:
-	var data := {
-		"day": current_day,
-		"weather": current_weather,
-		"nights": nights_survived,
-		"game_hour": game_hour,
-	}
+	# merge extra_data (unlocks, dialogue state, etc.) as the base,
+	# then stamp authoritative GameManager values on top so stale
+	# last_loaded_data can never revert current_day / game_hour back.
+	var data := {}
 	data.merge(extra_data, true)
+	data["day"]      = current_day
+	data["weather"]  = current_weather
+	data["nights"]   = nights_survived
+	data["game_hour"] = game_hour
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
 		push_error("GameManager: Failed to open save file for writing.")

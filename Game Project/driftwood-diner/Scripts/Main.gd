@@ -700,13 +700,27 @@ func _do_day_transition() -> void:
 	_transitioning = true
 	_close_all_ui()
 
-	# force-remove all NPCs
+	# remove NPCs that do NOT have an active order — waiting_food and at_counter
+	# survive the transition so the player can still serve them
+	var counter_still_occupied := false
 	for child in npc_layer.get_children():
+		var npc_state: String = child.get("_state") if child.get("_state") != null else ""
+		var has_active_order := npc_state in ["waiting_food", "at_counter"]
+		if has_active_order:
+			if npc_state == "at_counter":
+				counter_still_occupied = true
+			continue
+		# clean up tracking for this NPC before freeing it
+		var id: String = child.get("npc_id") if child.get("npc_id") != null else ""
+		if id != "":
+			_present_npcs.erase(id)
+			_used_seats.erase(id)
+			_counter_queue.erase(id)
 		child.queue_free()
-	_present_npcs.clear()
-	_used_seats.clear()
-	_counter_queue.clear()
-	_counter_occupied = false
+
+	if not counter_still_occupied:
+		_counter_occupied = false
+		_counter_queue.clear()
 
 	day_trans.get_node("Fill/TransitionLabel").text = "Day %d begins..." % (GameManager.current_day + 1)
 	day_trans.visible = true
