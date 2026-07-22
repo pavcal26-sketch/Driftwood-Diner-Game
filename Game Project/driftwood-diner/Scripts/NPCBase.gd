@@ -80,6 +80,10 @@ var _walk_frame: int  = 0
 var _walk_timer: float = 0.0
 const WALK_FRAME_INTERVAL: float = 0.18   # seconds per walk frame
 
+# Spriter-imported scene support
+var _spriter_anim_player: AnimationPlayer = null
+var _spriter_flip: bool = false  # true when source animation faces right (needs correcting)
+
 @onready var _sprite: Sprite2D = $Sprite
 var anim_node: Node2D = null  # Prepared for Spriter Pro or other complex animation nodes
 
@@ -101,25 +105,49 @@ func setup(id: String, assigned_seat_x: float = 700.0) -> void:
 		var h: float = float(abs(id.hash()) % 360) / 360.0
 		_color = Color.from_hsv(h, 0.6, 0.85)
 
-	_load_sprite(id)
+	_load_spriter_scene(id)
+	if not _has_sprite:
+		_load_sprite(id)
 	queue_redraw()
 	_walk_in()
+
+func _load_spriter_scene(id: String) -> void:
+	# look for a Spriter-imported scene: Assets/npcs/spriter/{id}/{id}.tscn
+	var tscn_path := "res://Assets/npcs/spriter/%s/%s.tscn" % [id, id]
+	if not ResourceLoader.exists(tscn_path):
+		return
+	var packed: PackedScene = load(tscn_path)
+	if packed == null:
+		return
+	var instance: Node2D = packed.instantiate() as Node2D
+	if instance == null:
+		return
+	add_child(instance)
+	anim_node = instance
+	_has_sprite = true
+	_spriter_flip = true  # source animation faces right — correct it via scale
+	# find the AnimationPlayer inside the imported scene
+	for child in instance.get_children():
+		if child is AnimationPlayer:
+			_spriter_anim_player = child
+			break
+	if _spriter_anim_player == null:
+		_spriter_anim_player = instance.find_child("AnimationPlayer", true, false) as AnimationPlayer
+	# hide the placeholder Sprite2D — Spriter scene handles rendering
+	_sprite.visible = false
 
 func _load_sprite(id: String) -> void:
 	# Try numbered frames first (_0, _1, etc.), then plain name
 	var frames: Array[Texture2D] = []
-	var i := 0
-	while i < 5:
+	for i in range(8):
 		var path := "res://Assets/npcs/sprites/%s_%d.png" % [id, i]
 		var tex := _try_load_texture(path)
 		if tex:
 			frames.append(tex)
 		elif frames.is_empty() and i == 0:
-			# If index 0 is missing, it might start at index 1.
 			pass
 		else:
 			break
-		i += 1
 	if frames.is_empty():
 		var tex := _try_load_texture("res://Assets/npcs/sprites/%s.png" % id)
 		if tex:
@@ -161,8 +189,17 @@ static func _try_load_texture(path: String) -> Texture2D:
 	return tex
 
 func _process(delta: float) -> void:
-	if _state in ["entering", "at_counter", "leaving", "returning"]:
-		# animate walk cycle
+	var is_walking := _state in ["entering", "at_counter", "leaving", "returning"]
+
+	if _spriter_anim_player:
+		# drive Spriter AnimationPlayer from movement state
+		if is_walking and not _spriter_anim_player.is_playing():
+			_spriter_anim_player.play("NewAnimation")
+		elif not is_walking and _spriter_anim_player.is_playing():
+			_spriter_anim_player.stop()
+			_spriter_anim_player.seek(0.0, true)
+	elif is_walking:
+		# static sprite walk cycle
 		if _has_sprite and has_meta("walk_frames"):
 			_walk_timer += delta
 			if _walk_timer >= WALK_FRAME_INTERVAL:
@@ -170,7 +207,8 @@ func _process(delta: float) -> void:
 				var frames: Array = get_meta("walk_frames")
 				_walk_frame = (_walk_frame + 1) % frames.size()
 				_sprite.texture = frames[_walk_frame]
-	elif _state in ["seated", "waiting_food", "queued"]:
+
+	if _state in ["seated", "waiting_food", "queued"]:
 		# gentle idle bob
 		_bob_time += delta * 2.0
 		position.y = floor_y + sin(_bob_time) * 1.5
@@ -366,7 +404,9 @@ func _set_direction(dir: int) -> void:
 		if anim_node is Sprite2D:
 			anim_node.flip_h = (dir > 0)
 		else:
-			anim_node.scale.x = abs(anim_node.scale.x) * (-1 if dir > 0 else 1)
+			# _spriter_flip = source animation faces right, so invert the base
+			var base := -1 if _spriter_flip else 1
+			anim_node.scale.x = base * (-1 if dir > 0 else 1)
 
 func _idle_then_leave() -> void:
 	_state = "seated"
