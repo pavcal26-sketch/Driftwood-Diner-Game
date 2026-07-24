@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cr8acyx0qxk60"
-path="res://.godot/imported/night_shift_guard_4.png-6870e113ee9d90c7106d25490bb7f964.ctex"
+uid="uid://c2r6w3f85bqrr"
+path="res://.godot/imported/night_shift_guard_8.png-858ae0a9bd172051ef54a65ee0352229.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/npcs/sprites/night_shift_guard_4.png"
-dest_files=["res://.godot/imported/night_shift_guard_4.png-6870e113ee9d90c7106d25490bb7f964.ctex"]
+source_file="res://Assets/npcs/sprites/night_shift_guard_8.png"
+dest_files=["res://.godot/imported/night_shift_guard_8.png-858ae0a9bd172051ef54a65ee0352229.ctex"]
 
 [params]
 

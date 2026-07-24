@@ -20,6 +20,12 @@ const NPC_COLORS: Dictionary = {
 	"soup_regular":         Color(0.75, 0.65, 0.85),
 }
 
+# which frame index to show when the NPC is idle (seated / waiting for food)
+# if not listed here, the sprite just holds whatever walk frame it stopped on
+const NPC_IDLE_FRAMES: Dictionary = {
+	"night_shift_guard": 7,
+}
+
 # what each NPC will eat. empty = anything goes.
 # entries are substring matches — "soup" matches "fish_stew" won't,
 # but "stew" would match "fish_stew". use dish IDs or partial keywords.
@@ -209,6 +215,13 @@ func _process(delta: float) -> void:
 				_sprite.texture = frames[_walk_frame]
 
 	if _state in ["seated", "waiting_food", "queued"]:
+		# snap to designated idle frame if one is set for this NPC
+		if _has_sprite and not _spriter_anim_player and has_meta("walk_frames"):
+			if NPC_IDLE_FRAMES.has(npc_id):
+				var frames: Array = get_meta("walk_frames")
+				var idle_idx: int = NPC_IDLE_FRAMES[npc_id]
+				if idle_idx < frames.size():
+					_sprite.texture = frames[idle_idx]
 		# gentle idle bob
 		_bob_time += delta * 2.0
 		position.y = floor_y + sin(_bob_time) * 1.5
