@@ -24,6 +24,7 @@ const NPC_COLORS: Dictionary = {
 # if not listed here, the sprite just holds whatever walk frame it stopped on
 const NPC_IDLE_FRAMES: Dictionary = {
 	"night_shift_guard": 7,
+	"storm_visitor": 3,
 }
 
 # what each NPC will eat. empty = anything goes.
