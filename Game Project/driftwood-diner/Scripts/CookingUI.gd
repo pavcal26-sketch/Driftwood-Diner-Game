@@ -78,7 +78,7 @@ func _rebuild_sidebar() -> void:
 		btn.text = ("★ " + display) if is_dish else display
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		if is_dish:
-			btn.modulate = Color(1.0, 0.95, 0.75)
+			btn.modulate = Color(1.0, 0.92, 0.70)
 		btn.pressed.connect(_spawn_on_workspace.bind(item_id, is_dish))
 		item_list.add_child(btn)
 
@@ -122,7 +122,7 @@ func _rebuild_npc_panel() -> void:
 	if _waiting_npcs.is_empty():
 		var lbl := Label.new()
 		lbl.text = "No one waiting"
-		lbl.modulate = Color(0.5, 0.5, 0.5)
+		lbl.modulate = Color(0.5, 0.45, 0.38)
 		npc_list.add_child(lbl)
 		return
 
@@ -141,14 +141,14 @@ func _rebuild_npc_panel() -> void:
 		else:
 			btn.text = display
 
-		btn.modulate = Color(1.0, 0.85, 0.55)
+		btn.modulate = Color(1.0, 0.88, 0.60)
 		btn.pressed.connect(_on_serve_npc_pressed.bind(npc_id))
 		npc_list.add_child(btn)
 
 	# instruction line below buttons
 	var hint := Label.new()
 	hint.text = "First click a ★ dish on the\nworkspace, then press Serve."
-	hint.modulate = Color(0.7, 0.7, 0.7)
+	hint.modulate = Color(0.6, 0.55, 0.48)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	npc_list.add_child(hint)
 

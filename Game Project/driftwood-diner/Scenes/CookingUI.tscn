@@ -33,7 +33,7 @@ anchors_preset = -1
 anchor_bottom = 0.92
 offset_left = 12.0
 offset_top = 12.0
-offset_right = 220.0
+offset_right = 280.0
 offset_bottom = -12.0
 
 [node name="VBox" type="VBoxContainer" parent="Control/Sidebar" unique_id=538661770]
@@ -41,7 +41,8 @@ layout_mode = 2
 
 [node name="Title" type="Label" parent="Control/Sidebar/VBox" unique_id=367946504]
 layout_mode = 2
-text = "ITEMS"
+theme_override_colors/font_color = Color(0.79, 0.63, 0.36, 1)
+text = "PANTRY"
 horizontal_alignment = 1
 
 [node name="Scroll" type="ScrollContainer" parent="Control/Sidebar/VBox" unique_id=151689345]
@@ -57,9 +58,9 @@ theme_override_constants/separation = 4
 clip_contents = true
 layout_mode = 1
 anchor_bottom = 0.92
-offset_left = 232.0
+offset_left = 292.0
 offset_top = 12.0
-offset_right = -220.0
+offset_right = -280.0
 offset_bottom = -12.0
 
 [node name="ServePanel" type="PanelContainer" parent="Control" unique_id=47852540]
@@ -68,7 +69,7 @@ anchors_preset = -1
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 0.92
-offset_left = -208.0
+offset_left = -268.0
 offset_top = 12.0
 offset_right = -12.0
 offset_bottom = -12.0
@@ -79,6 +80,7 @@ layout_mode = 2
 
 [node name="Title" type="Label" parent="Control/ServePanel/VBox" unique_id=825086237]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.79, 0.63, 0.36, 1)
 text = "SERVE TO"
 horizontal_alignment = 1
 

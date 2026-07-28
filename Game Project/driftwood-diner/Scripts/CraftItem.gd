@@ -16,6 +16,21 @@ func setup(id: String, dish: bool = false) -> void:
 	is_dish = dish
 	custom_minimum_size = Vector2(130, 42)
 
+	var card_style := StyleBoxFlat.new()
+	if dish:
+		card_style.bg_color = Color(0.22, 0.18, 0.10, 0.95)
+		card_style.border_color = Color(0.75, 0.60, 0.35, 0.6)
+	else:
+		card_style.bg_color = Color(0.12, 0.14, 0.18, 0.95)
+		card_style.border_color = Color(0.35, 0.45, 0.55, 0.5)
+	card_style.set_border_width_all(1)
+	card_style.set_corner_radius_all(5)
+	card_style.set_content_margin_all(8)
+	card_style.shadow_color = Color(0, 0, 0, 0.3)
+	card_style.shadow_size = 3
+	card_style.shadow_offset = Vector2(1, 2)
+	add_theme_stylebox_override("panel", card_style)
+
 	label = get_node_or_null("Label")
 	if label == null:
 		label = Label.new()
@@ -29,6 +44,7 @@ func setup(id: String, dish: bool = false) -> void:
 	label.text = ("★ " + display) if dish else display
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	label.add_theme_color_override("font_color", Color(0.91, 0.86, 0.78, 1.0))
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 

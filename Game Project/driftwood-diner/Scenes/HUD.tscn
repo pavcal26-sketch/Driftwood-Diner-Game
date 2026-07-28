@@ -14,56 +14,57 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="DayCounter" type="Label" parent="Control"]
+[node name="LeftPanel" type="PanelContainer" parent="Control"]
 layout_mode = 1
 offset_left = 24.0
-offset_top = 18.0
+offset_top = 24.0
 offset_right = 200.0
-offset_bottom = 52.0
-text = "Day 1"
-theme_override_font_sizes/font_size = 22
+offset_bottom = 120.0
 
-[node name="ClockDisplay" type="Label" parent="Control"]
-layout_mode = 1
-offset_left = 24.0
-offset_top = 50.0
-offset_right = 200.0
-offset_bottom = 82.0
+[node name="VBox" type="VBoxContainer" parent="Control/LeftPanel"]
+layout_mode = 2
+
+[node name="DayCounter" type="Label" parent="Control/LeftPanel/VBox"]
+layout_mode = 2
+text = "Day 1"
+
+[node name="ClockDisplay" type="Label" parent="Control/LeftPanel/VBox"]
+layout_mode = 2
 text = "6:00 PM"
 theme_override_colors/font_color = Color(0.95, 0.9, 0.75, 1)
-theme_override_font_sizes/font_size = 20
 
-[node name="PhaseLabel" type="Label" parent="Control"]
-layout_mode = 1
-offset_left = 24.0
-offset_top = 82.0
-offset_right = 200.0
-offset_bottom = 104.0
+[node name="PhaseLabel" type="Label" parent="Control/LeftPanel/VBox"]
+layout_mode = 2
 text = "Evening"
 theme_override_colors/font_color = Color(0.6, 0.65, 0.8, 1)
-theme_override_font_sizes/font_size = 14
 
-[node name="SavingsDisplay" type="HBoxContainer" parent="Control"]
+[node name="RightPanel" type="PanelContainer" parent="Control"]
 layout_mode = 1
 anchor_left = 1.0
 anchor_right = 1.0
-grow_horizontal = 0
-offset_left = -310.0
-offset_top = 18.0
+offset_left = -220.0
+offset_top = 24.0
 offset_right = -24.0
-offset_bottom = 52.0
+offset_bottom = 70.0
+grow_horizontal = 0
 
-[node name="SavingsAmount" type="Label" parent="Control/SavingsDisplay"]
+[node name="SavingsDisplay" type="HBoxContainer" parent="Control/RightPanel"]
+layout_mode = 2
+alignment = 1
+
+[node name="SavingsAmount" type="Label" parent="Control/RightPanel/SavingsDisplay"]
+layout_mode = 2
 text = "$0"
-theme_override_font_sizes/font_size = 22
 
-[node name="Slash" type="Label" parent="Control/SavingsDisplay"]
+[node name="Slash" type="Label" parent="Control/RightPanel/SavingsDisplay"]
+layout_mode = 2
 text = " / "
-theme_override_font_sizes/font_size = 22
 
-[node name="PassageCost" type="Label" parent="Control/SavingsDisplay"]
+[node name="PassageCost" type="Label" parent="Control/RightPanel/SavingsDisplay"]
+layout_mode = 2
 text = "$5,000"
-theme_override_font_sizes/font_size = 22
+
+
 
 [node name="ActionButtons" type="HBoxContainer" parent="Control"]
 layout_mode = 1
@@ -73,31 +74,27 @@ anchor_top = 0.0
 anchor_bottom = 0.0
 grow_horizontal = 2
 offset_left = -340.0
-offset_top = 12.0
+offset_top = 24.0
 offset_right = 340.0
-offset_bottom = 56.0
-theme_override_constants/separation = 12
+offset_bottom = 68.0
+theme_override_constants/separation = 16
 
 [node name="OpenCooking" type="Button" parent="Control/ActionButtons"]
 custom_minimum_size = Vector2(130, 44)
 size_flags_horizontal = 3
 text = "Cook  [C]"
-theme_override_font_sizes/font_size = 18
 
 [node name="OpenRecipes" type="Button" parent="Control/ActionButtons"]
 custom_minimum_size = Vector2(130, 44)
 size_flags_horizontal = 3
 text = "Recipes  [R]"
-theme_override_font_sizes/font_size = 18
 
 [node name="OpenCorkboard" type="Button" parent="Control/ActionButtons"]
 custom_minimum_size = Vector2(135, 44)
 size_flags_horizontal = 3
 text = "Corkboard  [K]"
-theme_override_font_sizes/font_size = 18
 
 [node name="AdvanceDay" type="Button" parent="Control/ActionButtons"]
 custom_minimum_size = Vector2(150, 44)
 size_flags_horizontal = 3
 text = "Sleep  [N]"
-theme_override_font_sizes/font_size = 18

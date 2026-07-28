@@ -24,6 +24,10 @@ Economy="*res://Scripts/autoloads/Economy.gd"
 CombinationDB="*res://Scripts/autoloads/CombinationDB.gd"
 SceneManager="*res://Scripts/autoloads/SceneManager.gd"
 
+[gui]
+
+theme/custom="res://Assets/UI/driftwood_theme.tres"
+
 [display]
 
 window/size/viewport_width=1920

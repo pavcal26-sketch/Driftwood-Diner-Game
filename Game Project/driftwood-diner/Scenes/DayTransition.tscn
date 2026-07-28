@@ -24,6 +24,8 @@ offset_left = -100.0
 offset_top = -16.0
 offset_right = 100.0
 offset_bottom = 16.0
+theme_override_colors/font_color = Color(0.91, 0.86, 0.78, 0.9)
+theme_override_font_sizes/font_size = 28
 text = "Night falls..."
 horizontal_alignment = 1
 

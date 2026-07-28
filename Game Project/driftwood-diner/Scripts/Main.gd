@@ -213,7 +213,7 @@ func _show_ending_choice() -> void:
 	# dark backdrop
 	var bg := ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color(0.02, 0.03, 0.08, 0.85)
+	bg.color = Color(0.02, 0.02, 0.04, 0.90)
 	bg.modulate.a = 0.0
 	root.add_child(bg)
 	
@@ -225,8 +225,8 @@ func _show_ending_choice() -> void:
 	panel.set_anchor(SIDE_TOP, 0.2)
 	panel.set_anchor(SIDE_BOTTOM, 0.8)
 	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.08, 0.10, 0.16, 0.95)
-	style.border_color = Color(0.45, 0.55, 0.75, 0.5)
+	style.bg_color = Color(0.06, 0.05, 0.04, 0.96)
+	style.border_color = Color(0.50, 0.40, 0.25, 0.5)
 	style.set_border_width_all(2)
 	style.set_corner_radius_all(8)
 	style.set_content_margin_all(32)
@@ -240,8 +240,8 @@ func _show_ending_choice() -> void:
 	var title := Label.new()
 	title.text = "A Choice"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 28)
-	title.add_theme_color_override("font_color", Color(0.85, 0.80, 0.65))
+	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_color_override("font_color", Color(0.79, 0.63, 0.36, 1.0))
 	vbox.add_child(title)
 	
 	var desc := RichTextLabel.new()
@@ -264,15 +264,15 @@ func _show_ending_choice() -> void:
 	
 	var leave_btn := Button.new()
 	leave_btn.text = "Leave the Island"
-	leave_btn.custom_minimum_size = Vector2(200, 50)
-	leave_btn.add_theme_font_size_override("font_size", 16)
+	leave_btn.custom_minimum_size = Vector2(220, 55)
+	leave_btn.add_theme_font_size_override("font_size", 18)
 	leave_btn.pressed.connect(func(): _on_ending_chosen("A"))
 	btn_box.add_child(leave_btn)
 	
 	var stay_btn := Button.new()
 	stay_btn.text = "Stay and Rebuild"
-	stay_btn.custom_minimum_size = Vector2(200, 50)
-	stay_btn.add_theme_font_size_override("font_size", 16)
+	stay_btn.custom_minimum_size = Vector2(220, 55)
+	stay_btn.add_theme_font_size_override("font_size", 18)
 	stay_btn.pressed.connect(func(): _on_ending_chosen("B"))
 	btn_box.add_child(stay_btn)
 	
@@ -600,7 +600,7 @@ func _build_recipe_book() -> void:
 
 	var bg := ColorRect.new()
 	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
-	bg.color = Color(0.04, 0.05, 0.10, 0.92)
+	bg.color = Color(0.03, 0.025, 0.02, 0.88)
 	root.add_child(bg)
 
 	var panel := PanelContainer.new()
@@ -622,9 +622,10 @@ func _build_recipe_book() -> void:
 	margin.add_child(vbox)
 
 	var title := Label.new()
-	title.text = "Recipe Book"
+	title.text = "RECIPE BOOK"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_color_override("font_color", Color(0.79, 0.63, 0.36, 1.0))
 	vbox.add_child(title)
 
 	var scroll := ScrollContainer.new()
@@ -639,7 +640,7 @@ func _build_recipe_book() -> void:
 	_recipe_list = list   # store direct reference
 
 	var close_btn := Button.new()
-	close_btn.text = "Close  [ R ]"
+	close_btn.text = "Close  [R]"
 	close_btn.pressed.connect(_toggle_recipes)
 	vbox.add_child(close_btn)
 
@@ -656,7 +657,7 @@ func _refresh_recipe_book() -> void:
 	if combos.is_empty():
 		var lbl := Label.new()
 		lbl.text = "No combinations discovered yet."
-		lbl.modulate = Color(0.6, 0.6, 0.6)
+		lbl.modulate = Color(0.5, 0.45, 0.38)
 		list.add_child(lbl)
 		return
 
@@ -678,7 +679,7 @@ func _refresh_recipe_book() -> void:
 		var r: String = result.replace("_", " ").capitalize()
 		lbl.text = a + " + " + b + "  →  " + ("★ " if is_dish else "") + r
 		if is_dish:
-			lbl.modulate = Color(1.0, 0.92, 0.6)
+			lbl.modulate = Color(0.95, 0.82, 0.5)
 		list.add_child(lbl)
 
 func _close_all_ui() -> void:

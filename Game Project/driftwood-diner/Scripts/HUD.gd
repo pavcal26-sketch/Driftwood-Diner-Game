@@ -5,10 +5,10 @@ signal recipes_pressed
 signal advance_pressed
 signal corkboard_pressed
 
-@onready var day_label     : Label = $Control/DayCounter
-@onready var clock_label   : Label = $Control/ClockDisplay
-@onready var phase_label   : Label = $Control/PhaseLabel
-@onready var savings_label : Label = $Control/SavingsDisplay/SavingsAmount
+@onready var day_label     : Label = $Control/LeftPanel/VBox/DayCounter
+@onready var clock_label   : Label = $Control/LeftPanel/VBox/ClockDisplay
+@onready var phase_label   : Label = $Control/LeftPanel/VBox/PhaseLabel
+@onready var savings_label : Label = $Control/RightPanel/SavingsDisplay/SavingsAmount
 
 var _passage_btn: Button
 
@@ -25,9 +25,8 @@ func _ready() -> void:
 	
 	_passage_btn = Button.new()
 	_passage_btn.text = "Passage ($5K)"
-	_passage_btn.custom_minimum_size = Vector2(150, 44)
-	_passage_btn.add_theme_font_size_override("font_size", 18)
-	_passage_btn.add_theme_color_override("font_color", Color(0.9, 0.4, 0.4))
+	_passage_btn.custom_minimum_size = Vector2(160, 44)
+	_passage_btn.add_theme_color_override("font_color", Color(0.95, 0.55, 0.40))
 	_passage_btn.pressed.connect(_on_passage_pressed)
 	$Control/ActionButtons.add_child(_passage_btn)
 	_passage_btn.visible = false
@@ -44,6 +43,14 @@ func _on_passage_pressed() -> void:
 	confirm.dialog_text = "Pay $5,000 to secure passage on the next boat and leave the island for good?\n\nThis will end the game."
 	confirm.get_ok_button().text = "Pay $5,000"
 	confirm.get_cancel_button().text = "Stay"
+	var panel_style := StyleBoxFlat.new()
+	panel_style.bg_color = Color(0.06, 0.05, 0.04, 0.96)
+	panel_style.border_color = Color(0.50, 0.40, 0.25, 0.5)
+	panel_style.set_border_width_all(2)
+	panel_style.set_corner_radius_all(6)
+	panel_style.set_content_margin_all(20)
+	confirm.add_theme_stylebox_override("panel", panel_style)
+	confirm.add_theme_color_override("title_color", Color(0.79, 0.63, 0.36, 1.0))
 	confirm.confirmed.connect(func():
 		Economy.spend_savings(5000)
 		SignalBus.story_signal.emit("play_ending_a_sequence")

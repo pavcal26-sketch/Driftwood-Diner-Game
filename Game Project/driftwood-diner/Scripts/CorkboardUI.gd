@@ -22,8 +22,8 @@ var _selected_card: Control = null
 
 
 # Layout constants — cards are now wider to fit image + text side by side
-const CARD_SIZE := Vector2(260, 140)
-const BOARD_MARGIN := Vector2(30, 30)
+const CARD_SIZE := Vector2(190, 160)
+const BOARD_MARGIN := Vector2(20, 40)
 
 # Cork-toned colors for the note cards — each NPC gets a distinct tint
 const CARD_TINTS: Dictionary = {
@@ -96,26 +96,7 @@ func _build_ui() -> void:
 	vignette.color = Color(0, 0, 0, 0.15)
 	root.add_child(vignette)
 
-	# Title pinned to the top centre
-	var title_card := PanelContainer.new()
-	var title_style := StyleBoxFlat.new()
-	title_style.bg_color = Color(0.92, 0.88, 0.78, 0.95)
-	title_style.border_color = Color(0.6, 0.5, 0.4, 0.4)
-	title_style.set_border_width_all(1)
-	title_style.set_corner_radius_all(2)
-	title_style.set_content_margin_all(12)
-	title_card.add_theme_stylebox_override("panel", title_style)
-	title_card.set_anchors_preset(Control.PRESET_CENTER_TOP)
-	title_card.position = Vector2(860, 20)
-	title_card.custom_minimum_size = Vector2(200, 40)
-	root.add_child(title_card)
 
-	var title_lbl := Label.new()
-	title_lbl.text = "THE CORKBOARD"
-	title_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_lbl.add_theme_font_size_override("font_size", 22)
-	title_lbl.add_theme_color_override("font_color", Color(0.25, 0.20, 0.15))
-	title_card.add_child(title_lbl)
 
 
 
@@ -132,7 +113,7 @@ func _build_ui() -> void:
 	# Board area — where cards scatter
 	_board_container = Control.new()
 	_board_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_board_container.size_flags_stretch_ratio = 0.62
+	_board_container.size_flags_stretch_ratio = 0.70
 	_board_container.clip_contents = true
 	hbox.add_child(_board_container)
 
@@ -149,7 +130,7 @@ func _build_ui() -> void:
 	# Detail panel — right side
 	_detail_panel = PanelContainer.new()
 	_detail_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	_detail_panel.size_flags_stretch_ratio = 0.38
+	_detail_panel.size_flags_stretch_ratio = 0.30
 	var detail_style := StyleBoxFlat.new()
 	detail_style.bg_color = Color(0.90, 0.86, 0.78, 0.95)
 	detail_style.border_color = Color(0.5, 0.4, 0.3, 0.5)
@@ -167,8 +148,8 @@ func _build_ui() -> void:
 
 	# Detail title
 	_detail_title = Label.new()
-	_detail_title.text = "Select an item to inspect"
-	_detail_title.add_theme_font_size_override("font_size", 20)
+	_detail_title.text = "— select an item to inspect —"
+	_detail_title.add_theme_font_size_override("font_size", 22)
 	_detail_title.add_theme_color_override("font_color", Color(0.25, 0.20, 0.15))
 	_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_vbox.add_child(_detail_title)
@@ -205,8 +186,7 @@ func _build_ui() -> void:
 
 	# Close button
 	var close_btn := Button.new()
-	close_btn.text = "Close  [ K ]"
-	close_btn.add_theme_font_size_override("font_size", 14)
+	close_btn.text = "Close  [K]"
 	close_btn.pressed.connect(func(): closed.emit())
 	detail_vbox.add_child(close_btn)
 
@@ -214,7 +194,7 @@ func _build_ui() -> void:
 # Load item thumbnail — looks in Assets/corkboard/items/{item_id}.png
 # -----------------------------------------------------------------------
 func _load_item_image(item_id: String) -> Texture2D:
-	var path := "res://Assets/corkboard/items/%s.png" % item_id
+	var path := "res://Assets/corkboard/items/cb_%s.png" % item_id
 	return _try_load_tex(path)
 
 # -----------------------------------------------------------------------
@@ -227,7 +207,7 @@ func refresh() -> void:
 	_empty_label.visible = items.is_empty()
 
 	if items.is_empty():
-		_detail_title.text = "Select an item to inspect"
+		_detail_title.text = "— select an item to inspect —"
 		_detail_giver.text = ""
 		_detail_desc.text = ""
 		_detail_image.visible = false
@@ -238,8 +218,8 @@ func refresh() -> void:
 	if board_size.x < 100:
 		board_size = Vector2(1200, 800)
 
-	var cols: int = maxi(1, int(board_size.x / (CARD_SIZE.x + 20)))
-	var rows: int = maxi(1, int(board_size.y / (CARD_SIZE.y + 15)))
+	var cols: int = maxi(1, int(board_size.x / (CARD_SIZE.x + 16)))
+	var rows: int = maxi(1, int(board_size.y / (CARD_SIZE.y + 20)))
 
 	for i in range(items.size()):
 		var item_id: String = items[i]
@@ -258,36 +238,27 @@ func _clear_cards() -> void:
 func _create_card(item_id: String, item_data: Dictionary, index: int, board_size: Vector2, cols: int, rows: int) -> void:
 	var giver: String = item_data.get("giver", "unknown")
 	var label: String = item_data.get("label", item_id.replace("_", " ").capitalize())
+	var tint: Color = CARD_TINTS.get(giver, DEFAULT_TINT)
 
-	# Position — grid with jitter for that scattered look
+	# Position — grid with controlled jitter
 	var col: int = index % cols
 	var row: int = index / cols
 	var cell_w: float = board_size.x / float(cols)
-	var cell_h: float = board_size.y / float(rows + 1)
+	var cell_h: float = board_size.y / float(rows)
 	var base_x: float = col * cell_w + (cell_w - CARD_SIZE.x) * 0.5
 	var base_y: float = row * cell_h + (cell_h - CARD_SIZE.y) * 0.5
-	var jitter_x: float = randf_range(-20, 20)
-	var jitter_y: float = randf_range(-12, 12)
+	var jitter_x: float = randf_range(-10, 10)
+	var jitter_y: float = randf_range(-8, 8)
 	var pos := Vector2(
 		clampf(base_x + jitter_x, BOARD_MARGIN.x, board_size.x - CARD_SIZE.x - BOARD_MARGIN.x),
 		clampf(base_y + jitter_y, BOARD_MARGIN.y, board_size.y - CARD_SIZE.y - BOARD_MARGIN.y)
 	)
 
-	# Card container
-	var card := PanelContainer.new()
-	var card_style := StyleBoxFlat.new()
-	var tint: Color = CARD_TINTS.get(giver, DEFAULT_TINT)
-	card_style.bg_color = tint
-	card_style.border_color = Color(tint.r * 0.7, tint.g * 0.7, tint.b * 0.7, 0.5)
-	card_style.set_border_width_all(1)
-	card_style.set_corner_radius_all(2)
-	card_style.set_content_margin_all(8)
-	card_style.shadow_color = Color(0, 0, 0, 0.25)
-	card_style.shadow_size = 4
-	card_style.shadow_offset = Vector2(2, 3)
-	card.add_theme_stylebox_override("panel", card_style)
+	# ---- card root: plain Control with fixed size so it never expands ----
+	var card := Control.new()
 	card.custom_minimum_size = CARD_SIZE
 	card.size = CARD_SIZE
+	card.clip_contents = false  # let pushpin poke out above
 	card.position = pos
 
 	# Slight random rotation
@@ -295,80 +266,110 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	card.rotation = angle
 	card.pivot_offset = CARD_SIZE * 0.5
 
-	# Card layout: image on left, text on right
-	var card_hbox := HBoxContainer.new()
-	card_hbox.add_theme_constant_override("separation", 8)
-	card.add_child(card_hbox)
+	# ---- card face: PanelContainer fills the card rect ----
+	var face := PanelContainer.new()
+	face.set_anchors_preset(Control.PRESET_FULL_RECT)
+	var card_style := StyleBoxFlat.new()
+	card_style.bg_color = tint
+	card_style.border_color = Color(tint.r * 0.65, tint.g * 0.65, tint.b * 0.65, 0.55)
+	card_style.set_border_width_all(1)
+	card_style.set_corner_radius_all(2)
+	card_style.set_content_margin_all(0)  # we manage padding manually
+	card_style.shadow_color = Color(0, 0, 0, 0.30)
+	card_style.shadow_size = 5
+	card_style.shadow_offset = Vector2(2, 3)
+	face.add_theme_stylebox_override("panel", card_style)
+	card.add_child(face)
 
-	# Item thumbnail
+	# ---- portrait layout: VBox inside the face ----
+	var vbox := VBoxContainer.new()
+	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vbox.add_theme_constant_override("separation", 0)
+	face.add_child(vbox)
+
+	# Image area — fixed height 90px
 	var item_tex: Texture2D = _load_item_image(item_id)
 	if item_tex:
-		var thumb := TextureRect.new()
-		thumb.texture = item_tex
-		thumb.custom_minimum_size = Vector2(80, 0)
-		thumb.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-		thumb.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
-		thumb.size_flags_vertical = Control.SIZE_EXPAND_FILL
-		card_hbox.add_child(thumb)
+		var img_rect := TextureRect.new()
+		img_rect.texture = item_tex
+		img_rect.custom_minimum_size = Vector2(0, 96)
+		img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		img_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_COVERED
+		img_rect.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		img_rect.clip_contents = true
+		vbox.add_child(img_rect)
+	else:
+		# Tinted placeholder block
+		var placeholder := ColorRect.new()
+		placeholder.custom_minimum_size = Vector2(0, 96)
+		placeholder.color = Color(tint.r * 0.80, tint.g * 0.80, tint.b * 0.80, 0.9)
+		placeholder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		vbox.add_child(placeholder)
 
-	# Text column
+	# Thin rule between image and text
+	var rule := ColorRect.new()
+	rule.custom_minimum_size = Vector2(0, 1)
+	rule.color = Color(tint.r * 0.6, tint.g * 0.6, tint.b * 0.6, 0.4)
+	vbox.add_child(rule)
+
+	# Text area — padded container
+	var text_margin := MarginContainer.new()
+	text_margin.add_theme_constant_override("margin_left", 7)
+	text_margin.add_theme_constant_override("margin_right", 7)
+	text_margin.add_theme_constant_override("margin_top", 5)
+	text_margin.add_theme_constant_override("margin_bottom", 5)
+	text_margin.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	vbox.add_child(text_margin)
+
 	var text_vbox := VBoxContainer.new()
-	text_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	text_vbox.add_theme_constant_override("separation", 3)
-	card_hbox.add_child(text_vbox)
+	text_vbox.add_theme_constant_override("separation", 2)
+	text_margin.add_child(text_vbox)
 
 	var title_lbl := Label.new()
 	title_lbl.text = label
-	title_lbl.add_theme_font_size_override("font_size", 12)
-	title_lbl.add_theme_color_override("font_color", Color(0.20, 0.18, 0.15))
-	title_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	title_lbl.custom_minimum_size.y = 30
+	title_lbl.add_theme_font_size_override("font_size", 11)
+	title_lbl.add_theme_color_override("font_color", Color(0.18, 0.15, 0.12))
+	title_lbl.clip_text = true              # single line, no height expansion
+	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_vbox.add_child(title_lbl)
-
-	# Thin divider
-	var line := ColorRect.new()
-	line.custom_minimum_size = Vector2(0, 1)
-	line.color = Color(0.4, 0.35, 0.30, 0.3)
-	text_vbox.add_child(line)
 
 	var giver_lbl := Label.new()
 	giver_lbl.text = "— " + giver.replace("_", " ").capitalize()
-	giver_lbl.add_theme_font_size_override("font_size", 10)
-	giver_lbl.add_theme_color_override("font_color", Color(0.40, 0.35, 0.30, 0.7))
+	giver_lbl.add_theme_font_size_override("font_size", 9)
+	giver_lbl.add_theme_color_override("font_color", Color(0.35, 0.30, 0.25, 0.75))
+	giver_lbl.clip_text = true
+	giver_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	text_vbox.add_child(giver_lbl)
 
-	# Preview text
-	var desc: String = item_data.get("description", "")
-	var preview: String = desc.substr(0, 45) + "..." if desc.length() > 45 else desc
-	var preview_lbl := Label.new()
-	preview_lbl.text = preview
-	preview_lbl.add_theme_font_size_override("font_size", 9)
-	preview_lbl.add_theme_color_override("font_color", Color(0.35, 0.30, 0.25, 0.55))
-	preview_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	preview_lbl.clip_text = true
-	preview_lbl.custom_minimum_size.y = 24
-	text_vbox.add_child(preview_lbl)
+	# ---- pushpin: sits centered at the top edge, poking above ----
+	var pin_tex: Texture2D = _try_load_tex("res://Assets/corkboard/pushpin.png")
+	if pin_tex:
+		var pin := TextureRect.new()
+		pin.texture = pin_tex
+		pin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		pin.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		pin.custom_minimum_size = Vector2(18, 24)
+		pin.size = Vector2(18, 24)
+		pin.position = Vector2((CARD_SIZE.x - 18.0) * 0.5, -12.0)
+		pin.z_index = 2
+		card.add_child(pin)  # add to card (not face) so it sits on top
 
-
-
-	# Make it clickable
+	# ---- interactivity ----
 	card.mouse_filter = Control.MOUSE_FILTER_STOP
 	card.gui_input.connect(_on_card_input.bind(card, item_id, item_data))
-
-	# Hover effect
 	card.mouse_entered.connect(_on_card_hover.bind(card, true))
 	card.mouse_exited.connect(_on_card_hover.bind(card, false))
 
 	_board_container.add_child(card)
 	_cards.append(card)
 
-	# Entrance animation — cards float in from below
+	# Entrance animation — float in from slightly below
 	card.modulate.a = 0.0
-	card.position.y += 20
+	card.position.y += 18
 	var tw := create_tween()
 	tw.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
-	tw.tween_property(card, "modulate:a", 1.0, 0.3).set_delay(index * 0.07)
-	tw.parallel().tween_property(card, "position:y", pos.y, 0.4).set_delay(index * 0.07)
+	tw.tween_property(card, "modulate:a", 1.0, 0.28).set_delay(index * 0.06)
+	tw.parallel().tween_property(card, "position:y", pos.y, 0.35).set_delay(index * 0.06)
 
 func _on_card_input(event: InputEvent, card: Control, item_id: String, item_data: Dictionary) -> void:
 	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
@@ -379,10 +380,10 @@ func _on_card_hover(card: Control, entered: bool) -> void:
 		return
 	var tw := create_tween().set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
 	if entered:
-		tw.tween_property(card, "scale", Vector2(1.05, 1.05), 0.15)
+		tw.tween_property(card, "scale", Vector2(1.04, 1.04), 0.12)
 		card.z_index = 10
 	else:
-		tw.tween_property(card, "scale", Vector2.ONE, 0.15)
+		tw.tween_property(card, "scale", Vector2.ONE, 0.12)
 		card.z_index = 0
 
 func _select_card(card: Control, item_id: String, item_data: Dictionary) -> void:
