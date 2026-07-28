@@ -268,6 +268,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 
 	# ---- card face: PanelContainer fills the card rect ----
 	var face := PanelContainer.new()
+	face.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	face.set_anchors_preset(Control.PRESET_FULL_RECT)
 	var card_style := StyleBoxFlat.new()
 	card_style.bg_color = tint
@@ -283,6 +284,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 
 	# ---- portrait layout: VBox inside the face ----
 	var vbox := VBoxContainer.new()
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 	vbox.add_theme_constant_override("separation", 0)
 	face.add_child(vbox)
@@ -291,6 +293,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	var item_tex: Texture2D = _load_item_image(item_id)
 	if item_tex:
 		var img_rect := TextureRect.new()
+		img_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		img_rect.texture = item_tex
 		img_rect.custom_minimum_size = Vector2(0, 96)
 		img_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
@@ -301,6 +304,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	else:
 		# Tinted placeholder block
 		var placeholder := ColorRect.new()
+		placeholder.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		placeholder.custom_minimum_size = Vector2(0, 96)
 		placeholder.color = Color(tint.r * 0.80, tint.g * 0.80, tint.b * 0.80, 0.9)
 		placeholder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -308,12 +312,14 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 
 	# Thin rule between image and text
 	var rule := ColorRect.new()
+	rule.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	rule.custom_minimum_size = Vector2(0, 1)
 	rule.color = Color(tint.r * 0.6, tint.g * 0.6, tint.b * 0.6, 0.4)
 	vbox.add_child(rule)
 
 	# Text area — padded container
 	var text_margin := MarginContainer.new()
+	text_margin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_margin.add_theme_constant_override("margin_left", 7)
 	text_margin.add_theme_constant_override("margin_right", 7)
 	text_margin.add_theme_constant_override("margin_top", 5)
@@ -322,6 +328,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	vbox.add_child(text_margin)
 
 	var text_vbox := VBoxContainer.new()
+	text_vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	text_vbox.add_theme_constant_override("separation", 2)
 	text_margin.add_child(text_vbox)
 
@@ -345,6 +352,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 	var pin_tex: Texture2D = _try_load_tex("res://Assets/corkboard/pushpin.png")
 	if pin_tex:
 		var pin := TextureRect.new()
+		pin.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		pin.texture = pin_tex
 		pin.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		pin.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
