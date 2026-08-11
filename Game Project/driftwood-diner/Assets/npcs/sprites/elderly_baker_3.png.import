@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://un7ox81mjru"
-path="res://.godot/imported/musician_1.png-35d13fa73a7c367846ab4460863d28c6.ctex"
+uid="uid://qoj8a0s7pdri"
+path="res://.godot/imported/elderly_baker_3.png-f6f473bae4da9ebe18f897b0620c2aab.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/npcs/sprites/musician_1.png"
-dest_files=["res://.godot/imported/musician_1.png-35d13fa73a7c367846ab4460863d28c6.ctex"]
+source_file="res://Assets/npcs/sprites/elderly_baker_3.png"
+dest_files=["res://.godot/imported/elderly_baker_3.png-f6f473bae4da9ebe18f897b0620c2aab.ctex"]
 
 [params]
 

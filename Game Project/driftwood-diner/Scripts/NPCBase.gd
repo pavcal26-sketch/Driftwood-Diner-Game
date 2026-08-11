@@ -25,6 +25,8 @@ const NPC_COLORS: Dictionary = {
 const NPC_IDLE_FRAMES: Dictionary = {
 	"night_shift_guard": 7,
 	"storm_visitor": 3,
+	"musician": 2,
+	"elderly_baker": 9,
 }
 
 # what each NPC will eat. empty = anything goes.
@@ -146,7 +148,7 @@ func _load_spriter_scene(id: String) -> void:
 func _load_sprite(id: String) -> void:
 	# Try numbered frames first (_0, _1, etc.), then plain name
 	var frames: Array[Texture2D] = []
-	for i in range(8):
+	for i in range(12):
 		var path := "res://Assets/npcs/sprites/%s_%d.png" % [id, i]
 		var tex := _try_load_texture(path)
 		if tex:
