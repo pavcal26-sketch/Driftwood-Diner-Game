@@ -457,31 +457,36 @@ func _apply_weather(weather: String) -> void:
 	match weather:
 		"fog":
 			t.tween_property(fog, "modulate:a", 0.92, 4.0)
-			if _rain_particles:
-				_rain_particles.emitting = false
-			if _drizzle_particles:
-				_drizzle_particles.emitting = false
-			if _fog_particles:
-				_fog_particles.emitting = true
+			_fade_particles_out(t, _rain_particles)
+			_fade_particles_out(t, _drizzle_particles)
+			_fade_particles_in(t, _fog_particles)
 
 		"rain":
 			# rain gets particles + light fog for atmosphere
 			t.tween_property(fog, "modulate:a", 0.35, 3.0)
-			if _rain_particles:
-				_rain_particles.emitting = true
-			if _drizzle_particles:
-				_drizzle_particles.emitting = true
-			if _fog_particles:
-				_fog_particles.emitting = false
+			_fade_particles_in(t, _rain_particles)
+			_fade_particles_in(t, _drizzle_particles)
+			_fade_particles_out(t, _fog_particles)
 
 		_:  # "clear" and anything else
 			t.tween_property(fog, "modulate:a", 0.0, 5.0)
-			if _rain_particles:
-				_rain_particles.emitting = false
-			if _drizzle_particles:
-				_drizzle_particles.emitting = false
-			if _fog_particles:
-				_fog_particles.emitting = false
+			_fade_particles_out(t, _rain_particles)
+			_fade_particles_out(t, _drizzle_particles)
+			_fade_particles_out(t, _fog_particles)
+
+# -- particle fade helpers -- particles dissolve instead of popping out of existence
+func _fade_particles_in(tw: Tween, p: CPUParticles2D) -> void:
+	if p == null:
+		return
+	p.emitting = true
+	tw.tween_property(p, "modulate:a", 1.0, 1.5)
+
+func _fade_particles_out(tw: Tween, p: CPUParticles2D) -> void:
+	if p == null:
+		return
+	# stop spawning new ones, let existing ones fade
+	p.emitting = false
+	tw.tween_property(p, "modulate:a", 0.0, 3.0)
 
 # -----------------------------------------------------------------------
 # Weather particles — rain falls between the two background layers
