@@ -32,6 +32,7 @@ const NPC_IDLE_FRAMES: Dictionary = {
 	"drifting_merchant": 5,
 	"quiet_farmer": 9,
 	"harbour_worker": 6,
+	"washed_up_traveller": 9,
 }
 
 # what each NPC will eat. empty = anything goes.
