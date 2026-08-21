@@ -77,6 +77,7 @@ func _rebuild_sidebar() -> void:
 		var is_dish: bool   = item_id in _dishes
 		btn.text = ("★ " + display) if is_dish else display
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.custom_minimum_size = Vector2(0, 44)
 		if is_dish:
 			btn.modulate = Color(1.0, 0.92, 0.70)
 		btn.pressed.connect(_spawn_on_workspace.bind(item_id, is_dish))
@@ -123,6 +124,7 @@ func _rebuild_npc_panel() -> void:
 		var lbl := Label.new()
 		lbl.text = "No one waiting"
 		lbl.modulate = Color(0.5, 0.45, 0.38)
+		lbl.add_theme_font_size_override("font_size", 20)
 		npc_list.add_child(lbl)
 		return
 
@@ -130,6 +132,7 @@ func _rebuild_npc_panel() -> void:
 		var btn := Button.new()
 		var display: String = npc_id.replace("_", " ").capitalize()
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		btn.custom_minimum_size = Vector2(0, 52)
 
 		# preference hint
 		if NPCBase.NPC_PREFERENCES.has(npc_id):
@@ -149,6 +152,7 @@ func _rebuild_npc_panel() -> void:
 	var hint := Label.new()
 	hint.text = "First click a ★ dish on the\nworkspace, then press Serve."
 	hint.modulate = Color(0.6, 0.55, 0.48)
+	hint.add_theme_font_size_override("font_size", 18)
 	hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	npc_list.add_child(hint)
 

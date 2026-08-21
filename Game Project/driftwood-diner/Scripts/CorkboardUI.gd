@@ -123,7 +123,7 @@ func _build_ui() -> void:
 	_empty_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_empty_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	_empty_label.set_anchors_preset(Control.PRESET_FULL_RECT)
-	_empty_label.add_theme_font_size_override("font_size", 18)
+	_empty_label.add_theme_font_size_override("font_size", 24)
 	_empty_label.add_theme_color_override("font_color", Color(0.55, 0.45, 0.35, 0.7))
 	_board_container.add_child(_empty_label)
 
@@ -149,7 +149,7 @@ func _build_ui() -> void:
 	# Detail title
 	_detail_title = Label.new()
 	_detail_title.text = "— select an item to inspect —"
-	_detail_title.add_theme_font_size_override("font_size", 22)
+	_detail_title.add_theme_font_size_override("font_size", 28)
 	_detail_title.add_theme_color_override("font_color", Color(0.25, 0.20, 0.15))
 	_detail_title.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	detail_vbox.add_child(_detail_title)
@@ -157,7 +157,7 @@ func _build_ui() -> void:
 	# Detail giver
 	_detail_giver = Label.new()
 	_detail_giver.text = ""
-	_detail_giver.add_theme_font_size_override("font_size", 13)
+	_detail_giver.add_theme_font_size_override("font_size", 18)
 	_detail_giver.add_theme_color_override("font_color", Color(0.45, 0.38, 0.30))
 	detail_vbox.add_child(_detail_giver)
 
@@ -180,7 +180,7 @@ func _build_ui() -> void:
 	_detail_desc.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_detail_desc.bbcode_enabled = true
 	_detail_desc.text = ""
-	_detail_desc.add_theme_font_size_override("normal_font_size", 15)
+	_detail_desc.add_theme_font_size_override("normal_font_size", 20)
 	_detail_desc.add_theme_color_override("default_color", Color(0.20, 0.18, 0.15))
 	detail_vbox.add_child(_detail_desc)
 
@@ -334,7 +334,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 
 	var title_lbl := Label.new()
 	title_lbl.text = label
-	title_lbl.add_theme_font_size_override("font_size", 11)
+	title_lbl.add_theme_font_size_override("font_size", 15)
 	title_lbl.add_theme_color_override("font_color", Color(0.18, 0.15, 0.12))
 	title_lbl.clip_text = true              # single line, no height expansion
 	title_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -342,7 +342,7 @@ func _create_card(item_id: String, item_data: Dictionary, index: int, board_size
 
 	var giver_lbl := Label.new()
 	giver_lbl.text = "— " + giver.replace("_", " ").capitalize()
-	giver_lbl.add_theme_font_size_override("font_size", 9)
+	giver_lbl.add_theme_font_size_override("font_size", 13)
 	giver_lbl.add_theme_color_override("font_color", Color(0.35, 0.30, 0.25, 0.75))
 	giver_lbl.clip_text = true
 	giver_lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL

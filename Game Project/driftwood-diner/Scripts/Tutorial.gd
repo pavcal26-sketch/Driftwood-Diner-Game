@@ -96,8 +96,8 @@ func _build_ui() -> void:
 	_label = RichTextLabel.new()
 	_label.bbcode_enabled = true
 	_label.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	_label.add_theme_font_size_override("normal_font_size", 16)
-	_label.add_theme_font_size_override("bold_font_size", 18)
+	_label.add_theme_font_size_override("normal_font_size", 22)
+	_label.add_theme_font_size_override("bold_font_size", 24)
 	_label.add_theme_color_override("default_color", Color(0.22, 0.18, 0.14))
 	_label.fit_content = true
 	_label.scroll_active = false
@@ -107,7 +107,7 @@ func _build_ui() -> void:
 	_close_hint = Label.new()
 	_close_hint.text = "Click anywhere to dismiss"
 	_close_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_close_hint.add_theme_font_size_override("font_size", 12)
+	_close_hint.add_theme_font_size_override("font_size", 16)
 	_close_hint.add_theme_color_override("font_color", Color(0.5, 0.42, 0.35, 0.6))
 	vbox.add_child(_close_hint)
 

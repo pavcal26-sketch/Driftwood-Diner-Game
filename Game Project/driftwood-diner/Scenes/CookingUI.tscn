@@ -33,7 +33,7 @@ anchors_preset = -1
 anchor_bottom = 0.92
 offset_left = 12.0
 offset_top = 12.0
-offset_right = 280.0
+offset_right = 320.0
 offset_bottom = -12.0
 
 [node name="VBox" type="VBoxContainer" parent="Control/Sidebar" unique_id=538661770]
@@ -42,6 +42,7 @@ layout_mode = 2
 [node name="Title" type="Label" parent="Control/Sidebar/VBox" unique_id=367946504]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.79, 0.63, 0.36, 1)
+theme_override_font_sizes/font_size = 24
 text = "PANTRY"
 horizontal_alignment = 1
 
@@ -52,15 +53,15 @@ size_flags_vertical = 3
 [node name="ItemList" type="VBoxContainer" parent="Control/Sidebar/VBox/Scroll" unique_id=1309388267]
 layout_mode = 2
 size_flags_horizontal = 3
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 
 [node name="Workspace" type="Control" parent="Control" unique_id=650887889]
 clip_contents = true
 layout_mode = 1
 anchor_bottom = 0.92
-offset_left = 292.0
+offset_left = 332.0
 offset_top = 12.0
-offset_right = -280.0
+offset_right = -320.0
 offset_bottom = -12.0
 
 [node name="ServePanel" type="PanelContainer" parent="Control" unique_id=47852540]
@@ -69,7 +70,7 @@ anchors_preset = -1
 anchor_left = 1.0
 anchor_right = 1.0
 anchor_bottom = 0.92
-offset_left = -268.0
+offset_left = -308.0
 offset_top = 12.0
 offset_right = -12.0
 offset_bottom = -12.0
@@ -81,6 +82,7 @@ layout_mode = 2
 [node name="Title" type="Label" parent="Control/ServePanel/VBox" unique_id=825086237]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.79, 0.63, 0.36, 1)
+theme_override_font_sizes/font_size = 24
 text = "SERVE TO"
 horizontal_alignment = 1
 
@@ -96,7 +98,7 @@ theme_override_constants/separation = 6
 [node name="InfoBar" type="PanelContainer" parent="Control" unique_id=27901269]
 layout_mode = 1
 anchors_preset = -1
-anchor_top = 0.92
+anchor_top = 0.91
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 12.0
@@ -108,17 +110,18 @@ offset_bottom = -8.0
 layout_mode = 2
 
 [node name="ClearButton" type="Button" parent="Control/InfoBar/HBox" unique_id=4578129]
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(110, 44)
 layout_mode = 2
 text = "Clear All"
 
 [node name="InfoLabel" type="Label" parent="Control/InfoBar/HBox" unique_id=514035778]
 layout_mode = 2
 size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 20
 text = "Click any item on the left to place it, then drag items onto each other to combine."
 horizontal_alignment = 1
 
 [node name="CloseButton" type="Button" parent="Control/InfoBar/HBox" unique_id=89230588]
-custom_minimum_size = Vector2(80, 0)
+custom_minimum_size = Vector2(110, 44)
 layout_mode = 2
 text = "Close"

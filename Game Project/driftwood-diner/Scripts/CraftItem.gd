@@ -14,7 +14,7 @@ var label: Label = null
 func setup(id: String, dish: bool = false) -> void:
 	item_id = id
 	is_dish = dish
-	custom_minimum_size = Vector2(130, 42)
+	custom_minimum_size = Vector2(160, 48)
 
 	var card_style := StyleBoxFlat.new()
 	if dish:
@@ -25,7 +25,7 @@ func setup(id: String, dish: bool = false) -> void:
 		card_style.border_color = Color(0.35, 0.45, 0.55, 0.5)
 	card_style.set_border_width_all(1)
 	card_style.set_corner_radius_all(5)
-	card_style.set_content_margin_all(8)
+	card_style.set_content_margin_all(10)
 	card_style.shadow_color = Color(0, 0, 0, 0.3)
 	card_style.shadow_size = 3
 	card_style.shadow_offset = Vector2(1, 2)
@@ -45,6 +45,7 @@ func setup(id: String, dish: bool = false) -> void:
 	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	label.add_theme_color_override("font_color", Color(0.91, 0.86, 0.78, 1.0))
+	label.add_theme_font_size_override("font_size", 20)
 	label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	label.size_flags_vertical = Control.SIZE_EXPAND_FILL
 

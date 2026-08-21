@@ -240,7 +240,7 @@ func _show_ending_choice() -> void:
 	var title := Label.new()
 	title.text = "A Choice"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 32)
+	title.add_theme_font_size_override("font_size", 36)
 	title.add_theme_color_override("font_color", Color(0.79, 0.63, 0.36, 1.0))
 	vbox.add_child(title)
 	
@@ -249,7 +249,7 @@ func _show_ending_choice() -> void:
 	desc.text = "[center]You've saved enough. The Baker's story is told. The pressed flower sits framed on the corkboard.\n\nThe ferry leaves at dawn. You could be on it.\nOr you could stay. Keep the lights on. Wait for the next soul the tide brings in.\n\n[color=#b8a080]What will you do?[/color][/center]"
 	desc.fit_content = true
 	desc.scroll_active = false
-	desc.add_theme_font_size_override("normal_font_size", 16)
+	desc.add_theme_font_size_override("normal_font_size", 22)
 	desc.add_theme_color_override("default_color", Color(0.75, 0.72, 0.68))
 	vbox.add_child(desc)
 	
@@ -264,15 +264,15 @@ func _show_ending_choice() -> void:
 	
 	var leave_btn := Button.new()
 	leave_btn.text = "Leave the Island"
-	leave_btn.custom_minimum_size = Vector2(220, 55)
-	leave_btn.add_theme_font_size_override("font_size", 18)
+	leave_btn.custom_minimum_size = Vector2(250, 60)
+	leave_btn.add_theme_font_size_override("font_size", 22)
 	leave_btn.pressed.connect(func(): _on_ending_chosen("A"))
 	btn_box.add_child(leave_btn)
 	
 	var stay_btn := Button.new()
 	stay_btn.text = "Stay and Rebuild"
-	stay_btn.custom_minimum_size = Vector2(220, 55)
-	stay_btn.add_theme_font_size_override("font_size", 18)
+	stay_btn.custom_minimum_size = Vector2(250, 60)
+	stay_btn.add_theme_font_size_override("font_size", 22)
 	stay_btn.pressed.connect(func(): _on_ending_chosen("B"))
 	btn_box.add_child(stay_btn)
 	
@@ -629,7 +629,7 @@ func _build_recipe_book() -> void:
 	var title := Label.new()
 	title.text = "RECIPE BOOK"
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title.add_theme_font_size_override("font_size", 22)
+	title.add_theme_font_size_override("font_size", 28)
 	title.add_theme_color_override("font_color", Color(0.79, 0.63, 0.36, 1.0))
 	vbox.add_child(title)
 
@@ -640,12 +640,13 @@ func _build_recipe_book() -> void:
 	var list := VBoxContainer.new()
 	list.name = "RecipeList"
 	list.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	list.add_theme_constant_override("separation", 6)
+	list.add_theme_constant_override("separation", 8)
 	scroll.add_child(list)
 	_recipe_list = list   # store direct reference
 
 	var close_btn := Button.new()
 	close_btn.text = "Close  [R]"
+	close_btn.custom_minimum_size = Vector2(0, 48)
 	close_btn.pressed.connect(_toggle_recipes)
 	vbox.add_child(close_btn)
 
@@ -663,6 +664,7 @@ func _refresh_recipe_book() -> void:
 		var lbl := Label.new()
 		lbl.text = "No combinations discovered yet."
 		lbl.modulate = Color(0.5, 0.45, 0.38)
+		lbl.add_theme_font_size_override("font_size", 20)
 		list.add_child(lbl)
 		return
 
@@ -683,6 +685,7 @@ func _refresh_recipe_book() -> void:
 		var b: String = parts[1].replace("_", " ").capitalize()
 		var r: String = result.replace("_", " ").capitalize()
 		lbl.text = a + " + " + b + "  →  " + ("★ " if is_dish else "") + r
+		lbl.add_theme_font_size_override("font_size", 20)
 		if is_dish:
 			lbl.modulate = Color(0.95, 0.82, 0.5)
 		list.add_child(lbl)
