@@ -45,8 +45,18 @@ var _present_npcs: Array[String] = []
 var _counter_occupied: bool = false
 var _counter_queue: Array[String] = []
 
+# Estimated bounding widths for NPCs to prevent overlap when standing/seated
+const NPC_WIDTHS: Dictionary = {
+	"elderly_couple": 530.0,    # Two characters side by side (527px canvas)
+	"strange_child": 240.0,
+}
+const DEFAULT_NPC_WIDTH: float = 300.0
+const MIN_NPC_GAP: float = 30.0   # extra breathing room between bounding boxes
+
 # Seat positions across the diner width (1920px viewport)
-const SEAT_POSITIONS: Array[float] = [650.0, 800.0, 950.0, 1100.0, 1250.0, 1400.0]
+const SEAT_POSITIONS: Array[float] = [
+	660.0, 780.0, 900.0, 1020.0, 1140.0, 1260.0, 1380.0, 1500.0, 1620.0, 1740.0
+]
 var _used_seats: Dictionary = {}
 
 # weather particles
@@ -324,19 +334,33 @@ func spawn_npc(npc_id: String) -> void:
 	add_child(bell)
 	bell.play()
 
+func _get_npc_half_width(id: String) -> float:
+	return NPC_WIDTHS.get(id, DEFAULT_NPC_WIDTH) * 0.5
+
 func _assign_seat(npc_id: String) -> float:
-	# find the first unused seat position
+	var my_half_w: float = _get_npc_half_width(npc_id)
+
+	# find the first seat position that gives everyone their required breathing room
 	for sx in SEAT_POSITIONS:
-		var taken: bool = false
-		for used_seat: float in _used_seats.values():
-			if abs(used_seat - sx) < 10.0:
-				taken = true
+		var fits: bool = true
+		for other_id in _used_seats:
+			var other_sx: float = _used_seats[other_id]
+			var other_half_w: float = _get_npc_half_width(other_id)
+			var min_dist: float = my_half_w + other_half_w + MIN_NPC_GAP
+			if abs(sx - other_sx) < min_dist:
+				fits = false
 				break
-		if not taken:
+		if fits:
 			_used_seats[npc_id] = sx
 			return sx
-	# all seats taken — offset from last
-	var fallback: float = SEAT_POSITIONS[-1] + (_used_seats.size() * 80.0)
+
+	# all predefined seats blocked — place to the right of the furthest occupied spot
+	var max_x: float = SEAT_POSITIONS[0]
+	for other_id in _used_seats:
+		var other_right: float = _used_seats[other_id] + _get_npc_half_width(other_id)
+		if other_right > max_x:
+			max_x = other_right
+	var fallback: float = max_x + MIN_NPC_GAP + my_half_w
 	_used_seats[npc_id] = fallback
 	return fallback
 
@@ -457,36 +481,38 @@ func _apply_weather(weather: String) -> void:
 	match weather:
 		"fog":
 			t.tween_property(fog, "modulate:a", 0.92, 4.0)
-			_fade_particles_out(t, _rain_particles)
-			_fade_particles_out(t, _drizzle_particles)
-			_fade_particles_in(t, _fog_particles)
+			_fade_particles_out(t, _rain_particles, 2.5)
+			_fade_particles_out(t, _drizzle_particles, 2.5)
+			_fade_particles_in(t, _fog_particles, 4.0)
 
 		"rain":
 			# rain gets particles + light fog for atmosphere
 			t.tween_property(fog, "modulate:a", 0.35, 3.0)
-			_fade_particles_in(t, _rain_particles)
-			_fade_particles_in(t, _drizzle_particles)
-			_fade_particles_out(t, _fog_particles)
+			_fade_particles_in(t, _rain_particles, 2.0)
+			_fade_particles_in(t, _drizzle_particles, 2.0)
+			_fade_particles_out(t, _fog_particles, 3.5)
 
 		_:  # "clear" and anything else
-			t.tween_property(fog, "modulate:a", 0.0, 5.0)
-			_fade_particles_out(t, _rain_particles)
-			_fade_particles_out(t, _drizzle_particles)
-			_fade_particles_out(t, _fog_particles)
+			t.tween_property(fog, "modulate:a", 0.0, 4.0)
+			_fade_particles_out(t, _rain_particles, 3.0)
+			_fade_particles_out(t, _drizzle_particles, 3.0)
+			_fade_particles_out(t, _fog_particles, 4.0)
 
-# -- particle fade helpers -- particles dissolve instead of popping out of existence
-func _fade_particles_in(tw: Tween, p: CPUParticles2D) -> void:
+# -- particle fade helpers -- particles dissolve smoothly instead of popping
+func _fade_particles_in(tw: Tween, p: CPUParticles2D, duration: float = 3.5) -> void:
 	if p == null:
 		return
 	p.emitting = true
-	tw.tween_property(p, "modulate:a", 1.0, 1.5)
+	tw.tween_property(p, "modulate:a", 1.0, duration)
 
-func _fade_particles_out(tw: Tween, p: CPUParticles2D) -> void:
+func _fade_particles_out(tw: Tween, p: CPUParticles2D, duration: float = 4.0) -> void:
 	if p == null:
 		return
-	# stop spawning new ones, let existing ones fade
-	p.emitting = false
-	tw.tween_property(p, "modulate:a", 0.0, 3.0)
+	tw.tween_property(p, "modulate:a", 0.0, duration)
+	tw.chain().tween_callback(func():
+		if is_instance_valid(p) and p.modulate.a <= 0.05:
+			p.emitting = false
+	)
 
 # -----------------------------------------------------------------------
 # Weather particles — rain falls between the two background layers
@@ -497,6 +523,7 @@ func _setup_weather_effects() -> void:
 	# main rain streaks — visible through the window cutout
 	_rain_particles = CPUParticles2D.new()
 	_rain_particles.emitting = false
+	_rain_particles.modulate.a = 0.0
 	_rain_particles.amount = 200
 	_rain_particles.lifetime = 0.9
 	_rain_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
@@ -516,6 +543,7 @@ func _setup_weather_effects() -> void:
 	# fine drizzle — smaller, slower, more transparent
 	_drizzle_particles = CPUParticles2D.new()
 	_drizzle_particles.emitting = false
+	_drizzle_particles.modulate.a = 0.0
 	_drizzle_particles.amount = 100
 	_drizzle_particles.lifetime = 1.1
 	_drizzle_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
@@ -534,9 +562,9 @@ func _setup_weather_effects() -> void:
 	# fog particles - soft drifting mist shapes
 	_fog_particles = CPUParticles2D.new()
 	_fog_particles.emitting = false
+	_fog_particles.modulate.a = 0.0
 	_fog_particles.amount = 45
 	_fog_particles.lifetime = 12.0
-	_fog_particles.preprocess = 10.0
 	_fog_particles.emission_shape = CPUParticles2D.EMISSION_SHAPE_RECTANGLE
 	_fog_particles.emission_rect_extents = Vector2(vp.x * 0.5, vp.y * 0.5)
 	_fog_particles.position = vp * 0.5
