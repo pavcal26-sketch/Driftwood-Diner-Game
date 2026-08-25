@@ -23,6 +23,19 @@ func _ready() -> void:
 	_update_clock(GameManager.game_hour)
 	update_savings(Economy.savings)
 	
+	var mute_toggle = $Control/ActionButtons/MuteToggle
+	mute_toggle.button_pressed = AudioServer.is_bus_mute(AudioServer.get_bus_index("Master"))
+	mute_toggle.toggled.connect(func(toggled_on: bool):
+		var master_idx = AudioServer.get_bus_index("Master")
+		AudioServer.set_bus_mute(master_idx, toggled_on)
+	)
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_M:
+			var mute_toggle = $Control/ActionButtons/MuteToggle
+			mute_toggle.button_pressed = not mute_toggle.button_pressed
+	
 	_passage_btn = Button.new()
 	_passage_btn.text = "Passage ($5K)"
 	_passage_btn.custom_minimum_size = Vector2(160, 44)

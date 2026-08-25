@@ -784,29 +784,25 @@ func _schedule_phase_spawns(phase: String) -> void:
 		_spawn_timer.stop()
 		return
 		
-	# Start recurring spawn checks during evening and night (check every 20-30s)
-	_spawn_timer.wait_time = randf_range(20.0, 30.0)
+	# If timer is already running, don't restart it (prevents double-triggering on boot)
+	if not _spawn_timer.is_stopped():
+		return
+		
+	# Start recurring spawn checks during evening and night
+	# First customer of the evening arrives between 4 and 10 seconds in
+	_spawn_timer.wait_time = randf_range(4.0, 10.0)
 	_spawn_timer.start()
-	
-	# Also spawn 1-2 initial customers immediately (with short delays)
-	var count := randi_range(1, 2)
-	for i in range(count):
-		var delay := randf_range(1.0, 5.0)
-		get_tree().create_timer(delay).timeout.connect(func():
-			if not _transitioning and GameManager.current_phase in ["evening", "night"]:
-				_spawn_random_npc()
-		)
 
 func _on_spawn_timer_timeout() -> void:
 	if _transitioning or GameManager.current_phase not in ["evening", "night"]:
 		return
 		
-	# Limit maximum simultaneous NPCs in diner to 4
+	# Limit maximum simultaneous NPCs in diner to 3 or 4
 	if _present_npcs.size() < 4:
 		_spawn_random_npc()
 		
-	# Randomize next spawn check time
-	_spawn_timer.wait_time = randf_range(25.0, 45.0)
+	# Randomize next spawn check time so they stagger nicely instead of swarming
+	_spawn_timer.wait_time = randf_range(35.0, 60.0)
 
 func _spawn_random_npc() -> void:
 	var full_pool: Array[String] = [

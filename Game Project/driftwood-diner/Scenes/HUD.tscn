@@ -102,3 +102,8 @@ text = "Corkboard  [K]"
 custom_minimum_size = Vector2(160, 48)
 size_flags_horizontal = 3
 text = "Sleep  [N]"
+
+[node name="MuteToggle" type="CheckButton" parent="Control/ActionButtons"]
+custom_minimum_size = Vector2(160, 48)
+size_flags_horizontal = 3
+text = "Mute [M]"

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://d3bmlscerfyqc"
-path="res://.godot/imported/failing_fisherman_1.png-f8ebfbafe74566aa1614948207993b8c.ctex"
+uid="uid://b06tgs2hs11pv"
+path="res://.godot/imported/lighthouse_keeper_2.png-0c8dac1968fdd24c63bf3d3233660f17.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Assets/npcs/iso/failing_fisherman_1.png"
-dest_files=["res://.godot/imported/failing_fisherman_1.png-f8ebfbafe74566aa1614948207993b8c.ctex"]
+source_file="res://Assets/npcs/sprites/lighthouse_keeper_2.png"
+dest_files=["res://.godot/imported/lighthouse_keeper_2.png-0c8dac1968fdd24c63bf3d3233660f17.ctex"]
 
 [params]
 
