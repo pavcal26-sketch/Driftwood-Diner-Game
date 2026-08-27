@@ -30,12 +30,6 @@ func _ready() -> void:
 		AudioServer.set_bus_mute(master_idx, toggled_on)
 	)
 
-func _input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_M:
-			var mute_toggle = $Control/ActionButtons/MuteToggle
-			mute_toggle.button_pressed = not mute_toggle.button_pressed
-	
 	_passage_btn = Button.new()
 	_passage_btn.text = "Passage ($5K)"
 	_passage_btn.custom_minimum_size = Vector2(160, 44)
@@ -46,6 +40,12 @@ func _input(event: InputEvent) -> void:
 	
 	if Economy.savings >= 5000:
 		_passage_btn.visible = true
+
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_M:
+			var mute = $Control/ActionButtons/MuteToggle
+			mute.button_pressed = not mute.button_pressed
 
 func _on_passage_unlocked() -> void:
 	_passage_btn.visible = true

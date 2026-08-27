@@ -406,6 +406,9 @@ func _on_npc_at_counter(npc_id: String) -> void:
 
 func _on_dialogue_finished(_npc_id: String) -> void:
 	_unpause_all_npcs()
+	if _pending_day_advance:
+		_pending_day_advance = false
+		_advance_day()
 
 # -----------------------------------------------------------------------
 # NPC pause/unpause — freezes timers, tweens, and process during dialogue
@@ -451,9 +454,8 @@ func _apply_lighting(hour: float) -> void:
 		night_factor = (hour - 18.0) / 2.0  # fade in 18-20
 	elif hour >= 5.0 and hour < 7.0:
 		night_factor = 1.0 - ((hour - 5.0) / 2.0)  # fade out 5-7
-
-	day_win.modulate.a = 1.0 - night_factor
-	night_win.modulate.a = night_factor
+	# Window overlays are untextured, skipping their modulation to save processing
+	pass
 
 func _lerp_lighting(hour: float) -> Color:
 	# find the two table entries we're between and lerp
@@ -467,11 +469,6 @@ func _lerp_lighting(hour: float) -> Color:
 	return LIGHTING_TABLE[0]["color"]
 
 func _apply_weather(weather: String) -> void:
-	var fog = windows.get_node("FogOverlay")
-	var static_rain = windows.get_node("Rain")
-	static_rain.visible = false
-	fog.visible = true
-
 	# kill any leftover weather tween so they don't fight
 	if _weather_tween and _weather_tween.is_valid():
 		_weather_tween.kill()
@@ -480,20 +477,17 @@ func _apply_weather(weather: String) -> void:
 
 	match weather:
 		"fog":
-			t.tween_property(fog, "modulate:a", 0.92, 4.0)
 			_fade_particles_out(t, _rain_particles, 2.5)
 			_fade_particles_out(t, _drizzle_particles, 2.5)
 			_fade_particles_in(t, _fog_particles, 4.0)
 
 		"rain":
 			# rain gets particles + light fog for atmosphere
-			t.tween_property(fog, "modulate:a", 0.35, 3.0)
 			_fade_particles_in(t, _rain_particles, 2.0)
 			_fade_particles_in(t, _drizzle_particles, 2.0)
 			_fade_particles_out(t, _fog_particles, 3.5)
 
 		_:  # "clear" and anything else
-			t.tween_property(fog, "modulate:a", 0.0, 4.0)
 			_fade_particles_out(t, _rain_particles, 3.0)
 			_fade_particles_out(t, _drizzle_particles, 3.0)
 			_fade_particles_out(t, _fog_particles, 4.0)
@@ -726,10 +720,13 @@ func _close_all_ui() -> void:
 	corkboard_ui.visible = false
 	hud.visible = true
 
+var _pending_day_advance: bool = false
+
 func _advance_day() -> void:
 	if _transitioning:
 		return
 	if counter_view and counter_view.visible:
+		_pending_day_advance = true
 		return
 	_do_day_transition()
 	tutorial.on_day_advanced()

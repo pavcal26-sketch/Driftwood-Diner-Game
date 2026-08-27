@@ -194,7 +194,8 @@ func _build_ui() -> void:
 # Load item thumbnail — looks in Assets/corkboard/items/{item_id}.png
 # -----------------------------------------------------------------------
 func _load_item_image(item_id: String) -> Texture2D:
-	var path := "res://Assets/corkboard/items/cb_%s.png" % item_id
+	var fname := item_id if item_id.begins_with("cb_") else ("cb_" + item_id)
+	var path := "res://Assets/corkboard/items/%s.png" % fname
 	return _try_load_tex(path)
 
 # -----------------------------------------------------------------------

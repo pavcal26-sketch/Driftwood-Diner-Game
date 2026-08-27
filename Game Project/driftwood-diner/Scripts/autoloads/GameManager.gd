@@ -42,9 +42,6 @@ func _process(delta: float) -> void:
 	
 	var new_phase: String = _phase_from_hour(game_hour)
 	
-	if old_phase == "night" and new_phase == "dawn":
-		SignalBus.day_phase_changed.emit(new_phase)
-		
 	current_phase = new_phase
 	
 	# emit clock_tick every game-minute

@@ -3,8 +3,7 @@ extends Node
 # Tracks player savings and handles the two ending thresholds.
 # Diminishing returns: serving the same dish to the same NPC pays less each time.
 
-const PASSAGE_COST   := 5000   # Ending A — leave the island
-const STAY_UPGRADE   := 6000   # Ending B — upgrade and stay
+const PASSAGE_COST   := 5000   # Ending A — leave the island (also unlocks Stay ending choice)
 
 # payment multiplier curve — first time full, then drops
 # index = times_served_before (clamped to last entry)
@@ -15,7 +14,6 @@ var _active_npc_id: String = ""   # who's at the counter right now
 var _serve_history: Dictionary = {}  # "npc_id::dish_id" -> int (times served)
 
 var _passage_unlocked_fired: bool = false
-var _stay_triggered: bool = false
 
 func _ready() -> void:
 	SignalBus.npc_served.connect(_on_npc_served)
@@ -67,12 +65,11 @@ func get_save_data() -> Dictionary:
 	return {
 		"savings": savings, 
 		"serve_history": _serve_history,
-		"passage_unlocked": _passage_unlocked_fired,
-		"stay_triggered": _stay_triggered
+		"passage_unlocked": _passage_unlocked_fired
 	}
 
 func load_save_data(data: Dictionary) -> void:
 	savings = data.get("savings", 0)
 	_serve_history = data.get("serve_history", {})
 	_passage_unlocked_fired = data.get("passage_unlocked", false)
-	_stay_triggered = data.get("stay_triggered", false)
+	SignalBus.savings_changed.emit(savings)
