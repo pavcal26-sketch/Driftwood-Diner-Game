@@ -27,11 +27,11 @@ const NPC_IDLE_FRAMES: Dictionary = {
 	"storm_visitor": 3,
 	"musician": 2,
 	"elderly_baker": 9,
-	"newcomer": 2,
+	"newcomer": 7,
 	"strange_child": 8,
 	"drifting_merchant": 5,
 	"quiet_farmer": 0,
-	"harbour_worker": 6,
+	"harbour_worker": 3,
 	"washed_up_traveller": 9,
 	"elderly_couple": 7,
 	"soup_regular": 7,
@@ -44,32 +44,32 @@ const NPC_IDLE_FRAMES: Dictionary = {
 # but "stew" would match "fish_stew". use dish IDs or partial keywords.
 const NPC_PREFERENCES: Dictionary = {
 	"soup_regular": {
-		"accepts": ["soup", "chowder", "broth", "stew"],
+		"accepts": ["soup", "chowder", "broth", "stew", "brine"],
 		"happy": ["This is exactly what I needed.", "Thank you. Really.", "...perfect."],
 		"wrong": ["I... only really eat soup.", "Sorry. I can't.", "Just soup. Please."],
 	},
 	"elderly_baker": {
-		"accepts": ["bread", "cake", "pie", "toast", "pastry", "honey"],
+		"accepts": ["bread", "cake", "pie", "toast", "pastry", "honey", "tart", "loaf", "bun", "cookie"],
 		"happy": ["Your technique is improving.", "Acceptable. More than acceptable.", "She'd approve of this."],
 		"wrong": ["I appreciate the effort, but this isn't really my area.", "I'll pass. Try something baked."],
 	},
 	"failing_fisherman": {
-		"accepts": ["fish", "seafood", "chowder", "clam", "ocean", "smoked"],
+		"accepts": ["fish", "seafood", "chowder", "clam", "ocean", "smoked", "catch", "sailor", "lighthouse", "banquet"],
 		"happy": ["Good catch.", "That's proper fish. None of that mainland nonsense.", "...reminds me of the good days."],
 		"wrong": ["I eat fish. You know that.", "What is this? Where's the fish?"],
 	},
 	"musician": {
-		"accepts": ["cake", "pie", "honey", "berry", "apple", "dessert", "festival", "sweet"],
+		"accepts": ["cake", "pie", "honey", "berry", "apple", "dessert", "festival", "sweet", "tart"],
 		"happy": ["Sweet things help. They always have.", "This is lovely. Thank you.", "I might write something tonight."],
 		"wrong": ["I usually go for something sweet...", "Not quite my thing. But thanks."],
 	},
 	"strange_child": {
-		"accepts": ["cake", "pie", "honey", "berry", "apple", "cookie", "sweet", "festival"],
+		"accepts": ["cake", "pie", "honey", "berry", "apple", "cookie", "sweet", "festival", "tart"],
 		"happy": ["This is SO good.", "You're the best cook ever.", "Can I have another one tomorrow?"],
 		"wrong": ["I don't really like that kind of thing...", "Do you have anything sweet?"],
 	},
 	"quiet_farmer": {
-		"accepts": ["stew", "soup", "bread", "vegetable", "hearty", "garden", "comfort"],
+		"accepts": ["stew", "soup", "bread", "vegetable", "hearty", "garden", "comfort", "harvest", "mushroom", "broth", "root"],
 		"happy": ["*nods approvingly*", "Good. Real good.", "Keep the change."],
 		"wrong": ["*looks at it skeptically*", "I'll eat it. But next time, something heavier."],
 	},

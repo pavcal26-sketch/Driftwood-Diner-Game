@@ -573,8 +573,9 @@ func _setup_weather_effects() -> void:
 	_fog_particles.gravity = Vector2.ZERO
 	_fog_particles.initial_velocity_min = 10.0
 	_fog_particles.initial_velocity_max = 30.0
-	_fog_particles.scale_amount_min = 120.0
-	_fog_particles.scale_amount_max = 300.0
+	_fog_particles.texture = preload("res://Assets/UI/fog_particle.png")
+	_fog_particles.scale_amount_min = 3.0 # 64px * 3 = ~192px
+	_fog_particles.scale_amount_max = 6.0 # 64px * 6 = ~384px
 	_fog_particles.color = Color(0.8, 0.82, 0.88, 0.28)
 	
 	# Gradient to fade in and out smoothly
@@ -780,29 +781,33 @@ func _schedule_phase_spawns(phase: String) -> void:
 	if _transitioning:
 		return
 	
-	if phase == "dawn" or phase == "day":
-		_spawn_timer.stop()
-		return
-		
 	# If timer is already running, don't restart it (prevents double-triggering on boot)
 	if not _spawn_timer.is_stopped():
 		return
 		
-	# Start recurring spawn checks during evening and night
-	# First customer of the evening arrives between 4 and 10 seconds in
+	# Start recurring spawn checks for the full day
+	# First customer arrives between 4 and 10 seconds in
 	_spawn_timer.wait_time = randf_range(4.0, 10.0)
 	_spawn_timer.start()
 
 func _on_spawn_timer_timeout() -> void:
-	if _transitioning or GameManager.current_phase not in ["evening", "night"]:
+	if _transitioning:
 		return
 		
 	# Limit maximum simultaneous NPCs in diner to 3 or 4
 	if _present_npcs.size() < 4:
 		_spawn_random_npc()
 		
-	# Randomize next spawn check time so they stagger nicely instead of swarming
-	_spawn_timer.wait_time = randf_range(35.0, 60.0)
+	# Randomize next spawn check time based on time of day (rushes)
+	var phase = GameManager.current_phase
+	if phase == "dawn":
+		_spawn_timer.wait_time = randf_range(15.0, 25.0) # Breakfast rush
+	elif phase == "day":
+		_spawn_timer.wait_time = randf_range(25.0, 45.0) # Steady lunch flow
+	elif phase == "evening":
+		_spawn_timer.wait_time = randf_range(15.0, 30.0) # Dinner rush
+	else: # night
+		_spawn_timer.wait_time = randf_range(40.0, 70.0) # Quiet late night
 
 func _spawn_random_npc() -> void:
 	var full_pool: Array[String] = [
